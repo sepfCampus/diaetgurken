@@ -7,8 +7,6 @@
 .buildlog/
 .history
 
-
-
 # Flutter repo-specific
 /bin/cache/
 /bin/internal/bootstrap.bat
@@ -117,3 +115,51 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+.out/
+
+# Cache
+.cache/
+.parcel-cache/
+.vite/
+.eslintcache
+
+# Logs
+logs/
+*.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional: coverage
+coverage/
+
+backend/secrets/
