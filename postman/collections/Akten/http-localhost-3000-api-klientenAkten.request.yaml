@@ -1,0 +1,8 @@
+$kind: http-request
+name: http://localhost:3000/api/klientenAkten
+url: http://localhost:3000/api/klientenAkten
+method: POST
+body:
+  type: json
+  content: ""
+order: 3242863388644832

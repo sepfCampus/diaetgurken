@@ -1,0 +1,5 @@
+$kind: http-request
+name: Create KlientenAkte
+method: POST
+url: '{{baseUrl}}/klientenAkten'
+order: 2000

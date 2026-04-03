@@ -1,0 +1,5 @@
+$kind: http-request
+name: Who Am I
+method: GET
+url: '{{baseUrl}}/auth/whoami'
+order: 4000
