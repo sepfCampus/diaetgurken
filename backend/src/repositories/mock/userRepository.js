@@ -23,9 +23,29 @@ function create(userData) {
     return newUser;
 }
 
+function update(id, updatedData) {
+    const user = findById(id);
+    if (!user) {
+        return null;
+    }
+    Object.assign(user, updatedData);
+    return user;
+}
+
+function deleteById(id) {
+    const index = users.findIndex((user) => user.id === id);
+    if (index === -1) {
+        return false;
+    }
+    users.splice(index, 1);
+    return true;
+}
+
 module.exports = {
     findByEmail,
     findByRegisterNr,
     findById,
     create,
+    update,
+    deleteById,
 };
