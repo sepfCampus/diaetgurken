@@ -2,7 +2,7 @@ const userRepository = require("../repositories/mock/userRepository");
 const { hashPassword } = require("../utils/passwordUtil");
 const ApiError = require("../utils/ApiError");
 
-async function deleteCurrentUser(session) {
+function deleteCurrentUser(session) {
     if (!session?.userId) {
         throw new ApiError(401, "Nicht eingeloggt");
     }

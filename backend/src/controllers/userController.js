@@ -12,7 +12,12 @@ async function updateUser(req, res, next) {
 async function deleteUser(req, res, next) {
     try {
         await userService.deleteCurrentUser(req.session);
-        res.status(204).send();
+        req.session.destroy((err) => {
+            if (err) {
+                return next(err);
+            }
+            res.status(204).send();
+        });
     } catch (err) {
         next(err);
     }
