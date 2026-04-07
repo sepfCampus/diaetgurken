@@ -1,14 +1,16 @@
 require("dotenv/config");
 
 const { PrismaClient } = require("@prisma/client");
-const { PrismaBetterSqlite3 } = require("@prisma/adapter-better-sqlite3");
+const { PrismaPg } = require("@prisma/adapter-pg");
 
-const adapter = new PrismaBetterSqlite3({
-    url: process.env.DATABASE_URL,
+const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL,
 });
 
-const prisma = new PrismaClient({
-    adapter,
-});
+const prisma = new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV === "test" && !process.env.DATABASE_URL.includes("test")) {
+    throw new Error("Tests dürfen nur gegen die Test-Datenbank laufen!");
+}
 
 module.exports = prisma;
