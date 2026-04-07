@@ -1,6 +1,6 @@
-const klarnameRepository = require("../repositories/mock/klarnameRepository");
-const klientenAkteRepository = require("../repositories/mock/klientenAkteRepository");
-const userRepository = require("../repositories/mock/userRepository");
+const klarnameRepository = require("../repositories/prisma/klarnameRepositoryPrisma");
+const klientenAkteRepository = require("../repositories/prisma/klientenAkteRepositoryPrisma");
+const userRepository = require("../repositories/prisma/userRepositoryPrisma");
 const { comparePassword } = require("../utils/passwordUtil");
 const ApiError = require("../utils/ApiError");
 
@@ -13,7 +13,7 @@ async function getKlarname({ klientenAkteId, password }, session) {
         throw new ApiError(400, "KlientenakteId und Passwort sind erforderlich");
     }
 
-    const akte = klientenAkteRepository.findById(Number(klientenAkteId));
+    const akte = await klientenAkteRepository.findById(Number(klientenAkteId));
     if (!akte) {
         throw new ApiError(404, "Klientenakte nicht gefunden");
     }
@@ -22,7 +22,7 @@ async function getKlarname({ klientenAkteId, password }, session) {
         throw new ApiError(403, "Kein Zugriff auf diese Klientenakte");
     }
 
-    const user = userRepository.findById(session.userId);
+    const user = await userRepository.findById(session.userId);
     if (!user) {
         throw new ApiError(404, "Benutzer nicht gefunden");
     }
@@ -32,7 +32,7 @@ async function getKlarname({ klientenAkteId, password }, session) {
         throw new ApiError(401, "Passwort ist nicht korrekt");
     }
 
-    const klarname = klarnameRepository.findByKlientenAkteId(Number(klientenAkteId));
+    const klarname = await klarnameRepository.findByKlientenAkteId(Number(klientenAkteId));
 
     if (!klarname) {
         throw new ApiError(404, "Kein Klarname für diese Klientenakte gefunden");
@@ -50,7 +50,7 @@ async function updateKlarname({ klientenAkteId, password, name }, session) {
         throw new ApiError(400, "KlientenakteId, Passwort und Name sind erforderlich");
     }
 
-    const akte = klientenAkteRepository.findById(Number(klientenAkteId));
+    const akte = await klientenAkteRepository.findById(Number(klientenAkteId));
     if (!akte) {
         throw new ApiError(404, "Klientenakte nicht gefunden");
     }
@@ -59,7 +59,7 @@ async function updateKlarname({ klientenAkteId, password, name }, session) {
         throw new ApiError(403, "Kein Zugriff auf diese Klientenakte");
     }
 
-    const user = userRepository.findById(session.userId);
+    const user = await userRepository.findById(session.userId);
     if (!user) {
         throw new ApiError(404, "Benutzer nicht gefunden");
     }
@@ -69,10 +69,7 @@ async function updateKlarname({ klientenAkteId, password, name }, session) {
         throw new ApiError(401, "Passwort ist nicht korrekt");
     }
 
-    return klarnameRepository.upsert({
-        klientenAkteId: Number(klientenAkteId),
-        name,
-    });
+    return await klarnameRepository.upsert(Number(klientenAkteId), name);
 }
 
 module.exports = {

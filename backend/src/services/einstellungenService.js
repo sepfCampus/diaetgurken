@@ -1,12 +1,12 @@
-const einstellungenRepository = require('../repositories/mock/einstellungenRepository');
+const einstellungenRepository = require('../repositories/prisma/einstellungenRepositoryPrisma');
 const ApiError = require('../utils/ApiError');
 
-function getforCurrentUser(session) {
+async function getforCurrentUser(session) {
     if (!session?.userId) {
         throw new ApiError(401, 'Nicht eingeloggt');
     }
 
-    const existing = einstellungenRepository.findByUserId(session.userId);
+    const existing = await einstellungenRepository.findByUserId(session.userId);
 
     if (existing) {
         return existing;
@@ -19,7 +19,7 @@ function getforCurrentUser(session) {
     };
 }
 
-function updateEinstellungen({ farbdarstellung, schriftgroesse }, session) {
+async function updateEinstellungen({ farbdarstellung, schriftgroesse }, session) {
     if (!session?.userId) {
         throw new ApiError(401, 'Nicht eingeloggt');
     }
@@ -28,11 +28,11 @@ function updateEinstellungen({ farbdarstellung, schriftgroesse }, session) {
         throw new ApiError(400, 'Farbdarstellung und Schriftgröße sind erforderlich');
     }
 
-    return einstellungenRepository.upsert({
-        userId: session.userId,
-        farbdarstellung: farbdarstellung,
-        schriftgroesse: schriftgroesse,
-    });
+    return await einstellungenRepository.upsert(
+        session.userId,
+        farbdarstellung,
+        schriftgroesse,
+    );
 }
 
 module.exports = {

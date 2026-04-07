@@ -29,7 +29,7 @@ async function logout(req, res, next) {
 
 async function whoami(req, res, next) {
     try {
-        const result = authService.whoami(req.session);
+        const result = await authService.whoami(req.session);
         res.status(200).json(result);
     } catch (err) {
         next(err);

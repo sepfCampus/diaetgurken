@@ -1,28 +1,28 @@
-const klientenAkteRepository = require("../repositories/mock/klientenAkteRepository");
+const klientenAkteRepository = require("../repositories/prisma/klientenAkteRepositoryPrisma");
 const ApiError = require("../utils/ApiError");
 
-function getAllForCurrentUser(session) {
+async function getAllForCurrentUser(session) {
     if (!session?.userId) {
         throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    return klientenAkteRepository.findByUserId(session.userId);
+    return await klientenAkteRepository.findByUserId(session.userId);
 }
 
-function createForCurrentUser(session) {
+async function createForCurrentUser(session) {
     if (!session?.userId) {
         throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    return klientenAkteRepository.create(session.userId);
+    return await klientenAkteRepository.create(session.userId);
 }
 
-function deleteForCurrentUser(akteId, session) {
+async function deleteForCurrentUser(akteId, session) {
     if (!session?.userId) {
         throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    const akte = klientenAkteRepository.findById(Number(akteId));
+    const akte = await klientenAkteRepository.findById(Number(akteId));
 
     if (!akte) {
         throw new ApiError(404, "Klientenakte nicht gefunden");
@@ -32,7 +32,7 @@ function deleteForCurrentUser(akteId, session) {
         throw new ApiError(403, "Kein Zugriff auf diese Klientenakte");
     }
 
-    klientenAkteRepository.deleteById(akte.id);
+    await klientenAkteRepository.deleteById(akte.id);
 }
 
 module.exports = {

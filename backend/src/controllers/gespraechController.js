@@ -1,8 +1,8 @@
 const gespraechService = require("../services/gespraechService");
 
-function getAll(req, res, next) {
+async function getAll(req, res, next) {
     try {
-        const result = gespraechService.getAllForKlientenAkte(
+        const result = await gespraechService.getAllForKlientenAkte(
             req.params.klientenAkteId,
             req.session
         );
@@ -12,27 +12,27 @@ function getAll(req, res, next) {
     }
 }
 
-function create(req, res, next) {
+async function create(req, res, next) {
     try {
-        const result = gespraechService.createForCurrentUser(req.body, req.session);
+        const result = await gespraechService.createForCurrentUser(req.body, req.session);
         res.status(201).json(result);
     } catch (err) {
         next(err);
     }
 }
 
-function update(req, res, next) {
+async function update(req, res, next) {
     try {
-        const result = gespraechService.updateForCurrentUser(req.body, req.session);
+        const result = await gespraechService.updateForCurrentUser(req.body, req.session);
         res.status(200).json(result);
     } catch (err) {
         next(err);
     }
 }
 
-function remove(req, res, next) {
+async function remove(req, res, next) {
     try {
-        gespraechService.deleteForCurrentUser(req.params.id, req.session);
+        await gespraechService.deleteForCurrentUser(req.params.id, req.session);
         res.status(204).send();
     } catch (err) {
         next(err);

@@ -1,4 +1,4 @@
-const userRepository = require("../repositories/mock/userRepository");
+const userRepository = require("../repositories/prisma/userRepositoryPrisma");
 const { hashPassword, comparePassword } = require("../utils/passwordUtil");
 const ApiError = require("../utils/ApiError");
 
@@ -7,19 +7,19 @@ async function register({ email, password, registerNr }) {
         throw new ApiError(400, "Email, Passwort und Registernummer sind erforderlich");
     }
 
-    const existingEmail = userRepository.findByEmail(email);
+    const existingEmail = await userRepository.findByEmail(email);
     if (existingEmail) {
         throw new ApiError(409, "E-Mail ist bereits registriert");
     }
 
-    const existingRegisterNr = userRepository.findByRegisterNr(registerNr);
+    const existingRegisterNr = await userRepository.findByRegisterNr(registerNr);
     if (existingRegisterNr) {
         throw new ApiError(409, "Registernummer ist bereits registriert");
     }
 
     const passwordHash = await hashPassword(password);
 
-    const user = userRepository.create({
+    const user = await userRepository.create({
         email,
         registerNr,
         passwordHash,
@@ -37,7 +37,7 @@ async function login({ email, password }, session) {
         throw new ApiError(400, "Email und Passwort sind erforderlich");
     }
 
-    const user = userRepository.findByEmail(email);
+    const user = await userRepository.findByEmail(email);
     if (!user) {
         throw new ApiError(401, "Ungültige Anmeldedaten");
     }
@@ -68,12 +68,12 @@ async function logout(session) {
     });
 }
 
-function whoami(session) {
+async function whoami(session) {
     if (!session?.userId) {
         throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    const user = userRepository.findById(session.userId);
+    const user = await userRepository.findById(session.userId);
     if (!user) {
         throw new ApiError(404, "Benutzer nicht gefunden");
     }

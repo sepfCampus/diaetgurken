@@ -1,132 +1,96 @@
-const gespraechRepository = require('../repositories/mock/gespraechRepository');
-const ApiError = require('../utils/ApiError');
-const klientenAktenRepository = require('../repositories/mock/klientenAkteRepository');
+const gespraechRepository = require("../repositories/prisma/gespraechRepositoryPrisma");
+const klientenAkteRepository = require("../repositories/prisma/klientenAkteRepositoryPrisma");
+const ApiError = require("../utils/ApiError");
 
-function getAllForKlientenAkte(klientenAktenId, session) {
+async function getAllForKlientenAkte(klientenAkteId, session) {
     if (!session?.userId) {
-        throw new ApiError(401, 'Nicht eingeloggt');
+        throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    const klientenAkte = klientenAktenRepository.findById(Number(klientenAktenId));
+    const klientenAkte = await klientenAkteRepository.findById(Number(klientenAkteId));
     if (!klientenAkte) {
-        throw new ApiError(404, 'Klientenakte nicht gefunden');
+        throw new ApiError(404, "Klientenakte nicht gefunden");
     }
 
     if (klientenAkte.userId !== session.userId) {
-        throw new ApiError(403, 'Kein Zugriff auf diese Klientenakte');
+        throw new ApiError(403, "Kein Zugriff auf diese Klientenakte");
     }
 
-    return gespraechRepository.findByKlientenAkteId(Number(klientenAktenId));
+    return await gespraechRepository.findByAkteId(Number(klientenAkteId));
 }
 
-function createForCurrentUser(data, session) {
+async function createForCurrentUser(data, session) {
     if (!session?.userId) {
-        throw new ApiError(401, 'Nicht eingeloggt');
+        throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    const {
-        klientenAkteId,
-        datum,
-        formMetaData,
-        assessment,
-        diagnosen,
-        ziele,
-        outcome,
-        notizen,
-    } = data;
+    const klientenAkteId = Number(data.klientenAkteId);
 
-    if (!klientenAkteId || !datum) {
-        throw new ApiError(400, 'KlientenAkteId und Datum sind erforderlich');
+    if (!klientenAkteId || !data.datum) {
+        throw new ApiError(400, "KlientenAkteId und Datum sind erforderlich");
     }
 
-    const klientenAkte = klientenAktenRepository.findById(klientenAkteId);
+    const klientenAkte = await klientenAkteRepository.findById(klientenAkteId);
     if (!klientenAkte) {
-        throw new ApiError(404, 'Klientenakte nicht gefunden');
+        throw new ApiError(404, "Klientenakte nicht gefunden");
     }
 
     if (klientenAkte.userId !== session.userId) {
-        throw new ApiError(403, 'Kein Zugriff auf diese Klientenakte');
+        throw new ApiError(403, "Kein Zugriff auf diese Klientenakte");
     }
 
-    return gespraechRepository.create({
-        klientenAkteId: Number(klientenAkteId),
-        datum,
-        formMetaData: formMetaData ?? null,
-        assessment: assessment ?? null,
-        diagnosen: diagnosen ?? null,
-        ziele: ziele ?? null,
-        outcome: outcome ?? null,
-        notizen: notizen ?? null,
-    });
+    return await gespraechRepository.create(klientenAkteId, data);
 }
 
-function updateForCurrentUser(data, session) {
+async function updateForCurrentUser(data, session) {
     if (!session?.userId) {
-        throw new ApiError(401, 'Nicht eingeloggt');
+        throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    const {
-        id,
-        klientenAkteId,
-        datum,
-        formMetaData,
-        assessment,
-        diagnosen,
-        ziele,
-        outcome,
-        notizen,
-    } = data;
+    const gespraechId = Number(data.id);
+    const klientenAkteId = Number(data.klientenAkteId);
 
-    if (!id || !klientenAkteId || !datum) {
-        throw new ApiError(400, 'ID, KlientenAkteId und Datum sind erforderlich');
+    if (!gespraechId || !klientenAkteId || !data.datum) {
+        throw new ApiError(400, "Id, KlientenAkteId und Datum sind erforderlich");
     }
 
-    const existingGespraech = gespraechRepository.findById(Number(id));
-    if (!existingGespraech) {
-        throw new ApiError(404, 'Gespraech nicht gefunden');
+    const gespraech = await gespraechRepository.findById(gespraechId);
+    if (!gespraech) {
+        throw new ApiError(404, "Gespräch nicht gefunden");
     }
 
-    const klientenAkte = klientenAktenRepository.findById(Number(klientenAkteId));
+    const klientenAkte = await klientenAkteRepository.findById(klientenAkteId);
     if (!klientenAkte) {
-        throw new ApiError(404, 'Klientenakte nicht gefunden');
+        throw new ApiError(404, "Klientenakte nicht gefunden");
     }
 
     if (klientenAkte.userId !== session.userId) {
-        throw new ApiError(403, 'Kein Zugriff auf diese Klientenakte');
+        throw new ApiError(403, "Kein Zugriff auf diese Klientenakte");
     }
 
-    return gespraechRepository.updateById(Number(id), {
-        klientenAkteId: Number(klientenAkteId),
-        datum,
-        formMetaData: formMetaData ?? null,
-        assessment: assessment ?? null,
-        diagnosen: diagnosen ?? null,
-        ziele: ziele ?? null,
-        outcome: outcome ?? null,
-        notizen: notizen ?? null,
-    });
+    return await gespraechRepository.updateById(gespraechId, klientenAkteId, data);
 }
 
-function deleteForCurrentUser(id, session) {
+async function deleteForCurrentUser(id, session) {
     if (!session?.userId) {
-        throw new ApiError(401, 'Nicht eingeloggt');
+        throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    const existingGespraech = gespraechRepository.findById(Number(id));
-    if (!existingGespraech) {
-        throw new ApiError(404, 'Gespraech nicht gefunden');
+    const gespraech = await gespraechRepository.findById(Number(id));
+    if (!gespraech) {
+        throw new ApiError(404, "Gespräch nicht gefunden");
     }
 
-    const klientenAkte = klientenAktenRepository.findById(existingGespraech.klientenAkteId);
+    const klientenAkte = await klientenAkteRepository.findById(Number(gespraech.klientenAkteId));
     if (!klientenAkte) {
-        throw new ApiError(404, 'Klientenakte nicht gefunden');
+        throw new ApiError(404, "Klientenakte nicht gefunden");
     }
 
     if (klientenAkte.userId !== session.userId) {
-        throw new ApiError(403, 'Kein Zugriff auf diese Klientenakte');
+        throw new ApiError(403, "Kein Zugriff auf dieses Gespräch");
     }
 
-    return gespraechRepository.deleteById(Number(id));
+    await gespraechRepository.deleteById(Number(id));
 }
 
 module.exports = {

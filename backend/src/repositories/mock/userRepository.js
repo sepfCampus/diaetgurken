@@ -23,7 +23,7 @@ function create(userData) {
     return newUser;
 }
 
-function update(id, updatedData) {
+function updateById(id, updatedData) {
     const user = findById(id);
     if (!user) {
         return null;
@@ -46,6 +46,6 @@ module.exports = {
     findByRegisterNr,
     findById,
     create,
-    update,
+    updateById,
     deleteById,
 };
