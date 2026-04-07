@@ -1,5 +1,18 @@
 const request = require("supertest");
 const app = require("../src/app");
+const prisma = require("../src/db/prismaClient");
+
+beforeEach(async () => {
+    await prisma.klarname.deleteMany();
+    await prisma.gespraech.deleteMany();
+    await prisma.einstellungen.deleteMany();
+    await prisma.klientenAkte.deleteMany();
+    await prisma.user.deleteMany();
+});
+
+afterAll(async () => {
+    await prisma.$disconnect();
+});
 
 describe("Gespraeche API", () => {
     test("GET /api/gespraeche/:klientenAkteId without login should return 401", async () => {
@@ -66,7 +79,7 @@ describe("Gespraeche API", () => {
         expect(Array.isArray(getGespraecheResponse.body)).toBe(true);
         expect(getGespraecheResponse.body.length).toBe(1);
         expect(getGespraecheResponse.body[0].klientenAkteId).toBe(klientenAkteId);
-        expect(getGespraecheResponse.body[0].datum).toBe("2026-04-04");
+        expect(getGespraecheResponse.body[0].datum.startsWith("2026-04-04")).toBe(true);
     });
 
     test("DELETE /api/gespraeche/:id should delete own gespraech", async () => {

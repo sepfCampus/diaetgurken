@@ -1,5 +1,18 @@
 const request = require("supertest");
 const app = require("../src/app");
+const prisma = require("../src/db/prismaClient");
+
+beforeEach(async () => {
+    await prisma.klarname.deleteMany();
+    await prisma.gespraech.deleteMany();
+    await prisma.einstellungen.deleteMany();
+    await prisma.klientenAkte.deleteMany();
+    await prisma.user.deleteMany();
+});
+
+afterAll(async () => {
+    await prisma.$disconnect();
+});
 
 describe("Klarnamen API", () => {
     test("POST /api/klarnamen should return 401 for wrong password", async () => {
