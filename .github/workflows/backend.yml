@@ -22,7 +22,23 @@ jobs:
           cd backend
           npm ci
 
+      - name: Prisma Client generieren
+        run: |
+          cd backend
+          npx prisma generate
+        env:
+          DATABASE_URL: "file:./dev.db"
+
+      - name: Datenbank migrieren
+        run: |
+          cd backend
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: "file:./dev.db"
+
       - name: Tests ausführen
         run: |
           cd backend
           npm test
+        env:
+          DATABASE_URL: "file:./dev.db"
