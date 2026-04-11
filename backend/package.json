@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "pretest": "dotenv -e .env.test -- prisma migrate deploy",
     "test": "dotenv -e .env.test -- jest --runInBand"
   },
   "keywords": [],

@@ -18,11 +18,11 @@ async function create(klientenAkteId, data) {
         data: {
             klientenAkteId,
             datum: data.datum ? new Date(data.datum) : undefined,
-            formMetaData: data.formMetaData ? JSON.stringify(data.formMetaData) : null,
-            assessment: data.assessment ? JSON.stringify(data.assessment) : null,
-            diagnosen: data.diagnosen ? JSON.stringify(data.diagnosen) : null,
-            ziele: data.ziele ? JSON.stringify(data.ziele) : null,
-            outcome: data.outcome ? JSON.stringify(data.outcome) : null,
+            formMetaData: data.formMetaData ?? null,
+            assessment: data.assessment ?? null,
+            diagnosen: data.diagnosen ?? null,
+            ziele: data.ziele ?? null,
+            outcome: data.outcome ?? null,
             notizen: data.notizen ?? null,
         },
     });
@@ -34,11 +34,11 @@ async function updateById(id, klientenAkteId, data) {
         data: {
             klientenAkteId,
             datum: data.datum ? new Date(data.datum) : undefined,
-            formMetaData: data.formMetaData ? JSON.stringify(data.formMetaData) : null,
-            assessment: data.assessment ? JSON.stringify(data.assessment) : null,
-            diagnosen: data.diagnosen ? JSON.stringify(data.diagnosen) : null,
-            ziele: data.ziele ? JSON.stringify(data.ziele) : null,
-            outcome: data.outcome ? JSON.stringify(data.outcome) : null,
+            formMetaData: data.formMetaData ?? null,
+            assessment: data.assessment ?? null,
+            diagnosen: data.diagnosen ?? null,
+            ziele: data.ziele ?? null,
+            outcome: data.outcome ?? null,
             notizen: data.notizen ?? null,
         },
     });

@@ -34,12 +34,12 @@ model Gespraech {
   klientenAkte    KlientenAkte   @relation(fields: [klientenAkteId], references: [id], onDelete: Cascade)
 
   datum           DateTime       @default(now())
-  formMetaData    String?
-  assessment      String?
-  diagnosen       String?
-  ziele           String?
-  outcome         String?
-  notizen         String?
+  formMetaData    Json? @db.JsonB
+  assessment   Json? @db.JsonB
+  diagnosen    Json? @db.JsonB
+  ziele        Json? @db.JsonB
+  outcome      Json? @db.JsonB
+  notizen      String?
 }
 
 model Klarname {

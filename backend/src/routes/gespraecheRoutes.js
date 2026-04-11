@@ -45,17 +45,42 @@ router.get("/:klientenAkteId", requireLogin, gespraechController.getAll);
  *                 example: 1
  *               datum:
  *                 type: string
+ *                 format: date
  *                 example: 2026-04-04
  *               formMetaData:
  *                 type: object
+ *                 example:
+ *                  version: 1
+ *                  fields:
+ *                    - internalName: age
+ *                      name: Alter
+ *                      type: int
+ *                      optional: false
  *               assessment:
  *                 type: object
+ *                 example:
+ *                   motivation: hoch
+ *                   compliance: mittel
+ *                   risikoFaktoren:
+ *                     - rauchen
+ *                     - stress
  *               diagnosen:
  *                 type: object
+ *                 example:
+ *                   - code: E66
+ *                     description: Übergewicht
  *               ziele:
  *                 type: object
+ *                 example:
+ *                   - kurz: Gewichtsverlust von 5kg
+ *                     lang: In den nächsten 3 Monaten 5kg abnehmen
+ *                   - kurz: Bewegung erhöhen
+ *                     lang: Mindestens 3x pro Woche sportliche Aktivität
  *               outcome:
  *                 type: object
+ *                 example:
+ *                   erfolg: ja
+ *                   notizen: Gute Zusammenarbeit, Patient motiviert
  *               notizen:
  *                 type: string
  *                 example: Erstgespräch
@@ -97,17 +122,42 @@ router.post("/", requireLogin, gespraechController.create);
  *                 example: 1
  *               datum:
  *                 type: string
+ *                 format: date
  *                 example: 2026-04-05
  *               formMetaData:
  *                 type: object
+ *                 example:
+ *                   version: 1
+ *                   fields:
+ *                     - internalName: age
+ *                       name: Alter
+ *                       type: int
+ *                       optional: false
  *               assessment:
- *                 type: object
+ *                   type: object
+ *                   example:
+ *                     motivation: hoch
+ *                     compliance: mittel
+ *                     risikoFaktoren:
+ *                       - rauchen
+ *                       - stress  
  *               diagnosen:
  *                 type: object
+ *                 example:
+ *                   - code: E66
+ *                     description: Übergewicht
  *               ziele:
  *                 type: object
+ *                 example:
+ *                   - kurz: Gewichtsverlust von 5kg
+ *                     lang: In den nächsten 3 Monaten 5kg abnehmen
+ *                   - kurz: Bewegung erhöhen
+ *                     lang: Mindestens 3x pro Woche sportliche Aktivität
  *               outcome:
  *                 type: object
+ *                 example:
+ *                   erfolg: ja
+ *                   notizen: Gute Zusammenarbeit, Patient motiviert
  *               notizen:
  *                 type: string
  *     responses:
