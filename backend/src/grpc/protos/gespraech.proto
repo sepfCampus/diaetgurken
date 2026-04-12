@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package gespraech;
+
+service GespraechService {
+  rpc CreateGespraech (CreateGespraechRequest) returns (GespraechResponse);
+  rpc GetGespraeche (GetGespraecheRequest) returns (GespraechListResponse);
+}
+
+message CreateGespraechRequest {
+  int32 userId = 1;
+  int32 klientenAkteId = 2;
+  string datum = 3;
+  string formMetaData = 4;
+  string assessment = 5;
+  string diagnosen = 6;
+  string ziele = 7;
+  string outcome = 8;
+  string notizen = 9;
+}
+
+message GetGespraecheRequest {
+  int32 userId = 1;
+  int32 klientenAkteId = 2;
+}
+
+message GespraechResponse {
+  int32 id = 1;
+  int32 klientenAkteId = 2;
+  string datum = 3;
+  string formMetaData = 4;
+  string assessment = 5;
+  string diagnosen = 6;
+  string ziele = 7;
+  string outcome = 8;
+  string notizen = 9;
+}
+
+message GespraechListResponse {
+  repeated GespraechResponse gespraeche = 1;
+}
