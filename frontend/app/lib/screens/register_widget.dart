@@ -1,10 +1,10 @@
-import 'package:app/screens/register_widget.dart';
+import 'package:app/screens/home_page_widget.dart';
 import 'package:app/widgets/DTextField.dart';
 import 'package:flutter/material.dart';
 
-class LoginWidget extends StatelessWidget
+class RegisterWidget extends StatelessWidget
 {
-  const LoginWidget({ super.key });
+  const RegisterWidget({ super.key });
 
   @override
   Widget build(BuildContext context)
@@ -39,6 +39,9 @@ class LoginWidget extends StatelessWidget
                       const SizedBox(height: 20),
                       DTextField(labelText: 'Passwort', hideInput: true),
 
+                      const SizedBox(height: 20),
+                      DTextField(labelText: 'Passwort bestätigen', hideInput: true),
+
                       const SizedBox(height: 24),
 
                       Row(
@@ -48,25 +51,37 @@ class LoginWidget extends StatelessWidget
                           OutlinedButton(
                             onPressed: ()
                             {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const RegisterWidget()
-                                )
-                              );
+                              Navigator.pop(context);
                             },
-                            child: const Text('Registrieren')
+                            child: const Text('Login')
                           ),
 
                           const SizedBox(width: 12),
 
                           ElevatedButton(
                             onPressed: () {},
-                            child: const Text('Login')
+                            child: const Text('Registrieren')
                           )
                         ]
-                      )
-                    ],
+                      ),
+//Ab hier später löschen: 
+                      const SizedBox(height: 16),
+
+                      Center(
+                        child: IconButton(
+                          onPressed: ()
+                          {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomePageWidget()
+                              )
+                            );
+                          },
+                          icon: const Icon(Icons.arrow_downward),
+                        ),
+                      ), //Bis hier SPÄTER LÖSCHEN - homepage
+                                          ],
                   )
                 )
               )

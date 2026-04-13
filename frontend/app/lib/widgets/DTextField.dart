@@ -15,8 +15,13 @@ class DTextField extends StatelessWidget
   Widget build(BuildContext context)
   {
     return TextField(
-            obscureText: this.hideInput, //for passwords
-            decoration: InputDecoration(hintText: this.labelText)
-           );
+      obscureText: this.hideInput, //for passwords
+      maxLines: 1,
+      decoration: InputDecoration(
+        hintText: this.labelText,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18)
+      )
+    );
   }
 }
