@@ -16,7 +16,7 @@ class MainApp extends StatelessWidget
   {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.HIGH_CONTRAST,  // LIGHT oder HIGH_CONTRAST
+      theme: AppTheme.LIGHT,  // LIGHT oder HIGH_CONTRAST
       home: const LoginWidget()
     );
   }

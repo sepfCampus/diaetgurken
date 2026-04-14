@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:app/screens/klarnamen_widget.dart';
 import 'package:app/screens/klientenakten_widget.dart';
+import 'package:app/screens/einstellungen_widget.dart';
 
 class HomePageWidget extends StatefulWidget
 {
@@ -100,7 +101,20 @@ class _HomePageWidgetState extends State<HomePageWidget>
                                     'Einstellungen',
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  onTap: () {},
+                                  onTap: ()
+                                  {
+                                    setState(()
+                                    {
+                                      isMenuOpen = false;
+                                    });
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const EinstellungenWidget(),
+                                      ),
+                                    );
+                                  },
                                 ),
 
                                 const SizedBox(height: 8),
