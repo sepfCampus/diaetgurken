@@ -1,3 +1,4 @@
+import 'package:app/config/navigation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:app/screens/klarnamen_widget.dart';
 import 'package:app/screens/klientenakten_widget.dart';
@@ -108,12 +109,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                                       isMenuOpen = false;
                                     });
 
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const EinstellungenWidget(),
-                                      ),
-                                    );
+                                    Navigator.pushNamed(context, Routes.PAGE_SETTINGS);
                                   },
                                 ),
 

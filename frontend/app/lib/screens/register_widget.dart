@@ -1,5 +1,6 @@
+import 'package:app/config/navigation/routes.dart';
 import 'package:app/screens/home_page_widget.dart';
-import 'package:app/widgets/DTextField.dart';
+import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:flutter/material.dart';
 
 class RegisterWidget extends StatelessWidget
@@ -31,16 +32,16 @@ class RegisterWidget extends StatelessWidget
                     mainAxisSize: MainAxisSize.min,
                     children:
                     [
-                      DTextField(labelText: 'E-Mail'),
+                      AppTextField(labelText: 'E-Mail'),
 
                       const SizedBox(height: 20),
-                      DTextField(labelText: 'Registernr.'),
+                      AppTextField(labelText: 'Registernr.'),
 
                       const SizedBox(height: 20),
-                      DTextField(labelText: 'Passwort', hideInput: true),
+                      AppTextField(labelText: 'Passwort', obscureText: true),
 
                       const SizedBox(height: 20),
-                      DTextField(labelText: 'Passwort bestätigen', hideInput: true),
+                      AppTextField(labelText: 'Passwort bestätigen', obscureText: true),
 
                       const SizedBox(height: 24),
 
@@ -51,7 +52,8 @@ class RegisterWidget extends StatelessWidget
                           OutlinedButton(
                             onPressed: ()
                             {
-                              Navigator.pop(context);
+                              //remove all routes and replace them by the home screen
+                              Navigator.of(context).pushNamedAndRemoveUntil(Routes.PAGE_LOGIN, (route) => false);
                             },
                             child: const Text('Login')
                           ),
@@ -59,29 +61,14 @@ class RegisterWidget extends StatelessWidget
                           const SizedBox(width: 12),
 
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () { Navigator.pushNamed(context, Routes.PAGE_HOME); },
                             child: const Text('Registrieren')
                           )
                         ]
                       ),
 //Ab hier später löschen: 
-                      const SizedBox(height: 16),
-
-                      Center(
-                        child: IconButton(
-                          onPressed: ()
-                          {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomePageWidget()
-                              )
-                            );
-                          },
-                          icon: const Icon(Icons.arrow_downward),
-                        ),
-                      ), //Bis hier SPÄTER LÖSCHEN - homepage
-                                          ],
+                      const SizedBox(height: 16), //Bis hier SPÄTER LÖSCHEN - homepage
+                    ],
                   )
                 )
               )

@@ -1,5 +1,11 @@
+import 'package:app/config/navigation/routes.dart';
 import 'package:app/screens/register_widget.dart';
-import 'package:app/widgets/DTextField.dart';
+import 'package:app/widgets/forms/app_labeled_field.dart';
+import 'package:app/widgets/forms/app_radio_group.dart';
+import 'package:app/widgets/forms/app_search_field.dart';
+import 'package:app/widgets/forms/app_text_field.dart';
+import 'package:app/widgets/forms/buttons/app_primary_button.dart';
+import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginWidget extends StatelessWidget
@@ -31,13 +37,13 @@ class LoginWidget extends StatelessWidget
                     mainAxisSize: MainAxisSize.min,
                     children:
                     [
-                      DTextField(labelText: 'E-Mail'),
+                      AppTextField(labelText: 'E-Mail'),
 
                       const SizedBox(height: 20),
-                      DTextField(labelText: 'Registernr.'),
+                      AppTextField(labelText: 'Registernr.'),
 
                       const SizedBox(height: 20),
-                      DTextField(labelText: 'Passwort', hideInput: true),
+                      AppTextField(labelText: 'Passwort', obscureText: true),
 
                       const SizedBox(height: 24),
 
@@ -45,24 +51,22 @@ class LoginWidget extends StatelessWidget
                         mainAxisAlignment: MainAxisAlignment.end,
                         children:
                         [
-                          OutlinedButton(
+                          AppSecondaryButton(
+                            buttonText: 'Registrieren',
                             onPressed: ()
                             {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const RegisterWidget()
-                                )
-                              );
-                            },
-                            child: const Text('Registrieren')
+                              Navigator.pushNamed(context, Routes.PAGE_REGISTER);
+                            }
                           ),
 
                           const SizedBox(width: 12),
 
-                          ElevatedButton(
-                            onPressed: () {},
-                            child: const Text('Login')
+                          AppPrimaryButton(
+                            buttonText: 'Login',
+                            onPressed: ()
+                            {
+                              Navigator.of(context).pushNamedAndRemoveUntil(Routes.PAGE_HOME, (route) => false);
+                            }
                           )
                         ]
                       )

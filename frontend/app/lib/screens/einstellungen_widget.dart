@@ -22,7 +22,7 @@ class _EinstellungenWidgetState extends State<EinstellungenWidget>
   Widget build(BuildContext context)
   {
     return Scaffold(
-      backgroundColor: lightGreenBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children:
@@ -30,7 +30,7 @@ class _EinstellungenWidgetState extends State<EinstellungenWidget>
             Container(
               height: 100,
               width: double.infinity,
-              color: darkGreen,
+              color: Theme.of(context).primaryColor,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children:
@@ -45,11 +45,10 @@ class _EinstellungenWidgetState extends State<EinstellungenWidget>
 
                   const SizedBox(width: 8),
 
-                  const Text(
-                    'Einstellungen',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
+                  const Text('Einstellungen',
+                             style: TextStyle(
+                             color: Colors.white,
+                             fontSize: 18,
                     ),
                   ),
                 ],
