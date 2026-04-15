@@ -1,0 +1,11 @@
+$kind: http-request
+name: Get Klarname
+url: 'http://localhost:3000/api/klarnamen'
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "klientenAkteId": 1,
+      "password": "123456"
+    }

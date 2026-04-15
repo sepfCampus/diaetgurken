@@ -1,9 +1,6 @@
 const express = require("express");
 const session = require("express-session");
 const apiRoutes = require("./routes/api");
-const notFoundHandler = require("./middlewares/notFoundHandler");
-const errorHandler = require("./middlewares/errorHandler");
-const YAML = require("yamljs");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
 
@@ -24,8 +21,5 @@ app.use(
 );
 
 app.use("/api", apiRoutes);
-
-app.use(notFoundHandler);
-app.use(errorHandler);
 
 module.exports = app;
