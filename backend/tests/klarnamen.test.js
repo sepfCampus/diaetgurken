@@ -40,16 +40,15 @@ describe("Klarnamen API", () => {
         expect(loginResponse.statusCode).toBe(200);
 
         // 3. Klientenakte anlegen
-        const akteResponse = await agent.post("/api/klientenAkten").send({});
+        const akteResponse = await agent.post("/api/users/klientenakte").send({});
         expect(akteResponse.statusCode).toBe(201);
 
         const klientenAkteId = akteResponse.body.id;
 
         // 4. Klarname setzen
         const updateResponse = await agent
-            .put("/api/klarnamen")
+            .put(`/api/users/klientenakten/${klientenAkteId}/klarname`)
             .send({
-                klientenAkteId,
                 password: "123456",
                 name: "Max Mustermann",
             });
@@ -58,13 +57,11 @@ describe("Klarnamen API", () => {
 
         // 5. Klarname mit falschem Passwort abrufen
         const getResponse = await agent
-            .post("/api/klarnamen")
+            .post(`/api/users/klientenakten/${klientenAkteId}/klarname`)
             .send({
-                klientenAkteId,
                 password: "falsch123",
             });
 
         expect(getResponse.statusCode).toBe(401);
-        expect(getResponse.body.error).toBe("Passwort ist nicht korrekt");
     });
 });

@@ -4,8 +4,10 @@ const requireLogin = require("../middlewares/requireLogin");
 
 /**
  * @swagger
- * /klientenAkten:
+ * /users/klientenakten:
  *   get:
+ *     tags:
+ *       - Benutzer - Klientenakten
  *     summary: Liefert alle Klientenakten des eingeloggten Benutzers
  *     responses:
  *       200:
@@ -17,8 +19,10 @@ router.get("/", requireLogin, klientenAkteController.getAll);
 
 /**
  * @swagger
- * /klientenAkten:
+ * /users/klientenakte:
  *   post:
+ *     tags:
+ *       - Benutzer - Klientenakten
  *     summary: Legt eine neue Klientenakte für den eingeloggten Benutzer an
  *     responses:
  *       201:
@@ -30,8 +34,10 @@ router.post("/", requireLogin, klientenAkteController.create);
 
 /**
  * @swagger
- * /klientenAkten/{id}:
+ * /users/klientenakte/{id}:
  *   delete:
+ *     tags:
+ *       - Benutzer - Klientenakten
  *     summary: Löscht eine Klientenakte des eingeloggten Benutzers
  *     parameters:
  *       - in: path

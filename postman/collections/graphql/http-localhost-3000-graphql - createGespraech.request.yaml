@@ -1,5 +1,5 @@
 $kind: http-request
-name: http://localhost:3000/graphql
+name: http://localhost:3000/graphql - createGespraech
 url: http://localhost:3000/graphql
 method: POST
 body:

@@ -4,8 +4,10 @@ const requireLogin = require('../middlewares/requireLogin');
 
 /**
  * @swagger
- * /einstellungen:
+ * /users/einstellung:
  *   get:
+ *     tags:
+ *       - Benutzer - Einstellung
  *     summary: Liefert die Einstellungen des aktuell eingeloggten Benutzers
  *     responses:
  *       200:
@@ -17,8 +19,10 @@ router.get('/', requireLogin, einstellungenController.getEinstellungen);
 
 /**
  * @swagger
- * /einstellungen:
+ * /users/einstellung:
  *   put:
+ *     tags:
+ *       - Benutzer - Einstellung
  *     summary: Ändert die Einstellungen des aktuell eingeloggten Benutzers
  *     requestBody:
  *       required: true

@@ -5,6 +5,8 @@ const healthController = require("../controllers/healthController");
  * @swagger
  * /health:
  *   get:
+ *     tags:
+ *       - Systemstatus
  *     summary: Prüft, ob das Backend läuft
  *     responses:
  *       200:

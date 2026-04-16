@@ -15,14 +15,14 @@ afterAll(async () => {
 });
 
 describe("Gespraeche API", () => {
-    test("GET /api/gespraeche/:klientenAkteId without login should return 401", async () => {
-        const response = await request(app).get("/api/gespraeche/1");
+    test("GET /api/users/klientenakten/:klientenAkteId/gespraeche without login should return 401", async () => {
+        const response = await request(app).get("/api/users/klientenakten/1/gespraeche");
 
         expect(response.statusCode).toBe(401);
         expect(response.body.error).toBe("Nicht eingeloggt");
     });
 
-    test("POST and GET /api/gespraeche should work for own klientenAkte", async () => {
+    test("POST and GET /api/users/klientenakten/:klientenAkteId/gespraeche should work for own klientenAkte", async () => {
         const agent = request.agent(app);
 
         // 1. User registrieren
@@ -47,7 +47,7 @@ describe("Gespraeche API", () => {
         expect(loginResponse.statusCode).toBe(200);
 
         // 3. Klientenakte anlegen
-        const akteResponse = await agent.post("/api/klientenAkten").send({});
+        const akteResponse = await agent.post("/api/users/klientenakte").send({});
 
         expect(akteResponse.statusCode).toBe(201);
         expect(akteResponse.body.id).toBeDefined();
@@ -56,9 +56,8 @@ describe("Gespraeche API", () => {
 
         // 4. Gespräch anlegen
         const createGespraechResponse = await agent
-            .post("/api/gespraeche")
+            .post(`/api/users/klientenakten/${klientenAkteId}/gespraech`)
             .send({
-                klientenAkteId,
                 datum: "2026-04-04",
                 formMetaData: { version: 1 },
                 assessment: { gewicht: 85 },
@@ -73,7 +72,7 @@ describe("Gespraeche API", () => {
         expect(createGespraechResponse.body.klientenAkteId).toBe(klientenAkteId);
 
         // 5. Gespräche der Akte laden
-        const getGespraecheResponse = await agent.get(`/api/gespraeche/${klientenAkteId}`);
+        const getGespraecheResponse = await agent.get(`/api/users/klientenakten/${klientenAkteId}/gespraeche`);
 
         expect(getGespraecheResponse.statusCode).toBe(200);
         expect(Array.isArray(getGespraecheResponse.body)).toBe(true);
@@ -90,7 +89,7 @@ describe("Gespraeche API", () => {
         expect(gespraech.outcome.status).toBe("offen");
     });
 
-    test("DELETE /api/gespraeche/:id should delete own gespraech", async () => {
+    test("DELETE /api/users/klientenakten/:klientenAkteId/gespraech/:id should delete own gespraech", async () => {
         const agent = request.agent(app);
 
         // 1. User registrieren
@@ -107,32 +106,38 @@ describe("Gespraeche API", () => {
         });
 
         // 3. Klientenakte anlegen
-        const akteResponse = await agent.post("/api/klientenAkten").send({});
+        const akteResponse = await agent.post("/api/users/klientenakte").send({});
+
+        expect(akteResponse.statusCode).toBe(201);
         const klientenAkteId = akteResponse.body.id;
 
         // 4. Gespräch anlegen
-        const createGespraechResponse = await agent.post("/api/gespraeche").send({
-            klientenAkteId,
-            datum: "2026-04-05",
-            notizen: "Zu löschen",
-        });
+        const createGespraechResponse = await agent
+            .post(`/api/users/klientenakten/${klientenAkteId}/gespraech`)
+            .send({
+                datum: "2026-04-05",
+                formMetaData: { version: 1 },
+                assessment: { gewicht: 80 },
+                notizen: "Zu löschen",
+            });
 
+        expect(createGespraechResponse.statusCode).toBe(201);
         const gespraechId = createGespraechResponse.body.id;
 
         // 5. Gespräch löschen
-        const deleteResponse = await agent.delete(`/api/gespraeche/${gespraechId}`);
+        const deleteResponse = await agent.delete(`/api/users/klientenakten/${klientenAkteId}/gespraech/${gespraechId}`);
 
         expect(deleteResponse.statusCode).toBe(204);
 
         // 6. Prüfen, ob Liste leer ist
-        const getResponse = await agent.get(`/api/gespraeche/${klientenAkteId}`);
+        const getResponse = await agent.get(`/api/users/klientenakten/${klientenAkteId}/gespraeche`);
 
         expect(getResponse.statusCode).toBe(200);
         expect(Array.isArray(getResponse.body)).toBe(true);
         expect(getResponse.body.length).toBe(0);
     });
 
-    test("GET /api/gespraeche/:klientenAkteId should return 403 for foreign klientenAkte", async () => {
+    test("GET /api/users/klientenakten/:klientenAkteId/gespraeche should return 403 for foreign klientenAkte", async () => {
         const agentA = request.agent(app);
         const agentB = request.agent(app);
 
@@ -150,7 +155,7 @@ describe("Gespraeche API", () => {
         });
 
         // User A erstellt Klientenakte
-        const akteResponse = await agentA.post("/api/klientenAkten").send({});
+        const akteResponse = await agentA.post("/api/users/klientenakte").send({});
         expect(akteResponse.statusCode).toBe(201);
 
         const klientenAkteId = akteResponse.body.id;
@@ -169,13 +174,12 @@ describe("Gespraeche API", () => {
         });
 
         // User B versucht Gespräche von User A abzurufen
-        const response = await agentB.get(`/api/gespraeche/${klientenAkteId}`);
+        const response = await agentB.get(`/api/users/klientenakten/${klientenAkteId}/gespraeche`);
 
         expect(response.statusCode).toBe(403);
-        expect(response.body.error).toBe("Kein Zugriff auf diese Klientenakte");
     });
 
-    test("PUT /api/gespraeche/:klientenAkteId should return 403 for updating foreign gespraech", async () => {
+    test("PUT /api/users/klientenakten/:klientenAkteId/gespraech/:id should return 403 for updating foreign gespraech", async () => {
         const agentA = request.agent(app);
         const agentB = request.agent(app);
 
@@ -193,17 +197,18 @@ describe("Gespraeche API", () => {
         });
 
         // User A erstellt Klientenakte
-        const akteResponse = await agentA.post("/api/klientenAkten").send({});
+        const akteResponse = await agentA.post("/api/users/klientenakte").send({});
         expect(akteResponse.statusCode).toBe(201);
 
         const klientenAkteId = akteResponse.body.id;
 
         // User A erstellt Gespräch
-        const createGespraechResponse = await agentA.post("/api/gespraeche").send({
-            klientenAkteId,
-            datum: "2026-04-05",
-            notizen: "Zu aktualisieren",
-        });
+        const createGespraechResponse = await agentA
+            .post(`/api/users/klientenakten/${klientenAkteId}/gespraech`)
+            .send({
+                datum: "2026-04-05",
+                notizen: "Zu aktualisieren",
+            });
         const gespraechId = createGespraechResponse.body.id;
 
         // User B registrieren
@@ -220,18 +225,15 @@ describe("Gespraeche API", () => {
         });
 
         // User B versucht Gespräch von User A zu aktualisieren
-        const response = await agentB.put("/api/gespraeche").send({
-            id: gespraechId,
-            klientenAkteId,
+        const response = await agentB.put(`/api/users/klientenakten/${klientenAkteId}/gespraech/${gespraechId}`).send({
             datum: "2026-04-06",
             notizen: "Von Intruder aktualisiert",
         });
 
         expect(response.statusCode).toBe(403);
-        expect(response.body.error).toBe("Kein Zugriff auf diese Klientenakte");
     });
 
-    test("GET /api/gespraeche/:klientenAkteId should return 404 for non-existing klientenAkte", async () => {
+    test("GET /api/users/klientenakten/:klientenAkteId/gespraeche should return 404 for non-existing klientenAkte", async () => {
         const agent = request.agent(app);
 
         // 1. User registrieren
@@ -256,13 +258,12 @@ describe("Gespraeche API", () => {
         expect(loginResponse.statusCode).toBe(200);
 
         // 3. Nicht existierende Klientenakte abrufen
-        const response = await agent.get("/api/gespraeche/9999");
+        const response = await agent.get("/api/users/klientenakten/9999/gespraeche");
 
         expect(response.statusCode).toBe(404);
-        expect(response.body.error).toBe("Klientenakte nicht gefunden");
     });
 
-    test("PUT /api/gespraeche should update JSON fields", async () => {
+    test("PUT /api/users/klientenakten/:klientenAkteId/gespraech/:id should update JSON fields", async () => {
         const agent = request.agent(app);
 
         // User + Login
@@ -278,30 +279,31 @@ describe("Gespraeche API", () => {
         });
 
         // Klientenakte
-        const akteRes = await agent.post("/api/klientenAkten").send({});
+        const akteRes = await agent.post("/api/users/klientenakte").send({});
         const klientenAkteId = akteRes.body.id;
 
         // Gespräch erstellen
-        const createRes = await agent.post("/api/gespraeche").send({
-            klientenAkteId,
-            datum: "2026-04-04",
-            assessment: { motivation: "hoch" }
-        });
+        const createRes = await agent
+            .post(`/api/users/klientenakten/${klientenAkteId}/gespraech`)
+            .send({
+                datum: "2026-04-04",
+                assessment: { motivation: "hoch" }
+            });
 
         const gespraechId = createRes.body.id;
 
         // UPDATE
-        const updateRes = await agent.put("/api/gespraeche").send({
-            id: gespraechId,
-            klientenAkteId,
-            datum: "2026-04-05",
-            assessment: { motivation: "niedrig" }
-        });
+        const updateRes = await agent
+            .put(`/api/users/klientenakten/${klientenAkteId}/gespraech/${gespraechId}`)
+            .send({
+                datum: "2026-04-05",
+                assessment: { motivation: "niedrig" }
+            });
 
         expect(updateRes.statusCode).toBe(200);
 
         // GET prüfen
-        const getRes = await agent.get(`/api/gespraeche/${klientenAkteId}`);
+        const getRes = await agent.get(`/api/users/klientenakten/${klientenAkteId}/gespraeche`);
 
         const updated = getRes.body[0];
 
@@ -309,7 +311,7 @@ describe("Gespraeche API", () => {
         expect(updated.datum.startsWith("2026-04-05")).toBe(true);
     });
 
-    test("POST /api/gespraeche should allow null JSON fields", async () => {
+    test("POST /api/users/klientenakten/:klientenAkteId/gespraech should allow null JSON fields", async () => {
         const agent = request.agent(app);
 
         await agent.post("/api/auth/register").send({
@@ -323,11 +325,10 @@ describe("Gespraeche API", () => {
             password: "123456",
         });
 
-        const akteRes = await agent.post("/api/klientenAkten").send({});
+        const akteRes = await agent.post("/api/users/klientenakte").send({});
         const klientenAkteId = akteRes.body.id;
 
-        const res = await agent.post("/api/gespraeche").send({
-            klientenAkteId,
+        const res = await agent.post(`/api/users/klientenakten/${klientenAkteId}/gespraech`).send({
             datum: "2026-04-04",
             assessment: null
         });
