@@ -1,15 +1,15 @@
-import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/config/theme/app_theme.dart';
+import 'package:app/config/theme/theme_controller.dart';
 import 'package:app/widgets/forms/app_labeled_field.dart';
 import 'package:app/widgets/forms/app_radio_group.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
-import 'package:app/widgets/layout/LayoutUtil.dart';
-import 'package:app/widgets/layout/app_drawer.dart';
-import 'package:app/widgets/layout/app_drawer_item.dart';
+import 'package:app/widgets/layout/layout_util.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingsWidget extends StatefulWidget
 {
@@ -27,7 +27,6 @@ class _SettingsWidget extends State<SettingsWidget>
   //controller for the registerNr text field
   final TextEditingController _registerNrController = TextEditingController(text: 'AA-BBB-123456');
 
-  String _colorSelection = 'Standard';
   String _fontSizeSelection = 'Standard';
 
   @override
@@ -41,9 +40,12 @@ class _SettingsWidget extends State<SettingsWidget>
   @override
   Widget build(BuildContext context)
   {
+    final ThemeController themeController = Provider.of<ThemeController>(context);
+    final String colorSelection = identical(themeController.theme, AppTheme.STANDARD) ? 'Standard' : 'Hoher Kontrast';
+
     return AppPageScaffold(
       title: 'Einstellungen',
-      drawer: Layoututil.getStandardAppDrawer(context),
+      drawer: LayoutUtil.getStandardAppDrawer(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
@@ -56,15 +58,13 @@ class _SettingsWidget extends State<SettingsWidget>
           AppRadioGroup<String>(
             title: 'Farbdarstellung',
             options: const ['Standard', 'Hoher Kontrast'],
-            groupValue: _colorSelection,
+            groupValue: colorSelection,
             onChanged: (value)
             {
-              setState(()
-              {
-                _colorSelection = value!; //the selection is updated  
-              });
+              final themeController = Provider.of<ThemeController>(context, listen: false);
+              themeController.setTheme((value == 'Standard') ? AppTheme.STANDARD : AppTheme.HIGH_CONTRAST);
             },
-            labelBuilder: (value) => value
+            labelBuilder: (value) => value,
           ),
 
           AppSpacing.SPACED_BOX_H_SMALL,

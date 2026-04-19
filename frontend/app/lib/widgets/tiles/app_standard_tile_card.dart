@@ -21,7 +21,7 @@ class AppStandardTileCard extends StatelessWidget
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: theme.colorScheme.tertiary,
+          color: theme.colorScheme.secondary,
           border: Border.all(
             color: theme.colorScheme.primary,
             width: 1,

@@ -54,7 +54,7 @@ class _AppExpandableSectionState extends State<AppExpandableSection>
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), // spacing inside the header area
               decoration: BoxDecoration(
-                color: theme.colorScheme.tertiary,
+                color: theme.colorScheme.primary,
                 borderRadius: BorderRadius.vertical(
                   top: const Radius.circular(6),
                   bottom: Radius.circular(_expanded ? 0 : 6), // rounds the bottom only when collapsed
@@ -67,12 +67,13 @@ class _AppExpandableSectionState extends State<AppExpandableSection>
                       widget.title,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onPrimary
                       ),
                     ),
                   ),
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more, // changes the icon depending on state
-                    color: theme.colorScheme.onSurface,
+                    color: theme.colorScheme.onPrimary,
                   ),
                 ],
               ),

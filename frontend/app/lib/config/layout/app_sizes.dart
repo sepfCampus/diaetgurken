@@ -18,5 +18,7 @@ class AppSizes
   static const double SQUARE_ACTION_SIZE = 48;
 
   static const double MAX_CONTENT_WIDTH = 420;
-  static const double DRAWER_WIDTH = 200;
+  
+  static const double DRAWER_MAX_WIDTH = 320;
+  static const double DRAWER_MIN_WIDTH = 220;
 }

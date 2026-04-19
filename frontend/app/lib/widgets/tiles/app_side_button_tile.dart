@@ -27,31 +27,36 @@ class AppSideButtonTile extends StatelessWidget
               topLeft: Radius.circular(6),
               bottomLeft: Radius.circular(6),
             ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.tertiary,
-                border: Border.all(
-                  color: theme.colorScheme.primary,
-                  width: 1,
+            child: SizedBox(
+              height: AppSizes.TILE_HEIGHT,
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.secondary,
+                  border: Border(
+                    left: BorderSide(color: theme.colorScheme.primary, width: 1),
+                    top: BorderSide(color: theme.colorScheme.primary, width: 1),
+                    bottom: BorderSide(color: theme.colorScheme.primary, width: 1),
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(6),
+                    bottomLeft: Radius.circular(6),
+                  ),
                 ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(6),
-                  bottomLeft: Radius.circular(6),
-                ),
-              ),
-              child: Text(
-                title,
-                style: theme.textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
+                child: Text(
+                  title,
+                  style: theme.textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                )
+              )
+            )
+          )
         ),
 
-        const SizedBox(width: 1),
         SizedBox(
           width: AppSizes.TRAILING_BUTTON_WIDTH,
+          height: AppSizes.TILE_HEIGHT,
           child: InkWell(
             onTap: onSidePressed,
             borderRadius: const BorderRadius.only(
@@ -59,12 +64,14 @@ class AppSideButtonTile extends StatelessWidget
               bottomRight: Radius.circular(6),
             ),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: theme.colorScheme.tertiary,
-                border: Border.all(
-                  color: theme.colorScheme.primary,
-                  width: 1,
+                color: theme.colorScheme.secondary,
+                border: Border(
+                  left: BorderSide(color: theme.colorScheme.primary, width: 1),
+                  right: BorderSide(color: theme.colorScheme.primary, width: 1),
+                  top: BorderSide(color: theme.colorScheme.primary, width: 1),
+                  bottom: BorderSide(color: theme.colorScheme.primary, width: 1),
                 ),
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(6),
@@ -74,7 +81,7 @@ class AppSideButtonTile extends StatelessWidget
               child: Icon(
                 sideIcon,
                 color: theme.colorScheme.onSurface,
-                size: 30,
+                size: 24,
               ),
             ),
           ),
