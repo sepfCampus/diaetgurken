@@ -2,6 +2,10 @@ import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/config/theme/app_theme.dart';
 import 'package:app/config/theme/theme_controller.dart';
+import 'package:app/data/daos/memory/settings_memory_dao.dart';
+import 'package:app/service/settings_service.dart';
+import 'package:app/service/util/entity_vo_converter_memory_util.dart';
+import 'package:app/vo/Settings.dart';
 import 'package:app/widgets/forms/app_labeled_field.dart';
 import 'package:app/widgets/forms/app_radio_group.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
@@ -42,6 +46,8 @@ class _SettingsWidget extends State<SettingsWidget>
   {
     final ThemeController themeController = Provider.of<ThemeController>(context);
     final String colorSelection = identical(themeController.theme, AppTheme.STANDARD) ? 'Standard' : 'Hoher Kontrast';
+
+    _testSettingsService();
 
     return AppPageScaffold(
       title: 'Einstellungen',
@@ -140,5 +146,13 @@ class _SettingsWidget extends State<SettingsWidget>
         ]
       )
     );
+  }
+
+
+  void _testSettingsService() async
+  {
+    SettingsService service = SettingsService(SettingsMemoryDao(), EntityVoConverterMemoryUtil());
+    Settings settings = await service.getSettings(0);
+    print("${settings.colorMode} ${settings.fontSize}");
   }
 }
