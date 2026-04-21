@@ -1,0 +1,218 @@
+const router = require("express").Router({ mergeParams: true });
+const gespraechController = require("../controllers/gespraechController");
+const requireLogin = require("../middlewares/requireLogin");
+
+/**
+ * @swagger
+ * /users/klientenakten/{klientenAkteId}/gespraeche:
+ *   get:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
+ *     summary: Liefert alle Gespräche einer Klientenakte
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Gespräche erfolgreich geladen
+ *       401:
+ *         description: Nicht eingeloggt
+ *       403:
+ *         description: Kein Zugriff auf diese Klientenakte
+ *       404:
+ *         description: Klientenakte nicht gefunden
+ */
+router.get("/", requireLogin, gespraechController.getAll);
+
+/**
+ * @swagger
+ * /users/klientenakten/{klientenAkteId}/gespraech:
+ *   post:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
+ *     summary: Erstellt ein neues Gespräch
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - datum
+ *             properties:
+ *               datum:
+ *                 type: string
+ *                 format: date
+ *                 example: 2026-04-04
+ *               formMetaData:
+ *                 type: object
+ *                 example:
+ *                  version: 1
+ *                  fields:
+ *                    - internalName: age
+ *                      name: Alter
+ *                      type: int
+ *                      optional: false
+ *               assessment:
+ *                 type: object
+ *                 example:
+ *                   motivation: hoch
+ *                   compliance: mittel
+ *                   risikoFaktoren:
+ *                     - rauchen
+ *                     - stress
+ *               diagnosen:
+ *                 type: object
+ *                 example:
+ *                   - code: E66
+ *                     description: Übergewicht
+ *               ziele:
+ *                 type: object
+ *                 example:
+ *                   - kurz: Gewichtsverlust von 5kg
+ *                     lang: In den nächsten 3 Monaten 5kg abnehmen
+ *                   - kurz: Bewegung erhöhen
+ *                     lang: Mindestens 3x pro Woche sportliche Aktivität
+ *               outcome:
+ *                 type: object
+ *                 example:
+ *                   erfolg: ja
+ *                   notizen: Gute Zusammenarbeit, Patient motiviert
+ *               notizen:
+ *                 type: string
+ *                 example: Erstgespräch
+ *     responses:
+ *       201:
+ *         description: Gespräch erfolgreich erstellt
+ *       400:
+ *         description: Ungültige Eingabe
+ *       401:
+ *         description: Nicht eingeloggt
+ *       403:
+ *         description: Kein Zugriff auf diese Klientenakte
+ *       404:
+ *         description: Klientenakte nicht gefunden
+ */
+router.post("/", requireLogin, gespraechController.create);
+
+/**
+ * @swagger
+ * /users/klientenakten/{klientenAkteId}/gespraech/{id}:
+ *   put:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
+ *     summary: Aktualisiert ein Gespräch
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - datum
+ *             properties:
+ *               datum:
+ *                 type: string
+ *                 format: date
+ *                 example: 2026-04-05
+ *               formMetaData:
+ *                 type: object
+ *                 example:
+ *                   version: 1
+ *                   fields:
+ *                     - internalName: age
+ *                       name: Alter
+ *                       type: int
+ *                       optional: false
+ *               assessment:
+ *                   type: object
+ *                   example:
+ *                     motivation: hoch
+ *                     compliance: mittel
+ *                     risikoFaktoren:
+ *                       - rauchen
+ *                       - stress  
+ *               diagnosen:
+ *                 type: object
+ *                 example:
+ *                   - code: E66
+ *                     description: Übergewicht
+ *               ziele:
+ *                 type: object
+ *                 example:
+ *                   - kurz: Gewichtsverlust von 5kg
+ *                     lang: In den nächsten 3 Monaten 5kg abnehmen
+ *                   - kurz: Bewegung erhöhen
+ *                     lang: Mindestens 3x pro Woche sportliche Aktivität
+ *               outcome:
+ *                 type: object
+ *                 example:
+ *                   erfolg: ja
+ *                   notizen: Gute Zusammenarbeit, Patient motiviert
+ *               notizen:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Gespräch erfolgreich aktualisiert
+ *       400:
+ *         description: Ungültige Eingabe
+ *       401:
+ *         description: Nicht eingeloggt
+ *       403:
+ *         description: Kein Zugriff auf diese Klientenakte
+ *       404:
+ *         description: Gespräch oder Klientenakte nicht gefunden
+ */
+router.put("/:id", requireLogin, gespraechController.update);
+
+/**
+ * @swagger
+ * /users/klientenakten/{klientenAkteId}/gespraech/{id}:
+ *   delete:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
+ *     summary: Löscht ein Gespräch
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Gespräch erfolgreich gelöscht
+ *       401:
+ *         description: Nicht eingeloggt
+ *       403:
+ *         description: Kein Zugriff auf dieses Gespräch
+ *       404:
+ *         description: Gespräch oder Klientenakte nicht gefunden
+ */
+router.delete("/:id", requireLogin, gespraechController.remove);
+
+module.exports = router;

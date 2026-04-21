@@ -1,0 +1,1 @@
+CREATE DATABASE dietgurken_test;

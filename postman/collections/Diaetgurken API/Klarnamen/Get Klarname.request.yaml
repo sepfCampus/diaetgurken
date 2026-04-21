@@ -1,0 +1,15 @@
+$kind: http-request
+name: Get Klarname
+method: POST
+url: '{{baseUrl}}/klarnamen'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "klientenAkteId": 1,
+      "password": "123456"
+    }

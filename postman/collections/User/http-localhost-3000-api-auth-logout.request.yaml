@@ -1,0 +1,16 @@
+$kind: http-request
+name: http://localhost:3000/api/auth/logout
+url: http://localhost:3000/api/auth/logout
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"test@test.at\",\r
+
+    \  \"password\": \"123456\",\r
+
+    \  \"registerNr\": \"REG001\"\r
+
+    }"
+order: 3483130492502453

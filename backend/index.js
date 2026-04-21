@@ -1,13 +1,18 @@
-const express = require("express");
-const app = express();
-const port = 3000;
+const app = require("./src/app");
+const notFoundHandler = require("./src/middlewares/notFoundHandler");
+const errorHandler = require("./src/middlewares/errorHandler");
 
-app.get("/", (req, res) =>
-{
-  res.send("Hello World!");
-});
+const PORT = process.env.PORT || 3000;
 
-app.listen(port, () =>
-{
-  console.log(`Example app listening on port ${port}`);
+async function start() {
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+
+  app.listen(PORT, () => {
+    console.log(`Backend läuft auf Port ${PORT}`);
+  });
+}
+
+start().catch((err) => {
+  console.error("Fehler beim Starten des Backends:", err);
 });

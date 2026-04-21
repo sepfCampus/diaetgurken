@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  registerNr    String         @unique
+  passwordHash  String
+  klientenAkten KlientenAkte[]
+  einstellungen Einstellungen?
+}
+
+model KlientenAkte {
+  id         Int          @id @default(autoincrement())
+  userId     Int
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gespraeche Gespraech[]
+  klarname   Klarname?
+}
+
+model Gespraech {
+  id              Int            @id @default(autoincrement())
+  klientenAkteId  Int
+  klientenAkte    KlientenAkte   @relation(fields: [klientenAkteId], references: [id], onDelete: Cascade)
+
+  datum           DateTime       @default(now())
+  formMetaData    Json? @db.JsonB
+  assessment   Json? @db.JsonB
+  diagnosen    Json? @db.JsonB
+  ziele        Json? @db.JsonB
+  outcome      Json? @db.JsonB
+  notizen      String?
+}
+
+model Klarname {
+  id              Int           @id @default(autoincrement())
+  klientenAkteId  Int           @unique
+  name            String
+
+  klientenAkte    KlientenAkte  @relation(fields: [klientenAkteId], references: [id], onDelete: Cascade)
+}
+
+model Einstellungen {
+  id               Int          @id @default(autoincrement())
+  userId           Int          @unique
+  farbdarstellung  String
+  schriftgroesse   String
+
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+

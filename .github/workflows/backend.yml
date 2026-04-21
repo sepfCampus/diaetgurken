@@ -1,0 +1,60 @@
+name: Backend Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dietgurken_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d dietgurken_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v4
+
+      - name: Node installieren
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Dependencies installieren
+        run: |
+          cd backend
+          npm ci
+
+      - name: Prisma Client generieren
+        run: |
+          cd backend
+          npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/dietgurken_test?schema=public"
+
+      - name: Datenbank migrieren
+        run: |
+          cd backend
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/dietgurken_test?schema=public"
+
+      - name: Tests ausführen
+        run: |
+          cd backend
+          npm test
+        env:
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/dietgurken_test?schema=public"
+          NODE_ENV: test
