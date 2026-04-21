@@ -1,0 +1,4 @@
+$kind: http-request
+name: Who Am I
+url: 'http://localhost:3000/api/auth/whoami'
+method: GET

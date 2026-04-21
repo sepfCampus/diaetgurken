@@ -1,0 +1,13 @@
+$kind: http-request
+name: http://localhost:3000/graphql - getGespraeche
+url: http://localhost:3000/graphql
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"query\": \"query { gespraeche(klientenAkteId: 1) { id klientenAkteId
+    datum notizen assessment } }\"\r
+
+    }"
+order: 103189697229754

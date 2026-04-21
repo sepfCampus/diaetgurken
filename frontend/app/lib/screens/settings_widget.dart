@@ -2,8 +2,15 @@ import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/config/theme/app_theme.dart';
 import 'package:app/config/theme/theme_controller.dart';
+import 'package:app/data/daos/http/api/api_client.dart';
+import 'package:app/data/daos/http/api/memory_session_store.dart';
+import 'package:app/data/daos/http/api/session_api_client.dart';
+import 'package:app/data/daos/http/api/session_store.dart';
+import 'package:app/data/daos/http/settings_http_dao.dart';
 import 'package:app/data/daos/memory/settings_memory_dao.dart';
 import 'package:app/service/settings_service.dart';
+import 'package:app/service/user_http_service.dart';
+import 'package:app/service/util/entity_vo_converter_http_util.dart';
 import 'package:app/service/util/entity_vo_converter_memory_util.dart';
 import 'package:app/vo/Settings.dart';
 import 'package:app/widgets/forms/app_labeled_field.dart';
@@ -151,7 +158,13 @@ class _SettingsWidget extends State<SettingsWidget>
 
   void _testSettingsService() async
   {
-    SettingsService service = SettingsService(SettingsMemoryDao(), EntityVoConverterMemoryUtil());
+    SessionStore sessionStore = MemorySessionStore();
+    ApiClient apiClient = SessionApiClient(baseUrl: "http://localhost:3000/api", sessionStore: sessionStore);
+
+    UserHttpService userService = UserHttpService(apiClient: apiClient, sessionStore: sessionStore);
+    await userService.login(email: "test@test.at", password: "123456");
+    SettingsService service = SettingsService(SettingsHttpDao(apiClient: apiClient), EntityVoConverterHttpUtil());
+
     Settings settings = await service.getSettings(0);
     print("${settings.colorMode} ${settings.fontSize}");
   }

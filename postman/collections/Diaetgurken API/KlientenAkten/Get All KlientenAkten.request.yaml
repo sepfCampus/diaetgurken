@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get All KlientenAkten
+method: GET
+url: '{{baseUrl}}/klientenAkten'
+order: 1000
