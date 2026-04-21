@@ -30,7 +30,7 @@ class SettingsMemoryDao extends SettingsBaseDao<SettingsMemoryEntity>
   }
 
   @override
-  void updateSettings(SettingsMemoryEntity settings)
+  Future<void> updateSettings(SettingsMemoryEntity settings) async
   {
     settingsEntities[settings.userId] = settings;
   }
