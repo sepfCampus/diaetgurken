@@ -7,9 +7,11 @@ import 'package:app/data/daos/http/api/memory_session_store.dart';
 import 'package:app/data/daos/http/api/session_api_client.dart';
 import 'package:app/data/daos/http/api/session_store.dart';
 import 'package:app/data/daos/http/settings_http_dao.dart';
+import 'package:app/data/daos/http/user_http_dao.dart';
 import 'package:app/data/daos/memory/settings_memory_dao.dart';
 import 'package:app/service/settings_service.dart';
 import 'package:app/service/user_http_service.dart';
+import 'package:app/service/user_service.dart';
 import 'package:app/service/util/entity_vo_converter_http_util.dart';
 import 'package:app/service/util/entity_vo_converter_memory_util.dart';
 import 'package:app/vo/Settings.dart';
@@ -161,8 +163,9 @@ class _SettingsWidget extends State<SettingsWidget>
     SessionStore sessionStore = MemorySessionStore();
     ApiClient apiClient = SessionApiClient(baseUrl: "http://localhost:3000/api", sessionStore: sessionStore);
 
-    UserHttpService userService = UserHttpService(apiClient: apiClient, sessionStore: sessionStore);
-    await userService.login(email: "test@test.at", password: "123456");
+    UserService userService = UserService(UserHttpDao(apiClient: apiClient, sessionStore: sessionStore), EntityVoConverterHttpUtil());
+    await userService.login("test@test.at", "123456");
+    
     SettingsService service = SettingsService(SettingsHttpDao(apiClient: apiClient), EntityVoConverterHttpUtil());
 
     Settings settings = await service.getSettings(0);

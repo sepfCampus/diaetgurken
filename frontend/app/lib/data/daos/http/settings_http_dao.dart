@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:app/data/daos/http/api/api_client.dart';
 import 'package:app/data/daos/settings_base_dao.dart';
 import 'package:app/data/entities/http/settings_http_entity.dart';
@@ -17,6 +16,7 @@ class SettingsHttpDao implements SettingsBaseDao<SettingsHttpEntity>
 
     if(!response.isSuccess)
     {
+      //TODO: create exception class for this
       throw Exception('Einstellungen konnten nicht geladen werden. ${response.statusCode}');
     }
 
