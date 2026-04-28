@@ -10,7 +10,6 @@ import 'package:app/data/daos/http/settings_http_dao.dart';
 import 'package:app/data/daos/http/user_http_dao.dart';
 import 'package:app/data/daos/memory/settings_memory_dao.dart';
 import 'package:app/service/settings_service.dart';
-import 'package:app/service/user_http_service.dart';
 import 'package:app/service/user_service.dart';
 import 'package:app/service/util/entity_vo_converter_http_util.dart';
 import 'package:app/service/util/entity_vo_converter_memory_util.dart';
