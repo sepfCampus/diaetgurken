@@ -19,40 +19,28 @@ describe("Klarnamen API", () => {
             password: "123456",
             registerNr: "REG_KLAR_1",
         });
-
         await agent.post("/api/auth/login").send({
             email: "klarname1@test.at",
             password: "123456",
         });
 
-        expect(loginResponse.statusCode).toBe(200);
-
-        // 3. Klientenakte anlegen
-        const akteResponse = await agent.post("/api/klientenAkten").send({});
+        const akteResponse = await agent.post("/api/users/klientenakte").send({});
         expect(akteResponse.statusCode).toBe(201);
 
-        const klientenAkteId = akteResponse.body.id.toString();
+        const klientenAkteId = akteResponse.body.id;
 
-        // 4. Klarname setzen
         const updateResponse = await agent
-            .put("/api/klarnamen")
-            .send({
-                klientenAkteId,
-                password: "123456",
-                name: "Max Mustermann",
-            });
+            .put(`/api/users/klientenakten/${klientenAkteId}/klarname`)
+            .send({ password: "123456", name: "Max Mustermann" });
 
         expect(updateResponse.statusCode).toBe(200);
 
-        // 5. Klarname mit falschem Passwort abrufen
         const getResponse = await agent
-            .post("/api/klarnamen")
-            .send({
-                klientenAkteId,
-                password: "falsch123",
-            });
+            .post(`/api/users/klientenakten/${klientenAkteId}/klarname`)
+            .send({ password: "falsch123" });
 
         expect(getResponse.statusCode).toBe(401);
+        expect(getResponse.body.error).toBe("Passwort ist nicht korrekt");
     });
 
     test("GET Klarname mit richtigem Passwort sollte den Namen zurückgeben", async () => {
@@ -63,25 +51,21 @@ describe("Klarnamen API", () => {
             password: "123456",
             registerNr: "REG_KLAR_2",
         });
-
         await agent.post("/api/auth/login").send({
             email: "klarname2@test.at",
             password: "123456",
         });
 
-        const akteResponse = await agent.post("/api/klientenAkten").send({});
-        const klientenAkteId = akteResponse.body.id.toString();
+        const akteResponse = await agent.post("/api/users/klientenakte").send({});
+        const klientenAkteId = akteResponse.body.id;
 
-        await agent.put("/api/klarnamen").send({
-            klientenAkteId,
-            password: "123456",
-            name: "Erika Mustermann",
-        });
+        await agent
+            .put(`/api/users/klientenakten/${klientenAkteId}/klarname`)
+            .send({ password: "123456", name: "Erika Mustermann" });
 
-        const getResponse = await agent.post("/api/klarnamen").send({
-            klientenAkteId,
-            password: "123456",
-        });
+        const getResponse = await agent
+            .post(`/api/users/klientenakten/${klientenAkteId}/klarname`)
+            .send({ password: "123456" });
 
         expect(getResponse.statusCode).toBe(200);
         expect(getResponse.body.name).toBe("Erika Mustermann");
