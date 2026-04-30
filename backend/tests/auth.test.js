@@ -1,20 +1,23 @@
 const request = require("supertest");
 const app = require("../src/app");
-const prisma = require("../src/db/prismaClient");
+const mongoose = require("mongoose");
+const User = require("../src/models/User");
+
+require("dotenv").config({ path: ".env.test" });
+
+beforeAll(async () => {
+    await mongoose.connect(process.env.MONGODB_URI);
+});
 
 beforeEach(async () => {
-    await prisma.klarname.deleteMany();
-    await prisma.gespraech.deleteMany();
-    await prisma.einstellungen.deleteMany();
-    await prisma.klientenAkte.deleteMany();
-    await prisma.user.deleteMany();
+    await User.deleteMany(); // DB leeren
 });
 
 afterAll(async () => {
-    await prisma.$disconnect();
+    await mongoose.connection.close();
 });
 
-describe("Auth API", () => {
+describe("Auth API (MongoDB)", () => {
     test("POST /api/auth/register should create a user", async () => {
         const response = await request(app)
             .post("/api/auth/register")
@@ -28,5 +31,9 @@ describe("Auth API", () => {
         expect(response.body.email).toBe("test@test.at");
         expect(response.body.registerNr).toBe("REG001");
         expect(response.body.id).toBeDefined();
+
+        // optional: prüfen ob wirklich in DB gespeichert
+        const userInDb = await User.findOne({ email: "test@test.at" });
+        expect(userInDb).not.toBeNull();
     });
 });

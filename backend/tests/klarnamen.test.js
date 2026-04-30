@@ -1,20 +1,28 @@
 const request = require("supertest");
 const app = require("../src/app");
-const prisma = require("../src/db/prismaClient");
+const mongoose = require("mongoose");
+
+const User = require("../src/models/User");
+const Klarname = require("../src/models/Klarname");
+const KlientenAkte = require("../src/models/Klientenakte");
+
+require("dotenv").config({ path: ".env.test" });
+
+beforeAll(async () => {
+    await mongoose.connect(process.env.MONGODB_URI);
+});
 
 beforeEach(async () => {
-    await prisma.klarname.deleteMany();
-    await prisma.gespraech.deleteMany();
-    await prisma.einstellungen.deleteMany();
-    await prisma.klientenAkte.deleteMany();
-    await prisma.user.deleteMany();
+    await User.deleteMany({});
+    await Klarname.deleteMany({});
+    await KlientenAkte.deleteMany({});
 });
 
 afterAll(async () => {
-    await prisma.$disconnect();
+    await mongoose.connection.close();
 });
 
-describe("Klarnamen API", () => {
+describe("Klarnamen API (MongoDB)", () => {
     test("POST /api/klarnamen should return 401 for wrong password", async () => {
         const agent = request.agent(app);
 
@@ -43,7 +51,7 @@ describe("Klarnamen API", () => {
         const akteResponse = await agent.post("/api/klientenAkten").send({});
         expect(akteResponse.statusCode).toBe(201);
 
-        const klientenAkteId = akteResponse.body.id;
+        const klientenAkteId = akteResponse.body.id.toString();
 
         // 4. Klarname setzen
         const updateResponse = await agent

@@ -1,20 +1,24 @@
 const request = require("supertest");
 const app = require("../src/app");
-const prisma = require("../src/db/prismaClient");
+const mongoose = require("mongoose");
+
+const User = require("../src/models/User");
+
+require("dotenv").config({ path: ".env.test" });
+
+beforeAll(async () => {
+    await mongoose.connect(process.env.MONGODB_URI);
+});
 
 beforeEach(async () => {
-    await prisma.klarname.deleteMany();
-    await prisma.gespraech.deleteMany();
-    await prisma.einstellungen.deleteMany();
-    await prisma.klientenAkte.deleteMany();
-    await prisma.user.deleteMany();
+    await User.deleteMany({});
 });
 
 afterAll(async () => {
-    await prisma.$disconnect();
+    await mongoose.connection.close();
 });
 
-describe("Users API", () => {
+describe("Users API (MongoDB)", () => {
     test("DELETE /api/users should delete current user and destroy session", async () => {
         const agent = request.agent(app);
 
@@ -49,5 +53,9 @@ describe("Users API", () => {
 
         expect(whoamiResponse.statusCode).toBe(401);
         expect(whoamiResponse.body.error).toBe("Nicht eingeloggt");
+
+        // 5. Optional: prüfen ob User wirklich gelöscht ist
+        const userInDb = await User.findOne({ email: "deleteuser@test.at" });
+        expect(userInDb).toBeNull();
     });
 });
