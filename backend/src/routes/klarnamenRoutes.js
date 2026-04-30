@@ -1,12 +1,20 @@
-const router = require("express").Router();
+const router = require("express").Router({ mergeParams: true });
 const klarnameController = require("../controllers/klarnameController");
 const requireLogin = require("../middlewares/requireLogin");
 
 /**
  * @swagger
- * /klarnamen:
+ * /users/klientenakten/{klientenAkteId}/klarname:
  *   post:
+ *     tags:
+ *       - Benutzer - Klientenakten - Klarname
  *     summary: Liefert den Klarname zu einer Klientenakte
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -14,12 +22,8 @@ const requireLogin = require("../middlewares/requireLogin");
  *           schema:
  *             type: object
  *             required:
- *               - klientenAkteId
  *               - password
  *             properties:
- *               klientenAkteId:
- *                 type: integer
- *                 example: 1
  *               password:
  *                 type: string
  *                 example: 123456
@@ -39,9 +43,17 @@ router.post("/", requireLogin, klarnameController.getKlarname);
 
 /**
  * @swagger
- * /klarnamen:
+ * /users/klientenakten/{klientenAkteId}/klarname:
  *   put:
+ *     tags:
+ *       - Benutzer - Klientenakten - Klarname
  *     summary: Ändert den Klarname zu einer Klientenakte
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -49,13 +61,9 @@ router.post("/", requireLogin, klarnameController.getKlarname);
  *           schema:
  *             type: object
  *             required:
- *               - klientenAkteId
  *               - password
  *               - name
  *             properties:
- *               klientenAkteId:
- *                 type: integer
- *                 example: 1
  *               password:
  *                 type: string
  *                 example: 123456

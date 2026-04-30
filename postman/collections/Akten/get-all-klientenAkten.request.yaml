@@ -1,0 +1,4 @@
+$kind: http-request
+name: Get All KlientenAkten
+url: 'http://localhost:3000/api/klientenAkten'
+method: GET

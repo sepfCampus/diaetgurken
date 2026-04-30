@@ -1,13 +1,13 @@
 const express = require("express");
 const session = require("express-session");
 const apiRoutes = require("./routes/api");
-const notFoundHandler = require("./middlewares/notFoundHandler");
-const errorHandler = require("./middlewares/errorHandler");
-const YAML = require("yamljs");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
+const cors = require('cors');
 
 const app = express();
+
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -24,8 +24,5 @@ app.use(
 );
 
 app.use("/api", apiRoutes);
-
-app.use(notFoundHandler);
-app.use(errorHandler);
 
 module.exports = app;

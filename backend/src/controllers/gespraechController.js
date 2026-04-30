@@ -14,7 +14,10 @@ async function getAll(req, res, next) {
 
 async function create(req, res, next) {
     try {
-        const result = await gespraechService.createForCurrentUser(req.body, req.session);
+        const result = await gespraechService.createForCurrentUser({
+            ...req.body,
+            klientenAkteId: req.params.klientenAkteId
+        }, req.session);
         res.status(201).json(result);
     } catch (err) {
         next(err);
@@ -23,7 +26,11 @@ async function create(req, res, next) {
 
 async function update(req, res, next) {
     try {
-        const result = await gespraechService.updateForCurrentUser(req.body, req.session);
+        const result = await gespraechService.updateForCurrentUser({
+            ...req.body,
+            klientenAkteId: req.params.klientenAkteId,
+            id: req.params.id
+        }, req.session);
         res.status(200).json(result);
     } catch (err) {
         next(err);

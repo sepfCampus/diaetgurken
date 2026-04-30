@@ -1,0 +1,11 @@
+$kind: http-request
+name: Login
+url: 'http://localhost:3000/api/auth/login'
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "email": "test@test.at",
+      "password": "123456"
+    }

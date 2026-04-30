@@ -6,6 +6,8 @@ const requireLogin = require("../middlewares/requireLogin");
  * @swagger
  * /users:
  *   put:
+ *     tags:
+ *       - Benutzer
  *     summary: Aktualisiert den aktuell eingeloggten Benutzer
  *     requestBody:
  *       required: true
@@ -45,6 +47,8 @@ router.put("/", requireLogin, userController.updateUser);
  * @swagger
  * /users:
  *   delete:
+ *     tags:
+ *       - Benutzer
  *     summary: Löscht den aktuell eingeloggten Benutzer
  *     responses:
  *       204:

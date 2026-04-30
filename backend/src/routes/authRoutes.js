@@ -6,6 +6,8 @@ const requireLogin = require("../middlewares/requireLogin");
  * @swagger
  * /auth/register:
  *   post:
+ *     tags:
+ *       - Authentifizierung
  *     summary: Registriert einen neuen Benutzer
  *     requestBody:
  *       required: true
@@ -41,6 +43,8 @@ router.post("/register", authController.register);
  * @swagger
  * /auth/login:
  *   post:
+ *     tags:
+ *       - Authentifizierung
  *     summary: Meldet einen Benutzer an
  *     requestBody:
  *       required: true
@@ -72,6 +76,8 @@ router.post("/login", authController.login);
  * @swagger
  * /auth/logout:
  *   post:
+ *     tags:
+ *       - Authentifizierung
  *     summary: Meldet den aktuell eingeloggten Benutzer ab
  *     responses:
  *       200:
@@ -83,6 +89,8 @@ router.post("/logout", authController.logout);
  * @swagger
  * /auth/whoami:
  *   get:
+ *     tags:
+ *       - Authentifizierung
  *     summary: Liefert den aktuell eingeloggten Benutzer
  *     responses:
  *       200:

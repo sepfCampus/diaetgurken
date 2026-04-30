@@ -1,0 +1,16 @@
+$kind: http-request
+name: http://localhost:3000/graphql - createGespraech
+url: http://localhost:3000/graphql
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"query\": \"mutation { createGespraech(input: { klientenAkteId: 1 datum:
+    \\\"2026-04-15\\\" formMetaData: { version: 1 } assessment: { gewicht: 88 }
+    diagnosen: { hauptdiagnose: \\\"Test Diagnose\\\" } ziele: { ziel1:
+    \\\"Abnehmen\\\" } outcome: { status: \\\"offen\\\" } notizen: \\\"GraphQL
+    Mutation Test\\\" }) { id klientenAkteId datum notizen assessment } }\"\r
+
+    }"
+order: 1776283474028

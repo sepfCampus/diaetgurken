@@ -1,11 +1,13 @@
-const router = require("express").Router();
+const router = require("express").Router({ mergeParams: true });
 const gespraechController = require("../controllers/gespraechController");
 const requireLogin = require("../middlewares/requireLogin");
 
 /**
  * @swagger
- * /gespraeche/{klientenAkteId}:
+ * /users/klientenakten/{klientenAkteId}/gespraeche:
  *   get:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
  *     summary: Liefert alle Gespräche einer Klientenakte
  *     parameters:
  *       - in: path
@@ -23,13 +25,21 @@ const requireLogin = require("../middlewares/requireLogin");
  *       404:
  *         description: Klientenakte nicht gefunden
  */
-router.get("/:klientenAkteId", requireLogin, gespraechController.getAll);
+router.get("/", requireLogin, gespraechController.getAll);
 
 /**
  * @swagger
- * /gespraeche:
+ * /users/klientenakten/{klientenAkteId}/gespraech:
  *   post:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
  *     summary: Erstellt ein neues Gespräch
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -37,12 +47,8 @@ router.get("/:klientenAkteId", requireLogin, gespraechController.getAll);
  *           schema:
  *             type: object
  *             required:
- *               - klientenAkteId
  *               - datum
  *             properties:
- *               klientenAkteId:
- *                 type: integer
- *                 example: 1
  *               datum:
  *                 type: string
  *                 format: date
@@ -100,9 +106,22 @@ router.post("/", requireLogin, gespraechController.create);
 
 /**
  * @swagger
- * /gespraeche:
+ * /users/klientenakten/{klientenAkteId}/gespraech/{id}:
  *   put:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
  *     summary: Aktualisiert ein Gespräch
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -110,16 +129,8 @@ router.post("/", requireLogin, gespraechController.create);
  *           schema:
  *             type: object
  *             required:
- *               - id
- *               - klientenAkteId
  *               - datum
  *             properties:
- *               id:
- *                 type: integer
- *                 example: 1
- *               klientenAkteId:
- *                 type: integer
- *                 example: 1
  *               datum:
  *                 type: string
  *                 format: date
@@ -172,14 +183,21 @@ router.post("/", requireLogin, gespraechController.create);
  *       404:
  *         description: Gespräch oder Klientenakte nicht gefunden
  */
-router.put("/", requireLogin, gespraechController.update);
+router.put("/:id", requireLogin, gespraechController.update);
 
 /**
  * @swagger
- * /gespraeche/{id}:
+ * /users/klientenakten/{klientenAkteId}/gespraech/{id}:
  *   delete:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
  *     summary: Löscht ein Gespräch
  *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
  *       - in: path
  *         name: id
  *         required: true
