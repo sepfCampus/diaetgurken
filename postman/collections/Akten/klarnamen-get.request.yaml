@@ -7,5 +7,5 @@ body:
   content: |-
     {
       "klientenAkteId": 1,
-      "password": "123456"
+      "passwort": "123456"
     }

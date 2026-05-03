@@ -9,35 +9,31 @@ import 'package:app/widgets/tiles/app_side_button_tile.dart';
 import 'package:app/widgets/tiles/app_standard_tile_card.dart';
 import 'package:flutter/material.dart';
 
-class ClientFileWidget extends StatefulWidget
-{
-  const ClientFileWidget({ super.key });
+class ClientFileWidget extends StatefulWidget {
+  const ClientFileWidget({super.key});
 
   @override
   State<ClientFileWidget> createState() => _ClientFileWidgetState();
 }
 
-class _ClientFileWidgetState extends State<ClientFileWidget>
-{
-  final List<String> _conversations =
-  [
+class _ClientFileWidgetState extends State<ClientFileWidget> {
+  final List<String> _conversations = [
     '01.01.2026',
     '14.01.2026',
     '20.02.2026',
   ];
 
   @override
-  Widget build(BuildContext context)
-  {
-    final String clientId = (ModalRoute.of(context)?.settings.arguments as String?) ?? '?';;
+  Widget build(BuildContext context) {
+    final String clientId =
+        (ModalRoute.of(context)?.settings.arguments as String?) ?? '?';
 
     return AppPageScaffold(
       title: 'Klientenakte ($clientId)',
       drawer: LayoutUtil.getStandardAppDrawer(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-        [
+        children: [
           AppStandardTileCard(title: clientId),
 
           AppSpacing.SPACED_BOX_H_LARGE,
@@ -46,24 +42,27 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
 
           AppSpacing.SPACED_BOX_H_SMALL,
 
-          ..._conversations.map((conversationDate)
-          {
+          ..._conversations.map((conversationDate) {
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.SM),
               child: AppSideButtonTile(
                 title: conversationDate,
-                onTap: ()
-                {
-                  Navigator.pushNamed(context, Routes.PAGE_CONVERSATION, arguments:
-                                      { 'clientId': clientId, 'date': conversationDate });
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    Routes.PAGE_CONVERSATION,
+                    arguments: {'clientId': clientId, 'date': conversationDate},
+                  );
                 },
                 sideIcon: Icons.download_outlined,
-                onSidePressed: ()
-                {
-                  Navigator.pushNamed(context, Routes.PAGE_EXPORT_CONVERSATION, arguments:
-                                      { 'clientId': clientId, 'date': conversationDate });
-                }
-              )
+                onSidePressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    Routes.PAGE_EXPORT_CONVERSATION,
+                    arguments: {'clientId': clientId, 'date': conversationDate},
+                  );
+                },
+              ),
             );
           }),
 
@@ -72,39 +71,30 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
           AppNavigationTile(
             title: 'Neu',
             trailingIcon: Icons.add,
-            onTap: ()
-            {
+            onTap: () {
               Navigator.pushNamed(context, Routes.PAGE_HOME);
-            }
+            },
           ),
 
           AppSpacing.SPACED_BOX_H_LARGE,
 
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
-            children:
-            [
+            children: [
               AppSecondaryButton(
                 buttonText: 'Akte löschen',
-                onPressed: ()
-                {
+                onPressed: () {
                   Navigator.pop(context);
                 },
               ),
 
               AppSpacing.SPACED_BOX_W_SMALL,
 
-              AppPrimaryButton(
-                buttonText: 'Speichern',
-                onPressed: ()
-                {
-
-                }
-              )
-            ]
-          )
-        ]
-      )
+              AppPrimaryButton(buttonText: 'Speichern', onPressed: () {}),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

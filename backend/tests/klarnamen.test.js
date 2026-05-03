@@ -19,11 +19,15 @@ describe("Klarnamen API", () => {
             password: "123456",
             registerNr: "REG_KLAR_1",
         });
-        await agent.post("/api/auth/login").send({
+
+        const loginResponse = await agent.post("/api/auth/login").send({
             email: "klarname1@test.at",
             password: "123456",
         });
 
+        expect(loginResponse.statusCode).toBe(200);
+
+        // 3. Klientenakte anlegen
         const akteResponse = await agent.post("/api/users/klientenakte").send({});
         expect(akteResponse.statusCode).toBe(201);
 
@@ -31,13 +35,18 @@ describe("Klarnamen API", () => {
 
         const updateResponse = await agent
             .put(`/api/users/klientenakten/${klientenAkteId}/klarname`)
-            .send({ password: "123456", name: "Max Mustermann" });
+            .send({
+                password: "123456",
+                name: "Max Mustermann",
+            });
 
         expect(updateResponse.statusCode).toBe(200);
 
         const getResponse = await agent
             .post(`/api/users/klientenakten/${klientenAkteId}/klarname`)
-            .send({ password: "falsch123" });
+            .send({
+                password: "falsch123",
+            });
 
         expect(getResponse.statusCode).toBe(401);
         expect(getResponse.body.error).toBe("Passwort ist nicht korrekt");
@@ -51,21 +60,33 @@ describe("Klarnamen API", () => {
             password: "123456",
             registerNr: "REG_KLAR_2",
         });
-        await agent.post("/api/auth/login").send({
+
+        const loginResponse = await agent.post("/api/auth/login").send({
             email: "klarname2@test.at",
             password: "123456",
         });
 
-        const akteResponse = await agent.post("/api/users/klientenakte").send({});
-        const klientenAkteId = akteResponse.body.id;
+        expect(loginResponse.statusCode).toBe(200);
 
-        await agent
+        const akteResponse = await agent.post("/api/users/klientenakte").send({});
+        expect(akteResponse.statusCode).toBe(201);
+
+        const klientenAkteId = akteResponse.body.id.toString();
+
+        const updateResponse = await agent
             .put(`/api/users/klientenakten/${klientenAkteId}/klarname`)
-            .send({ password: "123456", name: "Erika Mustermann" });
+            .send({
+                password: "123456",
+                name: "Erika Mustermann",
+            });
+
+        expect(updateResponse.statusCode).toBe(200);
 
         const getResponse = await agent
             .post(`/api/users/klientenakten/${klientenAkteId}/klarname`)
-            .send({ password: "123456" });
+            .send({
+                password: "123456",
+            });
 
         expect(getResponse.statusCode).toBe(200);
         expect(getResponse.body.name).toBe("Erika Mustermann");
