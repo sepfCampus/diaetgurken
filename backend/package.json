@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "test": "dotenv -e .env.test -- jest --runInBand"
-},
+    "start": "node index.js",
+    "test": "dotenv -e .env.test -- jest --runInBand"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
