@@ -14,11 +14,14 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(
     session({
-        secret: "dev-secret-change-later",
+        secret: process.env.SESSION_SECRET || "dev-secret-change-later",
         resave: false,
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 8 * 60 * 60 * 1000,
         },
     })
 );

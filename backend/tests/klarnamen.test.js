@@ -3,10 +3,6 @@ const app = require("../src/app");
 const prisma = require("../src/db/prismaClient");
 
 beforeEach(async () => {
-    await prisma.klarname.deleteMany();
-    await prisma.gespraech.deleteMany();
-    await prisma.einstellungen.deleteMany();
-    await prisma.klientenAkte.deleteMany();
     await prisma.user.deleteMany();
 });
 
@@ -15,28 +11,19 @@ afterAll(async () => {
 });
 
 describe("Klarnamen API", () => {
-    test("POST /api/klarnamen should return 401 for wrong password", async () => {
+    test("GET Klarname mit falschem Passwort sollte 401 zurückgeben", async () => {
         const agent = request.agent(app);
 
-        // 1. User registrieren
-        const registerResponse = await agent
-            .post("/api/auth/register")
-            .send({
-                email: "klarname1@test.at",
-                passwort: "123456",
-                registerNr: "REG_KLAR_1",
-            });
+        await agent.post("/api/auth/register").send({
+            email: "klarname1@test.at",
+            password: "123456",
+            registerNr: "REG_KLAR_1",
+        });
 
-        expect(registerResponse.statusCode).toBe(201);
-
-        // 2. Login
-        const loginResponse = await agent
-            .post("/api/auth/login")
-            .send({
-                email: "klarname1@test.at",
-                password: "123456",
-                registerNr: "REG_KLAR_1",
-            });
+        const loginResponse = await agent.post("/api/auth/login").send({
+            email: "klarname1@test.at",
+            password: "123456",
+        });
 
         expect(loginResponse.statusCode).toBe(200);
 
@@ -44,7 +31,7 @@ describe("Klarnamen API", () => {
         const akteResponse = await agent.post("/api/users/klientenakte").send({});
         expect(akteResponse.statusCode).toBe(201);
 
-        const klientenAkteId = akteResponse.body.id;
+        const klientenAkteId = akteResponse.body.id.toString();
 
         // 4. Klarname setzen
         const updateResponse = await agent
@@ -64,5 +51,45 @@ describe("Klarnamen API", () => {
             });
 
         expect(getResponse.statusCode).toBe(401);
+    });
+
+    test("GET Klarname mit richtigem Passwort sollte den Namen zurückgeben", async () => {
+        const agent = request.agent(app);
+
+        await agent.post("/api/auth/register").send({
+            email: "klarname2@test.at",
+            password: "123456",
+            registerNr: "REG_KLAR_2",
+        });
+
+        const loginResponse = await agent.post("/api/auth/login").send({
+            email: "klarname2@test.at",
+            password: "123456",
+        });
+
+        expect(loginResponse.statusCode).toBe(200);
+
+        const akteResponse = await agent.post("/api/users/klientenakte").send({});
+        expect(akteResponse.statusCode).toBe(201);
+
+        const klientenAkteId = akteResponse.body.id.toString();
+
+        const updateResponse = await agent
+            .put(`/api/users/klientenakten/${klientenAkteId}/klarname`)
+            .send({
+                password: "123456",
+                name: "Erika Mustermann",
+            });
+
+        expect(updateResponse.statusCode).toBe(200);
+
+        const getResponse = await agent
+            .post(`/api/users/klientenakten/${klientenAkteId}/klarname`)
+            .send({
+                password: "123456",
+            });
+
+        expect(getResponse.statusCode).toBe(200);
+        expect(getResponse.body.name).toBe("Erika Mustermann");
     });
 });
