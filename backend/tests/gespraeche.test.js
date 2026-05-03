@@ -30,7 +30,7 @@ describe("Gespraeche API", () => {
             .post("/api/auth/register")
             .send({
                 email: "gespraech1@test.at",
-                password: "123456",
+                passwort: "123456",
                 registerNr: "REG_GESP_1",
             });
 
@@ -41,7 +41,8 @@ describe("Gespraeche API", () => {
             .post("/api/auth/login")
             .send({
                 email: "gespraech1@test.at",
-                password: "123456",
+                passwort: "123456",
+                registerNr: "REG_GESP_1",
             });
 
         expect(loginResponse.statusCode).toBe(200);
@@ -95,14 +96,15 @@ describe("Gespraeche API", () => {
         // 1. User registrieren
         await agent.post("/api/auth/register").send({
             email: "gespraech2@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_GESP_2",
         });
 
         // 2. Login
         await agent.post("/api/auth/login").send({
             email: "gespraech2@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_GESP_2",
         });
 
         // 3. Klientenakte anlegen
@@ -144,14 +146,15 @@ describe("Gespraeche API", () => {
         // User A registrieren
         await agentA.post("/api/auth/register").send({
             email: "owner@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_OWNER",
         });
 
         // User A einloggen
         await agentA.post("/api/auth/login").send({
             email: "owner@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_OWNER",
         });
 
         // User A erstellt Klientenakte
@@ -163,14 +166,15 @@ describe("Gespraeche API", () => {
         // User B registrieren
         await agentB.post("/api/auth/register").send({
             email: "intruder@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_INTRUDER",
         });
 
         // User B einloggen
         await agentB.post("/api/auth/login").send({
             email: "intruder@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_INTRUDER",
         });
 
         // User B versucht Gespräche von User A abzurufen
@@ -186,14 +190,15 @@ describe("Gespraeche API", () => {
         // User A registrieren
         await agentA.post("/api/auth/register").send({
             email: "owner@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_OWNER",
         });
 
         // User A einloggen
         await agentA.post("/api/auth/login").send({
             email: "owner@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_OWNER",
         });
 
         // User A erstellt Klientenakte
@@ -214,14 +219,15 @@ describe("Gespraeche API", () => {
         // User B registrieren
         await agentB.post("/api/auth/register").send({
             email: "intruder@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_INTRUDER",
         });
 
         // User B einloggen
         await agentB.post("/api/auth/login").send({
             email: "intruder@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_INTRUDER",
         });
 
         // User B versucht Gespräch von User A zu aktualisieren
@@ -241,7 +247,7 @@ describe("Gespraeche API", () => {
             .post("/api/auth/register")
             .send({
                 email: "gespraech404@test.at",
-                password: "123456",
+                passwort: "123456",
                 registerNr: "REG_GESP_404",
             });
 
@@ -252,7 +258,8 @@ describe("Gespraeche API", () => {
             .post("/api/auth/login")
             .send({
                 email: "gespraech404@test.at",
-                password: "123456",
+                passwort: "123456",
+                registerNr: "REG_GESP_404",
             });
 
         expect(loginResponse.statusCode).toBe(200);
@@ -269,13 +276,14 @@ describe("Gespraeche API", () => {
         // User + Login
         await agent.post("/api/auth/register").send({
             email: "update@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_UPDATE",
         });
 
         await agent.post("/api/auth/login").send({
             email: "update@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_UPDATE",
         });
 
         // Klientenakte
@@ -316,13 +324,14 @@ describe("Gespraeche API", () => {
 
         await agent.post("/api/auth/register").send({
             email: "null@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_NULL",
         });
 
         await agent.post("/api/auth/login").send({
             email: "null@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_NULL",
         });
 
         const akteRes = await agent.post("/api/users/klientenakte").send({});

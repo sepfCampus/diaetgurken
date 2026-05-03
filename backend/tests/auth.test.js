@@ -20,7 +20,7 @@ describe("Auth API", () => {
             .post("/api/auth/register")
             .send({
                 email: "test@test.at",
-                password: "123456",
+                passwort: "123456",
                 registerNr: "REG001",
             });
 

@@ -23,7 +23,7 @@ describe("Users API", () => {
             .post("/api/auth/register")
             .send({
                 email: "deleteuser@test.at",
-                password: "123456",
+                passwort: "123456",
                 registerNr: "REG_DELETE_1",
             });
 
@@ -35,6 +35,7 @@ describe("Users API", () => {
             .send({
                 email: "deleteuser@test.at",
                 password: "123456",
+                registerNr: "REG_DELETE_1",
             });
 
         expect(loginResponse.statusCode).toBe(200);

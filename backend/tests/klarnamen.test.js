@@ -23,7 +23,7 @@ describe("Klarnamen API", () => {
             .post("/api/auth/register")
             .send({
                 email: "klarname1@test.at",
-                password: "123456",
+                passwort: "123456",
                 registerNr: "REG_KLAR_1",
             });
 
@@ -35,6 +35,7 @@ describe("Klarnamen API", () => {
             .send({
                 email: "klarname1@test.at",
                 password: "123456",
+                registerNr: "REG_KLAR_1",
             });
 
         expect(loginResponse.statusCode).toBe(200);

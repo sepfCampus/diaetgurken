@@ -11,7 +11,7 @@ async function getAll(req, res, next) {
 
 async function create(req, res, next) {
     try {
-        const result = await klientenAkteService.createForCurrentUser(req.session);
+        const result = await klientenAkteService.createForCurrentUser(req.session, req.body.name);
         res.status(201).json(result);
     } catch (err) {
         next(err);
