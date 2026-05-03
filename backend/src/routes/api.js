@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const requireLogin = require("../middlewares/requireLogin");
 
 const healthRoutes = require("./healthRoutes");
 const authRoutes = require("./authRoutes");
@@ -15,24 +16,20 @@ router.use("/health", healthRoutes);
 router.use("/auth", authRoutes);
 
 // Users - hierarchically organized
-router.use("/users", userRoutes);
+router.use("/users", requireLogin, userRoutes);
 
 // Nested routes under /users/klientenakten
-// GET all: /users/klientenakten
-router.use("/users/klientenakten", klientenAktenRoutes);
-// POST create, DELETE remove: /users/klientenakte/:id
-router.use("/users/klientenakte", klientenAktenRoutes);
+router.use("/users/klientenakten", requireLogin, klientenAktenRoutes);
+router.use("/users/klientenakte", requireLogin, klientenAktenRoutes);
 
 // Nested routes under /users/klientenakten for Klarnamen
-router.use("/users/klientenakten/:klientenAkteId/klarname", klarnamenRoutes);
+router.use("/users/klientenakten/:klientenAkteId/klarname", requireLogin, klarnamenRoutes);
 
 // Nested routes under /users/klientenakten for Gespraeche
-// GET all: /users/klientenakten/:klientenAkteId/gespraeche
-router.use("/users/klientenakten/:klientenAkteId/gespraeche", gespraecheRoutes);
-// POST create, PUT update, DELETE remove: /users/klientenakten/:klientenAkteId/gespraech/:id
-router.use("/users/klientenakten/:klientenAkteId/gespraech", gespraecheRoutes);
+router.use("/users/klientenakten/:klientenAkteId/gespraeche", requireLogin, gespraecheRoutes);
+router.use("/users/klientenakten/:klientenAkteId/gespraech", requireLogin, gespraecheRoutes);
 
 // User Settings
-router.use("/users/einstellung", einstellungenRoutes);
+router.use("/users/einstellung", requireLogin, einstellungenRoutes);
 
 module.exports = router;

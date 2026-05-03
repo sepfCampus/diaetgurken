@@ -8,17 +8,33 @@ class UserHttpService
 
   UserHttpService({ required this.apiClient, required this.sessionStore });
 
-  Future<void> login({ required String email, required String password }) async
+  Future<void> register({ required String email, required String passwort, required String registerNr }) async
+  {
+    final response = await apiClient.post('/auth/register', body:
+    {
+      'email': email,
+      'passwort': passwort,
+      'registerNr': registerNr,
+    });
+
+    if (!response.isSuccess)
+    {
+      throw Exception(response.body);
+    }
+  }
+
+  Future<void> login({ required String email, required String passwort, required String registerNr }) async
   {
     final response = await apiClient.post('/auth/login', body:
     {
-        'email': email,
-        'password': password,
+      'email': email,
+      'passwort': passwort,
+      'registerNr': registerNr,
     });
 
-    if(!response.isSuccess)
+    if (!response.isSuccess)
     {
-      throw Exception('Login fehlgeschlagen.');
+      throw Exception(response.body);
     }
   }
 
@@ -26,7 +42,7 @@ class UserHttpService
   {
     final response = await apiClient.post('/auth/logout');
 
-    if(!response.isSuccess)
+    if (!response.isSuccess)
     {
       throw Exception('Logout fehlgeschlagen.');
     }
@@ -35,8 +51,15 @@ class UserHttpService
   }
 
   Future<bool> isLoggedIn() async
+{
+  try
   {
-    final response = await apiClient.get('/auth/me');
+    final response = await apiClient.get('/auth/whoami');
     return response.isSuccess;
   }
+  catch (e)
+  {
+    return false;
+  }
+}
 }

@@ -1,10 +1,12 @@
 import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/config/navigation/routes.dart';
+import 'package:app/service/user_http_service.dart';
 import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
-import 'package:app/config/navigation/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginWidget extends StatefulWidget
 {
@@ -20,6 +22,9 @@ class _LoginWidgetState extends State<LoginWidget>
   final TextEditingController _registerNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool _isLoading = false;
+  String? _errorMessage;
+
   @override
   void dispose()
   {
@@ -27,6 +32,66 @@ class _LoginWidgetState extends State<LoginWidget>
     _registerNumberController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  String? _validate()
+  {
+    final email = _emailController.text.trim();
+    final registerNr = _registerNumberController.text.trim();
+    final passwort = _passwordController.text;
+
+    if (email.isEmpty || registerNr.isEmpty || passwort.isEmpty)
+    {
+      return 'Bitte alle Felder ausfüllen.';
+    }
+
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    if (!emailRegex.hasMatch(email))
+    {
+      return 'Ungültige E-Mail-Adresse.';
+    }
+
+    if (passwort.length < 6)
+    {
+      return 'Passwort muss mindestens 6 Zeichen lang sein.';
+    }
+
+    return null;
+  }
+
+  Future<void> _login() async
+  {
+    final error = _validate();
+    if (error != null)
+    {
+      setState(() => _errorMessage = error);
+      return;
+    }
+
+    setState(() { _isLoading = true; _errorMessage = null; });
+
+    try
+    {
+      final userService = context.read<UserHttpService>();
+      await userService.login(
+        email: _emailController.text.trim(),
+        passwort: _passwordController.text,
+        registerNr: _registerNumberController.text.trim(),
+      );
+
+      if (mounted)
+      {
+        Navigator.of(context).pushNamedAndRemoveUntil(Routes.PAGE_HOME, (route) => false);
+      }
+    }
+    catch (e)
+    {
+      setState(() => _errorMessage = 'Login fehlgeschlagen. Bitte Daten überprüfen.');
+    }
+    finally
+    {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -45,13 +110,9 @@ class _LoginWidgetState extends State<LoginWidget>
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: theme.scaffoldBackgroundColor,
-                  border: Border.all(
-                    color: theme.colorScheme.primary,
-                    width: 2
-                  ),
-                  borderRadius: BorderRadius.circular(12)
+                  border: Border.all(color: theme.colorScheme.primary, width: 2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-            
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,14 +121,14 @@ class _LoginWidgetState extends State<LoginWidget>
                     AppTextField(
                       hintText: 'E-Mail',
                       controller: _emailController,
-                      keyboardType: TextInputType.emailAddress
+                      keyboardType: TextInputType.emailAddress,
                     ),
 
                     AppSpacing.SPACED_BOX_H_LARGE,
 
                     AppTextField(
                       hintText: 'Registernr.',
-                      controller: _registerNumberController
+                      controller: _registerNumberController,
                     ),
 
                     AppSpacing.SPACED_BOX_H_LARGE,
@@ -75,10 +136,18 @@ class _LoginWidgetState extends State<LoginWidget>
                     AppTextField(
                       hintText: 'Passwort',
                       controller: _passwordController,
-                      obscureText: true
+                      obscureText: true,
                     ),
 
-                    AppSpacing.SPACED_BOX_H_EXTRA_EXTRA_LARGE,
+                    if (_errorMessage != null) ...[
+                      AppSpacing.SPACED_BOX_H_LARGE,
+                      Text(
+                        _errorMessage!,
+                        style: TextStyle(color: theme.colorScheme.error),
+                      ),
+                    ],
+
+                    AppSpacing.SPACED_BOX_H_LARGE,
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -89,27 +158,26 @@ class _LoginWidgetState extends State<LoginWidget>
                           onPressed: ()
                           {
                             Navigator.pushNamed(context, Routes.PAGE_REGISTER);
-                          }
+                          },
                         ),
 
                         AppSpacing.SPACED_BOX_W_SMALL,
 
-                        AppPrimaryButton(
-                          buttonText: 'Login',
-                          onPressed: ()
-                          {
-                            Navigator.of(context).pushNamedAndRemoveUntil(Routes.PAGE_HOME, (route) => false);
-                          }
-                        )
-                      ]
-                    )
+                        _isLoading
+                          ? const CircularProgressIndicator()
+                          : AppPrimaryButton(
+                              buttonText: 'Login',
+                              onPressed: _login,
+                            ),
+                      ],
+                    ),
                   ],
-                )
-              )
-            )
-          )
-        )
-      )
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:app/config/theme/theme_controller.dart';
+import 'package:app/widgets/auth_guard.dart';
+import 'package:app/data/daos/http/api/memory_session_store.dart';
+import 'package:app/data/daos/http/api/session_api_client.dart';
 import 'package:app/screens/assessment_widget.dart';
 import 'package:app/screens/change_password_widget.dart';
 import 'package:app/screens/clear_name_widget.dart';
@@ -18,6 +21,7 @@ import 'package:app/screens/outcome_evaluation_detail_widget.dart';
 import 'package:app/screens/outcome_evaluation_widget.dart';
 import 'package:app/screens/register_widget.dart';
 import 'package:app/screens/settings_widget.dart';
+import 'package:app/service/user_http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +29,44 @@ import 'package:provider/provider.dart';
 void main()
 {
   runApp(const MainApp());
+}
+class AuthCheckWidget extends StatefulWidget
+{
+  const AuthCheckWidget({ super.key });
+
+  @override
+  State<AuthCheckWidget> createState() => _AuthCheckWidgetState();
+}
+
+class _AuthCheckWidgetState extends State<AuthCheckWidget>
+{
+  @override
+  void initState()
+  {
+    super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async
+  {
+    final userService = context.read<UserHttpService>();
+    final isLoggedIn = await userService.isLoggedIn();
+
+    if (mounted)
+    {
+      Navigator.of(context).pushReplacementNamed(
+        isLoggedIn ? Routes.PAGE_HOME : Routes.PAGE_LOGIN,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context)
+  {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
 }
 
 class MainApp extends StatelessWidget
@@ -34,40 +76,52 @@ class MainApp extends StatelessWidget
   @override
   Widget build(BuildContext context)
   {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeController(),
+    final sessionStore = MemorySessionStore();
+    final apiClient = SessionApiClient(
+      baseUrl: 'http://localhost:3000/api',
+      sessionStore: sessionStore,
+    );
+    final userHttpService = UserHttpService(
+      apiClient: apiClient,
+      sessionStore: sessionStore,
+    );
 
+    return MultiProvider(
+      providers:
+      [
+        ChangeNotifierProvider(create: (_) => ThemeController()),
+        Provider<UserHttpService>.value(value: userHttpService),
+      ],
       child: Consumer<ThemeController>(
         builder: (context, themeController, _)
         {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            initialRoute: Routes.PAGE_HOME,
             routes:
-            {
-              Routes.PAGE_HOME: (context) => ClientFilesWidget(),
-              Routes.PAGE_LOGIN: (context) => LoginWidget(),
-              Routes.PAGE_REGISTER: (context) => RegisterWidget(),
-              Routes.PAGE_SETTINGS: (context) => SettingsWidget(),
-              Routes.PAGE_CLEAR_NAME: (context) => ClearNameWidget(),
-              Routes.PAGE_CLIENT_FILES: (context) => ClientFilesWidget(),
-              Routes.PAGE_CHANGE_PASSWORD: (context) => ChangePasswordWidget(),
-              Routes.PAGE_DELETE_PROFILE: (context) => DeleteProfileWidget(),
-              Routes.PAGE_CREATE_CLIENT_FILE: (context) => CreateClientFileWidget(),
-              Routes.PAGE_CLIENT_FILE: (context) => ClientFileWidget(),
-              Routes.PAGE_EXPORT_CONVERSATION: (context) => ExportConversationWidget(),
-              Routes.PAGE_CONVERSATION_NOTES: (context) => ConversationNotesWidget(),
-              Routes.PAGE_CONVERSATION: (context) => ConversationWidget(),
-              Routes.PAGE_FILTER: (context) => FilterWidget(),
-              Routes.PAGE_ASSESSMENT: (context) => AssessmentWidget(),
-              Routes.PAGE_DIAGNOSIS: (context) => DiagnosisWidget(),
-              Routes.PAGE_OUTCOME_EVALUATION: (context) => OutcomeEvaluationWidget(),
-              Routes.PAGE_OUTCOME_EVALUATION_DETAIL: (context) => OutcomeEvaluationDetailWidget(),
-              Routes.PAGE_GOAL_SETTING: (context) => GoalSettingWidget(),
-              Routes.PAGE_GOAL_EDITOR: (context) => GoalEditorWidget()
-            },
-            theme: themeController.theme,  // LIGHT oder HIGH_CONTRAST
-            home: const LoginWidget()
+{
+  Routes.PAGE_HOME: (context) => AuthGuard(child: ClientFilesWidget()),
+  Routes.PAGE_LOGIN: (context) => LoginWidget(),
+  Routes.PAGE_REGISTER: (context) => RegisterWidget(),
+  Routes.PAGE_SETTINGS: (context) => AuthGuard(child: SettingsWidget()),
+  Routes.PAGE_CLEAR_NAME: (context) => AuthGuard(child: ClearNameWidget()),
+  Routes.PAGE_CLIENT_FILES: (context) => AuthGuard(child: ClientFilesWidget()),
+  Routes.PAGE_CHANGE_PASSWORD: (context) => AuthGuard(child: ChangePasswordWidget()),
+  Routes.PAGE_DELETE_PROFILE: (context) => AuthGuard(child: DeleteProfileWidget()),
+  Routes.PAGE_CREATE_CLIENT_FILE: (context) => AuthGuard(child: CreateClientFileWidget()),
+  Routes.PAGE_CLIENT_FILE: (context) => AuthGuard(child: ClientFileWidget()),
+  Routes.PAGE_EXPORT_CONVERSATION: (context) => AuthGuard(child: ExportConversationWidget()),
+  Routes.PAGE_CONVERSATION_NOTES: (context) => AuthGuard(child: ConversationNotesWidget()),
+  Routes.PAGE_CONVERSATION: (context) => AuthGuard(child: ConversationWidget()),
+  Routes.PAGE_FILTER: (context) => AuthGuard(child: FilterWidget()),
+  Routes.PAGE_ASSESSMENT: (context) => AuthGuard(child: AssessmentWidget()),
+  Routes.PAGE_DIAGNOSIS: (context) => AuthGuard(child: DiagnosisWidget()),
+  Routes.PAGE_OUTCOME_EVALUATION: (context) => AuthGuard(child: OutcomeEvaluationWidget()),
+  Routes.PAGE_OUTCOME_EVALUATION_DETAIL: (context) => AuthGuard(child: OutcomeEvaluationDetailWidget()),
+  Routes.PAGE_GOAL_SETTING: (context) => AuthGuard(child: GoalSettingWidget()),
+  Routes.PAGE_GOAL_EDITOR: (context) => AuthGuard(child: GoalEditorWidget()),
+},
+            theme: themeController.theme,
+            home: const AuthCheckWidget(),
           );
         }
       )

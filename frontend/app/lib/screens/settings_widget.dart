@@ -54,7 +54,6 @@ class _SettingsWidget extends State<SettingsWidget>
     final ThemeController themeController = Provider.of<ThemeController>(context);
     final String colorSelection = identical(themeController.theme, AppTheme.STANDARD) ? 'Standard' : 'Hoher Kontrast';
 
-    _testSettingsService();
 
     return AppPageScaffold(
       title: 'Einstellungen',
@@ -153,19 +152,5 @@ class _SettingsWidget extends State<SettingsWidget>
         ]
       )
     );
-  }
-
-
-  void _testSettingsService() async
-  {
-    SessionStore sessionStore = MemorySessionStore();
-    ApiClient apiClient = SessionApiClient(baseUrl: "http://localhost:3000/api", sessionStore: sessionStore);
-
-    UserHttpService userService = UserHttpService(apiClient: apiClient, sessionStore: sessionStore);
-    await userService.login(email: "test@test.at", password: "123456");
-    SettingsService service = SettingsService(SettingsHttpDao(apiClient: apiClient), EntityVoConverterHttpUtil());
-
-    Settings settings = await service.getSettings(0);
-    print("${settings.colorMode} ${settings.fontSize}");
   }
 }
