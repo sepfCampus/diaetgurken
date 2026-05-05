@@ -13,6 +13,7 @@ class AppFilterChipTile extends StatelessWidget
   Widget build(BuildContext context)
   {
     final ThemeData theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return OutlinedButton(
       onPressed: onPressed,
@@ -26,8 +27,11 @@ class AppFilterChipTile extends StatelessWidget
             width: 1,
           ),
         ),
-        padding: const WidgetStatePropertyAll(
-          EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: WidgetStatePropertyAll(
+          EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: largeFont ? 26 : 14,
+          ),
         ),
       ),
 

@@ -30,10 +30,13 @@ class AppRadioGroup<T> extends StatelessWidget
             value: option, //value of this radio button
             groupValue: groupValue, //the value that is currently selected in the group
             onChanged: onChanged, //called if this option is pressed
-            title: Text(labelBuilder(option)), //text next to the radio button
+            title: Text(
+              labelBuilder(option),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             contentPadding: EdgeInsets.zero,
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+            dense: false,
+            visualDensity: VisualDensity.standard,
             controlAffinity: ListTileControlAffinity.leading, //radio button is on the left side
           );
         }),

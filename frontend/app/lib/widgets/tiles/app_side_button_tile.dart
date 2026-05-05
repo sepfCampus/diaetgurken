@@ -16,6 +16,9 @@ class AppSideButtonTile extends StatelessWidget
   Widget build(BuildContext context)
   {
     final ThemeData theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
+    final double tileHeight = largeFont ? AppSizes.TILE_HEIGHT + 28 : AppSizes.TILE_HEIGHT;
+    final double sideWidth = largeFont ? AppSizes.TRAILING_BUTTON_WIDTH + 24 : AppSizes.TRAILING_BUTTON_WIDTH;
 
     return Row(
       children:
@@ -28,7 +31,7 @@ class AppSideButtonTile extends StatelessWidget
               bottomLeft: Radius.circular(6),
             ),
             child: SizedBox(
-              height: AppSizes.TILE_HEIGHT,
+              height: tileHeight,
               child: Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -55,8 +58,8 @@ class AppSideButtonTile extends StatelessWidget
         ),
 
         SizedBox(
-          width: AppSizes.TRAILING_BUTTON_WIDTH,
-          height: AppSizes.TILE_HEIGHT,
+          width: sideWidth,
+          height: tileHeight,
           child: InkWell(
             onTap: onSidePressed,
             borderRadius: const BorderRadius.only(
@@ -81,7 +84,7 @@ class AppSideButtonTile extends StatelessWidget
               child: Icon(
                 sideIcon,
                 color: theme.colorScheme.onSurface,
-                size: 24,
+                size: largeFont ? 38 : 24,
               ),
             ),
           ),

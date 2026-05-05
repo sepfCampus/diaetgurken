@@ -21,11 +21,13 @@ class AppComboField extends StatelessWidget
   Widget build(BuildContext context)
   {
     final ThemeData theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return LayoutBuilder(
       builder: (context, constraints)
       {
         return DropdownMenu<String>(
+          textStyle: theme.textTheme.bodyLarge,
           controller: controller,
           focusNode: focusNode,
           enabled: enabled,
@@ -35,8 +37,8 @@ class AppComboField extends StatelessWidget
           enableFilter: true,
           enableSearch: true,
           inputDecorationTheme: theme.inputDecorationTheme.copyWith(
-            constraints: const BoxConstraints(
-              minHeight: AppSizes.INPUT_HEIGHT
+            constraints: BoxConstraints(
+              minHeight: largeFont ? AppSizes.INPUT_HEIGHT + 28 : AppSizes.INPUT_HEIGHT,
             ),
             filled: theme.inputDecorationTheme.filled,
             fillColor: theme.inputDecorationTheme.fillColor,

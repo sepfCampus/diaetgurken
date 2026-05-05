@@ -3,13 +3,29 @@ import 'package:flutter/material.dart';
 
 class ThemeController extends ChangeNotifier
 {
-  ThemeData _theme = AppTheme.STANDARD;
+  bool _highContrast = false;
+  bool _largeFont = false;
 
-  ThemeData get theme => _theme;
+  ThemeData get theme => AppTheme.getTheme(
+    highContrast: _highContrast,
+    largeFont: _largeFont,
+  );
 
-  void setTheme(ThemeData theme)
+  String get colorSelection => _highContrast ? 'Hoher Kontrast' : 'Standard';
+
+  String get fontSizeSelection => _largeFont ? 'Groß' : 'Standard';
+
+  bool get largeFont => _largeFont;
+
+  void setColorSelection(String value)
   {
-    _theme = theme;
+    _highContrast = value == 'Hoher Kontrast';
+    notifyListeners();
+  }
+
+  void setFontSizeSelection(String value)
+  {
+    _largeFont = value == 'Groß';
     notifyListeners();
   }
 }

@@ -39,7 +39,7 @@ class _SettingsWidget extends State<SettingsWidget>
   //controller for the registerNr text field
   final TextEditingController _registerNrController = TextEditingController(text: 'AA-BBB-123456');
 
-  String _fontSizeSelection = 'Standard';
+
 
   @override
   void dispose()
@@ -53,8 +53,8 @@ class _SettingsWidget extends State<SettingsWidget>
   Widget build(BuildContext context)
   {
     final ThemeController themeController = Provider.of<ThemeController>(context);
-    final String colorSelection = identical(themeController.theme, AppTheme.STANDARD) ? 'Standard' : 'Hoher Kontrast';
-
+    final String colorSelection = themeController.colorSelection;
+    final String fontSizeSelection = themeController.fontSizeSelection;
     _testSettingsService();
 
     return AppPageScaffold(
@@ -75,8 +75,13 @@ class _SettingsWidget extends State<SettingsWidget>
             groupValue: colorSelection,
             onChanged: (value)
             {
+              if(value == null)
+              {
+                return;
+              }
+
               final themeController = Provider.of<ThemeController>(context, listen: false);
-              themeController.setTheme((value == 'Standard') ? AppTheme.STANDARD : AppTheme.HIGH_CONTRAST);
+              themeController.setColorSelection(value);
             },
             labelBuilder: (value) => value,
           ),
@@ -86,13 +91,16 @@ class _SettingsWidget extends State<SettingsWidget>
           AppRadioGroup<String>(
             title: 'Schriftgröße',
             options: const ['Standard', 'Groß'],
-            groupValue: _fontSizeSelection,
+            groupValue: fontSizeSelection,
             onChanged: (value)
             {
-              setState(()
+              if(value == null)
               {
-                _fontSizeSelection = value!;
-              });
+                return;
+              }
+
+              final themeController = Provider.of<ThemeController>(context, listen: false);
+              themeController.setFontSizeSelection(value);
             },
             labelBuilder: (value) => value
           ),

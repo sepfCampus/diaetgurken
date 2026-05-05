@@ -10,17 +10,29 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget
   const AppHeader({ super.key, required this.title, this.leading, this.trailing,});
 
   @override
-  Size get preferredSize => const Size.fromHeight(AppSizes.APP_BAR_HEIGHT);
+  Size get preferredSize => const Size.fromHeight(AppSizes.APP_BAR_HEIGHT + 24);
 
   @override
   Widget build(BuildContext context)
   {
     final theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return AppBar(
-      toolbarHeight: AppSizes.APP_BAR_HEIGHT,
-      leading: leading,
-      title: Text(title),
+      toolbarHeight: largeFont ? AppSizes.APP_BAR_HEIGHT + 24 : AppSizes.APP_BAR_HEIGHT,
+      leading: leading != null
+    ? IconTheme(
+        data: IconThemeData(
+          size: largeFont ? 38 : 24,
+          color: theme.appBarTheme.foregroundColor,
+        ),
+        child: leading!,
+      )
+    : null,
+      title: Text(
+        title,
+        style: theme.appBarTheme.titleTextStyle,
+      ),
       actions: trailing != null
           ? [
               Padding(

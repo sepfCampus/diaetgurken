@@ -20,9 +20,10 @@ class AppComboSideButtonField extends StatelessWidget
   Widget build(BuildContext context)
   {
     final theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return SizedBox(
-      height: AppSizes.TILE_HEIGHT,
+      height: largeFont ? AppSizes.TILE_HEIGHT + 28 : AppSizes.TILE_HEIGHT,
       child: Row(
         children:
         [
@@ -74,8 +75,8 @@ class AppComboSideButtonField extends StatelessWidget
           ),
 
           SizedBox(
-            width: AppSizes.TRAILING_BUTTON_WIDTH,
-            height: AppSizes.TILE_HEIGHT,
+            width: largeFont ? AppSizes.TRAILING_BUTTON_WIDTH + 24 : AppSizes.TRAILING_BUTTON_WIDTH,
+            height: largeFont ? AppSizes.TILE_HEIGHT + 28 : AppSizes.TILE_HEIGHT,
             child: OutlinedButton(
               onPressed: onSidePressed,
               style: theme.outlinedButtonTheme.style?.copyWith(
@@ -104,6 +105,7 @@ class AppComboSideButtonField extends StatelessWidget
               child: Icon(
                 sideIcon,
                 color: theme.colorScheme.onSurface,
+                size: largeFont ? 38 : 24,
               ),
             ),
           ),

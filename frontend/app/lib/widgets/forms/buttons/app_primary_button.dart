@@ -17,10 +17,11 @@ class AppPrimaryButton extends StatelessWidget
   {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return SizedBox(
       width: width,
-      height: AppSizes.BUTTON_HEIGHT,
+      height: largeFont ? AppSizes.BUTTON_HEIGHT + 24 : AppSizes.BUTTON_HEIGHT,
       child: ElevatedButton(
         onPressed: onPressed,
         //taking the default style and changing only the necessary options
@@ -33,7 +34,12 @@ class AppPrimaryButton extends StatelessWidget
           foregroundColor: WidgetStatePropertyAll(colors.onPrimary)
         ),
 
-        child: Text(buttonText)
+        child: Text(
+        buttonText,
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: colors.onPrimary,
+        ),
+      )
       )
     );
   }

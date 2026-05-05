@@ -20,7 +20,10 @@ class AppTextField extends StatelessWidget
   @override
   Widget build(BuildContext context)
   {
+    final bool largeFont = Theme.of(context).textTheme.bodyMedium!.fontSize! > 15;
+
     return TextField(
+      style: Theme.of(context).textTheme.bodyLarge,
       controller: controller,
       obscureText: obscureText,
       readOnly: readOnly,
@@ -30,8 +33,10 @@ class AppTextField extends StatelessWidget
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
-        isDense: true,
-        contentPadding: AppSpacing.INPUT_PADDING,
+        isDense: false,
+        contentPadding: largeFont
+            ? const EdgeInsets.symmetric(horizontal: 34, vertical: 28)
+            : AppSpacing.INPUT_PADDING,
       ),
     );
   }

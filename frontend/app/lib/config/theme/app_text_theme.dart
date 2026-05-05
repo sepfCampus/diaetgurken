@@ -1,68 +1,79 @@
-import 'package:flutter/material.dart'; // Importiert die Flutter-Material-Klassen für TextStyle und TextTheme.
+import 'package:flutter/material.dart';
 
 class AppTextTheme
 {
-  static TextTheme getStandardTextTheme({Color textColor = Colors.black})
+  static TextTheme getStandardTextTheme({
+    Color textColor = Colors.black,
+    bool large = false,
+  })
   {
+    final double factor = large ? 1.45 : 1.0;
+
     return TextTheme(
       headlineSmall: TextStyle(
-        fontSize: 22,
+        fontSize: 22 * factor,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),
       titleLarge: TextStyle(
-        fontSize: 18,
+        fontSize: 18 * factor,
         fontWeight: FontWeight.w500,
         color: textColor,
       ),
       bodyLarge: TextStyle(
-        fontSize: 16,
+        fontSize: 16 * factor,
         fontWeight: FontWeight.w400,
         color: textColor,
       ),
       bodyMedium: TextStyle(
-        fontSize: 15,
+        fontSize: 15 * factor,
         fontWeight: FontWeight.w400,
         color: textColor,
       ),
       bodySmall: TextStyle(
-        fontSize: 13,
+        fontSize: 13 * factor,
         fontWeight: FontWeight.w400,
         color: textColor,
       ),
       labelLarge: TextStyle(
-        fontSize: 16,
+        fontSize: 16 * factor,
         fontWeight: FontWeight.w500,
         color: textColor,
       ),
     );
   }
 
-  //default text style for the body
-  static TextStyle getBodyStyle({Color textColor = Colors.black})
+  static TextStyle getBodyStyle({
+    Color textColor = Colors.black,
+    bool large = false,
+  })
   {
     return TextStyle(
-      fontSize: 16,
+      fontSize: large ? 23 : 16,
       fontWeight: FontWeight.w400,
       color: textColor,
     );
   }
 
-  //default for titles, appbars, ...
-  static TextStyle getTitleStyle({Color textColor = Colors.black})
+  static TextStyle getTitleStyle({
+    Color textColor = Colors.black,
+    bool large = false,
+  })
   {
     return TextStyle(
-      fontSize: 18,
+      fontSize: large ? 26 : 18,
       fontWeight: FontWeight.w500,
       color: textColor,
     );
   }
 
-  //default style for buttons
-  static TextStyle getButtonStyle({Color textColor = Colors.white})
+  static TextStyle getButtonStyle({
+    Color textColor = Colors.white,
+    bool large = false,
+  })
   {
     return TextStyle(
-      fontSize: 16,
+      fontSize: large ? 23 : 16,
       fontWeight: FontWeight.w500,
       color: textColor,
     );

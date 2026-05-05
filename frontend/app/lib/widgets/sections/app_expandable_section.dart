@@ -30,6 +30,7 @@ class _AppExpandableSectionState extends State<AppExpandableSection>
   Widget build(BuildContext context)
   {
     final theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return AppSectionCard(
       padding: EdgeInsets.zero,
@@ -52,7 +53,10 @@ class _AppExpandableSectionState extends State<AppExpandableSection>
             borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), // spacing inside the header area
+              padding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: largeFont ? 26 : 14,
+              ),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary,
                 borderRadius: BorderRadius.vertical(
@@ -72,8 +76,9 @@ class _AppExpandableSectionState extends State<AppExpandableSection>
                     ),
                   ),
                   Icon(
-                    _expanded ? Icons.expand_less : Icons.expand_more, // changes the icon depending on state
+                    _expanded ? Icons.expand_less : Icons.expand_more,
                     color: theme.colorScheme.onPrimary,
+                    size: largeFont ? 38 : 24,
                   ),
                 ],
               ),

@@ -14,10 +14,11 @@ class AppSecondaryButton extends StatelessWidget
   Widget build(BuildContext context)
   {
     final theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return SizedBox(
       width: width,
-      height: AppSizes.BUTTON_HEIGHT,
+      height: largeFont ? AppSizes.BUTTON_HEIGHT + 24 : AppSizes.BUTTON_HEIGHT,
       child: OutlinedButton(
         onPressed: onPressed,
         style: theme.outlinedButtonTheme.style?.copyWith(
@@ -27,7 +28,12 @@ class AppSecondaryButton extends StatelessWidget
             ),
           ),
         ),
-        child: Text(buttonText),
+        child: Text(
+        buttonText,
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: theme.colorScheme.primary,
+        ),
+      ),
       ),
     );
   }

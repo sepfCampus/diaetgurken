@@ -12,9 +12,14 @@ class AppDrawerItem extends StatelessWidget
   Widget build(BuildContext context)
   {
     final theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return ListTile(
-      leading: Icon(icon, color: theme.appBarTheme.foregroundColor),
+      leading: Icon(
+        icon,
+        color: theme.appBarTheme.foregroundColor,
+        size: largeFont ? 34 : 24,
+      ),
       title: Text(
         title,
         style: theme.textTheme.bodyMedium?.copyWith(
@@ -22,7 +27,10 @@ class AppDrawerItem extends StatelessWidget
         ),
       ),
       onTap: onPressed,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: largeFont ? 16 : 6,
+      ),
       minLeadingWidth: 24
     );
   }

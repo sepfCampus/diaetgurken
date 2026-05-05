@@ -122,29 +122,26 @@ class ConversationWidget extends StatelessWidget
 
           AppSpacing.SPACED_BOX_H_LARGE,
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 16,
+            runSpacing: 16,
             children:
             [
               AppSecondaryButton(
                 buttonText: 'Gespräch löschen',
                 onPressed: ()
                 {
-                  Navigator.pop(context);
                 },
               ),
-
-              AppSpacing.SPACED_BOX_W_SMALL,
-
               AppPrimaryButton(
                 buttonText: 'Speichern',
                 onPressed: ()
                 {
-                  
-                }
-              )
-            ]
-          )
+                },
+              ),
+            ],
+          ),
         ]
       )
     );

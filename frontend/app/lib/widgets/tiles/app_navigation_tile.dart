@@ -14,13 +14,17 @@ class AppNavigationTile extends StatelessWidget
   Widget build(BuildContext context)
   {
     final ThemeData theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(6),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        padding: EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: largeFont ? 26 : 14,
+        ),
         decoration: BoxDecoration(
           color: theme.colorScheme.secondary,
           border: Border.all(
@@ -40,7 +44,7 @@ class AppNavigationTile extends StatelessWidget
             Icon(
               trailingIcon,
               color: theme.colorScheme.onSurface,
-              size: 28,
+              size: largeFont ? 38 : 28,
             ),
           ],
         ),

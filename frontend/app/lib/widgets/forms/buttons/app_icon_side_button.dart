@@ -13,10 +13,11 @@ class AppSideButton extends StatelessWidget
   Widget build(BuildContext context)
   {
     final theme = Theme.of(context);
+    final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
     return SizedBox(
-      width: AppSizes.TRAILING_BUTTON_WIDTH,
-      height: AppSizes.SQUARE_ACTION_SIZE,
+      width: largeFont ? AppSizes.TRAILING_BUTTON_WIDTH + 24 : AppSizes.TRAILING_BUTTON_WIDTH,
+      height: largeFont ? AppSizes.SQUARE_ACTION_SIZE + 24 : AppSizes.SQUARE_ACTION_SIZE,
       child: OutlinedButton(
         onPressed: onPressed,
         style: theme.outlinedButtonTheme.style?.copyWith(
@@ -27,7 +28,10 @@ class AppSideButton extends StatelessWidget
             ),
           ),
         ),
-        child: Icon(icon),
+        child: Icon(
+        icon,
+        size: largeFont ? 36 : 24,
+      ),
       ),
     );
   }
