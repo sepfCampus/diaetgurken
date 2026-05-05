@@ -1,19 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
-import 'package:app/config/theme/app_theme.dart';
 import 'package:app/config/theme/theme_controller.dart';
-import 'package:app/data/daos/http/api/api_client.dart';
-import 'package:app/data/daos/http/api/memory_session_store.dart';
-import 'package:app/data/daos/http/api/session_api_client.dart';
-import 'package:app/data/daos/http/api/session_store.dart';
-import 'package:app/data/daos/http/settings_http_dao.dart';
-import 'package:app/data/daos/http/user_http_dao.dart';
-import 'package:app/data/daos/memory/settings_memory_dao.dart';
-import 'package:app/service/settings_service.dart';
-import 'package:app/service/user_service.dart';
-import 'package:app/service/util/entity_vo_converter_http_util.dart';
-import 'package:app/service/util/entity_vo_converter_memory_util.dart';
-import 'package:app/vo/Settings.dart';
 import 'package:app/widgets/forms/app_labeled_field.dart';
 import 'package:app/widgets/forms/app_radio_group.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
@@ -33,13 +20,13 @@ class SettingsWidget extends StatefulWidget
 
 class _SettingsWidget extends State<SettingsWidget>
 {
-  //controller for the email text field
-  final TextEditingController _emailController = TextEditingController(text: 'vorname.nachname@email.at');
-  
-  //controller for the registerNr text field
-  final TextEditingController _registerNrController = TextEditingController(text: 'AA-BBB-123456');
+  final TextEditingController _emailController = TextEditingController(
+    text: 'vorname.nachname@email.at',
+  );
 
-
+  final TextEditingController _registerNrController = TextEditingController(
+    text: 'AA-BBB-123456',
+  );
 
   @override
   void dispose()
@@ -55,7 +42,6 @@ class _SettingsWidget extends State<SettingsWidget>
     final ThemeController themeController = Provider.of<ThemeController>(context);
     final String colorSelection = themeController.colorSelection;
     final String fontSizeSelection = themeController.fontSizeSelection;
-    _testSettingsService();
 
     return AppPageScaffold(
       title: 'Einstellungen',
@@ -64,9 +50,18 @@ class _SettingsWidget extends State<SettingsWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
         [
-          AppLabeledField(label: 'E-Mail-Adresse:', controller: _emailController),
+          AppLabeledField(
+            label: 'E-Mail-Adresse:',
+            controller: _emailController,
+          ),
+
           AppSpacing.SPACED_BOX_H_MEDIUM,
-          AppLabeledField(label: 'Registernr.:', controller: _registerNrController),
+
+          AppLabeledField(
+            label: 'Registernr.:',
+            controller: _registerNrController,
+          ),
+
           AppSpacing.SPACED_BOX_H_MEDIUM,
 
           AppRadioGroup<String>(
@@ -80,7 +75,11 @@ class _SettingsWidget extends State<SettingsWidget>
                 return;
               }
 
-              final themeController = Provider.of<ThemeController>(context, listen: false);
+              final themeController = Provider.of<ThemeController>(
+                context,
+                listen: false,
+              );
+
               themeController.setColorSelection(value);
             },
             labelBuilder: (value) => value,
@@ -99,10 +98,14 @@ class _SettingsWidget extends State<SettingsWidget>
                 return;
               }
 
-              final themeController = Provider.of<ThemeController>(context, listen: false);
+              final themeController = Provider.of<ThemeController>(
+                context,
+                listen: false,
+              );
+
               themeController.setFontSizeSelection(value);
             },
-            labelBuilder: (value) => value
+            labelBuilder: (value) => value,
           ),
 
           AppSpacing.SPACED_BOX_H_LARGE,
@@ -115,9 +118,9 @@ class _SettingsWidget extends State<SettingsWidget>
                 onPressed: ()
                 {
                   Navigator.pushNamed(context, Routes.PAGE_CHANGE_PASSWORD);
-                }
-              )
-            )
+                },
+              ),
+            ),
           ),
 
           AppSpacing.SPACED_BOX_H_SMALL,
@@ -130,9 +133,9 @@ class _SettingsWidget extends State<SettingsWidget>
                 onPressed: ()
                 {
                   Navigator.pushNamed(context, Routes.PAGE_DELETE_PROFILE);
-                }
-              )
-            )
+                },
+              ),
+            ),
           ),
 
           AppSpacing.SPACED_BOX_H_SMALL,
@@ -146,7 +149,7 @@ class _SettingsWidget extends State<SettingsWidget>
                 onPressed: ()
                 {
                   Navigator.pop(context);
-                }
+                },
               ),
 
               AppSpacing.SPACED_BOX_W_MEDIUM,
@@ -155,27 +158,12 @@ class _SettingsWidget extends State<SettingsWidget>
                 buttonText: 'Speichern',
                 onPressed: ()
                 {
-
-                })
+                },
+              ),
             ],
-          )
-        ]
-      )
+          ),
+        ],
+      ),
     );
-  }
-
-
-  void _testSettingsService() async
-  {
-    SessionStore sessionStore = MemorySessionStore();
-    ApiClient apiClient = SessionApiClient(baseUrl: "http://localhost:3000/api", sessionStore: sessionStore);
-
-    UserService userService = UserService(UserHttpDao(apiClient: apiClient, sessionStore: sessionStore), EntityVoConverterHttpUtil());
-    await userService.login("test@test.at", "123456");
-    
-    SettingsService service = SettingsService(SettingsHttpDao(apiClient: apiClient), EntityVoConverterHttpUtil());
-
-    Settings settings = await service.getSettings(0);
-    print("${settings.colorMode} ${settings.fontSize}");
   }
 }

@@ -89,28 +89,27 @@ class _RegisterWidgetState extends State<RegisterWidget>
 
                     AppSpacing.SPACED_BOX_H_LARGE,
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: AppSpacing.SM,
+                      runSpacing: AppSpacing.SM,
                       children:
                       [
                         AppSecondaryButton(
                           buttonText: 'Login',
-                          width: AppSizes.BUTTON_WIDTH_SMALL,
                           onPressed: ()
                           {
                             Navigator.of(context).pushNamedAndRemoveUntil(Routes.PAGE_LOGIN, (route) => false);
                           }
                         ),
 
-                        AppSpacing.SPACED_BOX_W_SMALL,
-
                         AppPrimaryButton(
                           buttonText: 'Registrieren',
-                          width: AppSizes.BUTTON_WIDTH_MEDIUM,
                           onPressed: ()
                           {
                             Navigator.of(context).pushNamedAndRemoveUntil(Routes.PAGE_HOME, (route) => false);
-                          })
+                          }
+                        )
                       ],
                     )
                   ],

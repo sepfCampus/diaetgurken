@@ -54,7 +54,7 @@ class _LoginWidgetState extends State<LoginWidget>
             
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children:
                   [
                     AppTextField(
@@ -80,8 +80,10 @@ class _LoginWidgetState extends State<LoginWidget>
 
                     AppSpacing.SPACED_BOX_H_EXTRA_EXTRA_LARGE,
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: AppSpacing.SM,
+                      runSpacing: AppSpacing.SM,
                       children:
                       [
                         AppSecondaryButton(
@@ -91,8 +93,6 @@ class _LoginWidgetState extends State<LoginWidget>
                             Navigator.pushNamed(context, Routes.PAGE_REGISTER);
                           }
                         ),
-
-                        AppSpacing.SPACED_BOX_W_SMALL,
 
                         AppPrimaryButton(
                           buttonText: 'Login',
