@@ -1,11 +1,13 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/service/klienten_akte_http_service.dart';
 import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
 import 'package:app/widgets/layout/layout_util.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CreateClientFileWidget extends StatefulWidget
 {
@@ -19,11 +21,38 @@ class _CreateClientFileWidgetState extends State<CreateClientFileWidget>
 {
   final TextEditingController _nameController = TextEditingController();
 
+  bool _isLoading = false;
+  String? _errorMessage;
+
   @override
   void dispose()
   {
     _nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _save() async
+  {
+    setState(() { _isLoading = true; _errorMessage = null; });
+
+    try
+    {
+      final service = context.read<KlientenAkteHttpService>();
+      await service.create(name: _nameController.text.trim());
+
+      if (mounted)
+      {
+        Navigator.pushNamedAndRemoveUntil(context, Routes.PAGE_CLIENT_FILES, (route) => false);
+      }
+    }
+    catch (e)
+    {
+      setState(() => _errorMessage = 'Fehler beim Anlegen der Klientenakte.');
+    }
+    finally
+    {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -41,6 +70,14 @@ class _CreateClientFileWidgetState extends State<CreateClientFileWidget>
             hintText: 'Name',
           ),
 
+          if (_errorMessage != null) ...[
+            AppSpacing.SPACED_BOX_H_LARGE,
+            Text(
+              _errorMessage!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
+
           AppSpacing.SPACED_BOX_H_LARGE,
 
           Row(
@@ -57,13 +94,12 @@ class _CreateClientFileWidgetState extends State<CreateClientFileWidget>
 
               AppSpacing.SPACED_BOX_W_SMALL,
 
-              AppPrimaryButton(
-                buttonText: 'Speichern',
-                onPressed: ()
-                {
-                  Navigator.pushNamed(context, Routes.PAGE_CLIENT_FILES);
-                },
-              ),
+              _isLoading
+                ? const CircularProgressIndicator()
+                : AppPrimaryButton(
+                    buttonText: 'Speichern',
+                    onPressed: _save,
+                  ),
             ],
           ),
         ],

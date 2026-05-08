@@ -23,10 +23,17 @@ class _ClientFileWidgetState extends State<ClientFileWidget> {
     '20.02.2026',
   ];
 
+  String _formatId(String rawId)
+  {
+    final id = int.tryParse(rawId) ?? 0;
+    return id.toString().padLeft(4, '0');
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String clientId =
-        (ModalRoute.of(context)?.settings.arguments as String?) ?? '?';
+    final String rawId =
+        (ModalRoute.of(context)?.settings.arguments as String?) ?? '0';
+    final String clientId = _formatId(rawId);
 
     return AppPageScaffold(
       title: 'Klientenakte ($clientId)',

@@ -21,6 +21,7 @@ import 'package:app/screens/outcome_evaluation_detail_widget.dart';
 import 'package:app/screens/outcome_evaluation_widget.dart';
 import 'package:app/screens/register_widget.dart';
 import 'package:app/screens/settings_widget.dart';
+import 'package:app/service/klienten_akte_http_service.dart';
 import 'package:app/service/user_http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:app/config/navigation/routes.dart';
@@ -81,6 +82,7 @@ class MainApp extends StatelessWidget
       baseUrl: 'http://localhost:3000/api',
       sessionStore: sessionStore,
     );
+    final klientenAkteHttpService = KlientenAkteHttpService(apiClient: apiClient);
     final userHttpService = UserHttpService(
       apiClient: apiClient,
       sessionStore: sessionStore,
@@ -91,6 +93,7 @@ class MainApp extends StatelessWidget
       [
         ChangeNotifierProvider(create: (_) => ThemeController()),
         Provider<UserHttpService>.value(value: userHttpService),
+        Provider<KlientenAkteHttpService>.value(value: klientenAkteHttpService),
       ],
       child: Consumer<ThemeController>(
         builder: (context, themeController, _)
