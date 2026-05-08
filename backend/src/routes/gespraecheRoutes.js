@@ -215,4 +215,40 @@ router.put("/:id", requireLogin, gespraechController.update);
  */
 router.delete("/:id", requireLogin, gespraechController.remove);
 
+/**
+ * @swagger
+ * /users/klientenakten/{klientenAkteId}/gespraech/{gespraechId}/export/pdf:
+ *   get:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
+ *     summary: Exportiert ein Gespräch als PDF
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: gespraechId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: PDF erfolgreich generiert
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       401:
+ *         description: Nicht eingeloggt
+ *       403:
+ *         description: Kein Zugriff auf dieses Gespräch
+ *       404:
+ *         description: Gespräch oder Klientenakte nicht gefunden
+ */
+const pdfExportController = require("../controllers/pdfExportController");
+router.get("/:gespraechId/export/pdf", requireLogin, pdfExportController.exportGespräch);
+
 module.exports = router;

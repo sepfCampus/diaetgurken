@@ -68,4 +68,6 @@ router.post("/", requireLogin, klientenAkteController.create);
  */
 router.delete("/:id", requireLogin, klientenAkteController.remove);
 
+
+
 module.exports = router;

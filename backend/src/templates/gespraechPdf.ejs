@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesprächsprotokoll</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.1;
+            margin: 5px;
+            color: #222;
+        }
+
+        .header {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+        }
+
+        .header h1 {
+            color: #0d6efd;
+            margin: 0;
+            font-size: 1.75rem;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            font-size: 0.95rem;
+            color: #445;
+        }
+
+        .meta-info,
+        .section {
+            background-color: #f7f9fc;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+
+        .section {
+            padding-top: 10px;
+        }
+
+        .section h2 {
+            color: #2e3d49;
+            border-bottom: 1px solid #dfe4ea;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .field {}
+
+        .field-label {
+            font-weight: bold;
+            color: #1f2937;
+            margin-right: 6px;
+        }
+
+        .field-value {
+            color: #3b4a54;
+            margin: 4px 0 0;
+        }
+
+        .subsection {
+            margin-bottom: 12px;
+        }
+
+        .subsection h3 {
+            margin: 6px 0 8px;
+            font-size: 1rem;
+            color: #1f2937;
+        }
+
+        .list-item {
+            margin-bottom: 6px;
+        }
+
+        .footer {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid #dfe4ea;
+            font-size: 0.9rem;
+            color: #5f6a72;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Gesprächsprotokoll</h1>
+        <p>Exportiert am: <%= new Date(generatedAt).toLocaleString('de-DE') %>
+        </p>
+    </div>
+
+    <div class="meta-info">
+        <div class="field">
+            <span class="field-label">Klient</span>
+            <span class="field-value">
+                <%= akte?.klarname?.name || 'Unbekannt' %>
+            </span>
+        </div>
+        <div class="field">
+            <span class="field-label">Gesprächsdatum</span>
+            <span class="field-value">
+                <%= new Date(gespraech.datum).toLocaleDateString('de-DE') %>
+            </span>
+        </div>
+    </div>
+
+    <% function renderObject(obj) { %>
+        <% if (!obj || Object.keys(obj).length===0) { %>
+            <div class="field">
+                <span class="field-value">Keine Daten vorhanden</span>
+            </div>
+            <% } else { %>
+                <% Object.entries(obj).forEach(function(entry) { %>
+                    <div class="field">
+                        <span class="field-label">
+                            <%= entry[0] %>
+                        </span>
+                        <span class="field-value">
+                            <%= typeof entry[1]==='object' && entry[1] !==null ? JSON.stringify(entry[1], null, 2) :
+                                (entry[1] ?? 'Nicht angegeben' ) %>
+                        </span>
+                    </div>
+                    <% }); %>
+                        <% } %>
+                            <% } %>
+
+                                <% if (gespraech.formMetaData && Array.isArray(gespraech.formMetaData.fields) &&
+                                    gespraech.formMetaData.fields.length> 0) { %>
+                                    <% } else if (gespraech.formMetaData) { %>
+                                        <div class="section">
+                                            <h2>Formulardaten</h2>
+                                            <% renderObject(gespraech.formMetaData); %>
+                                        </div>
+                                        <% } %>
+
+                                            <% if (gespraech.assessment && Object.keys(gespraech.assessment).length> 0)
+                                                { %>
+                                                <div class="section">
+                                                    <h2>Assessment</h2>
+                                                    <% renderObject(gespraech.assessment); %>
+                                                </div>
+                                                <% } %>
+
+                                                    <% if (gespraech.diagnosen && Array.isArray(gespraech.diagnosen) &&
+                                                        gespraech.diagnosen.length> 0) { %>
+                                                        <div class="section">
+                                                            <h2>Diagnosen</h2>
+                                                            <% gespraech.diagnosen.forEach(function(item) { %>
+                                                                <div class="list-item">
+                                                                    <strong>
+                                                                        <%= item.code || 'Code unbekannt' %>
+                                                                    </strong>
+                                                                    <% if (item.description) { %> – <%= item.description
+                                                                            %>
+                                                                            <% } %>
+                                                                </div>
+                                                                <% }); %>
+                                                        </div>
+                                                        <% } %>
+
+                                                            <% if (gespraech.ziele && Array.isArray(gespraech.ziele) &&
+                                                                gespraech.ziele.length> 0) { %>
+                                                                <div class="section">
+                                                                    <h2>Ziele</h2>
+                                                                    <% gespraech.ziele.forEach(function(ziel, index) {
+                                                                        %>
+                                                                        <div class="subsection">
+                                                                            <h3>Ziel <%= index + 1 %>
+                                                                            </h3>
+                                                                            <% Object.entries(ziel).forEach(function(entry)
+                                                                                { %>
+                                                                                <div class="field">
+                                                                                    <span class="field-label">
+                                                                                        <%= entry[0] %>
+                                                                                    </span>
+                                                                                    <span class="field-value">
+                                                                                        <%= entry[1] ?? '-' %>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <% }); %>
+                                                                        </div>
+                                                                        <% }); %>
+                                                                </div>
+                                                                <% } %>
+
+                                                                    <% if (gespraech.outcome &&
+                                                                        Object.keys(gespraech.outcome).length> 0) { %>
+                                                                        <div class="section">
+                                                                            <h2>Outcome</h2>
+                                                                            <% renderObject(gespraech.outcome); %>
+                                                                        </div>
+                                                                        <% } %>
+
+                                                                            <% if (gespraech.notizen) { %>
+                                                                                <div class="section">
+                                                                                    <h2>Notizen</h2>
+                                                                                    <div class="field-value">
+                                                                                        <%= gespraech.notizen %>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <% } %>
+
+                                                                                    <div class="footer">
+                                                                                        <p>Dieses Dokument enthält die
+                                                                                            wichtigsten Gesprächsinhalte
+                                                                                            in einem kompakten Layout.
+                                                                                        </p>
+                                                                                    </div>
+</body>
+
+</html>
