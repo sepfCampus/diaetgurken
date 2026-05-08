@@ -26,6 +26,7 @@ import 'package:app/service/user_http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:provider/provider.dart';
+import 'package:app/service/klarname_http_service.dart';
 
 void main()
 {
@@ -94,6 +95,7 @@ class MainApp extends StatelessWidget
         ChangeNotifierProvider(create: (_) => ThemeController()),
         Provider<UserHttpService>.value(value: userHttpService),
         Provider<KlientenAkteHttpService>.value(value: klientenAkteHttpService),
+        Provider<KlarnameHttpService>.value(value: KlarnameHttpService(apiClient: apiClient)),
       ],
       child: Consumer<ThemeController>(
         builder: (context, themeController, _)

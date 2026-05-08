@@ -1,4 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/service/klarname_http_service.dart';
+import 'package:app/service/klienten_akte_http_service.dart';
 import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -6,6 +8,7 @@ import 'package:app/widgets/layout/app_page_scaffold.dart';
 import 'package:app/widgets/layout/layout_util.dart';
 import 'package:app/widgets/tiles/app_navigation_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ClearNameWidget extends StatefulWidget
 {
@@ -19,7 +22,103 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
 {
   final TextEditingController _passwordController = TextEditingController();
 
-  String _selectedClient = '000009';
+  List<Map<String, dynamic>> _clientFiles = [];
+  Map<String, dynamic>? _selectedFile;
+  String? _klarname;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState()
+  {
+    super.initState();
+    _loadClientFiles();
+  }
+
+  Future<void> _loadClientFiles() async
+  {
+    try
+    {
+      final service = context.read<KlientenAkteHttpService>();
+      final files = await service.getAll();
+      setState(()
+      {
+        _clientFiles = files;
+        if (files.isNotEmpty) _selectedFile = files.first;
+      });
+    }
+    catch (e)
+    {
+      setState(() => _errorMessage = 'Fehler beim Laden der Klientenakten.');
+    }
+  }
+
+  String _formatId(Map<String, dynamic> file)
+  {
+    final id = file['id'] as int? ?? 0;
+    return id.toString().padLeft(4, '0');
+  }
+
+  Future<void> _showKlarname() async
+  {
+    if (_selectedFile == null)
+    {
+      setState(() => _errorMessage = 'Bitte eine Klientenakte auswählen.');
+      return;
+    }
+
+    if (_passwordController.text.isEmpty)
+    {
+      setState(() => _errorMessage = 'Bitte Passwort eingeben.');
+      return;
+    }
+
+    setState(() { _isLoading = true; _errorMessage = null; _klarname = null; });
+
+    try
+    {
+      final service = context.read<KlarnameHttpService>();
+      final name = await service.getKlarname(
+        klientenAkteId: _selectedFile!['id'].toString(),
+        password: _passwordController.text,
+      );
+      setState(() => _klarname = name);
+    }
+    catch (e)
+    {
+      setState(() => _errorMessage = 'Fehler: Passwort falsch oder kein Zugriff.');
+    }
+    finally
+    {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showDropdown(BuildContext context) async
+  {
+    final selected = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      builder: (ctx) => ListView(
+        children: _clientFiles.map((file)
+        {
+          return ListTile(
+            title: Text(_formatId(file)),
+            onTap: () => Navigator.pop(ctx, file),
+          );
+        }).toList(),
+      ),
+    );
+
+    if (selected != null)
+    {
+      setState(()
+      {
+        _selectedFile = selected;
+        _klarname = null;
+        _errorMessage = null;
+      });
+    }
+  }
 
   @override
   void dispose()
@@ -40,17 +139,14 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
         [
-          Text(
-          'Klientenakte',
-          style: theme.textTheme.bodyMedium
-          ),
+          Text('Klientenakte', style: theme.textTheme.bodyMedium),
 
           AppSpacing.SPACED_BOX_H_SMALL,
 
           AppNavigationTile(
-            title: _selectedClient,
+            title: _selectedFile != null ? _formatId(_selectedFile!) : 'Bitte auswählen ...',
             trailingIcon: Icons.keyboard_arrow_down,
-            onTap: () {},
+            onTap: () => _showDropdown(context),
           ),
 
           AppSpacing.SPACED_BOX_H_MEDIUM,
@@ -61,25 +157,25 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
             obscureText: true,
           ),
 
-          AppSpacing.SPACED_BOX_H_MEDIUM,
-
-          Container(
-            width: double.infinity,
-            height: 200,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: theme.scaffoldBackgroundColor,
-              border: Border.all(
-                color: theme.colorScheme.primary,
-                width: 1,
+          if (_klarname != null) ...[
+            AppSpacing.SPACED_BOX_H_MEDIUM,
+            Container(
+              width: double.infinity,
+              height: 200,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                border: Border.all(color: theme.colorScheme.primary, width: 1),
+                borderRadius: BorderRadius.circular(6),
               ),
-              borderRadius: BorderRadius.circular(6),
+              child: Text(_klarname!, style: theme.textTheme.bodyMedium),
             ),
-            child: Text(
-              'Max Mustermann',
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
+          ],
+
+          if (_errorMessage != null) ...[
+            AppSpacing.SPACED_BOX_H_MEDIUM,
+            Text(_errorMessage!, style: TextStyle(color: theme.colorScheme.error)),
+          ],
 
           AppSpacing.SPACED_BOX_H_LARGE,
 
@@ -88,25 +184,21 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
             children: [
               AppSecondaryButton(
                 buttonText: 'Abbrechen',
-                onPressed: ()
-                {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
               ),
 
               AppSpacing.SPACED_BOX_W_SMALL,
 
-              AppPrimaryButton(
-                buttonText: 'Anzeigen',
-                onPressed: ()
-                {
-
-                },
-              ),
+              _isLoading
+                ? const CircularProgressIndicator()
+                : AppPrimaryButton(
+                    buttonText: 'Anzeigen',
+                    onPressed: _showKlarname,
+                  ),
             ],
-          )
-        ]
-      )
+          ),
+        ],
+      ),
     );
   }
 }
