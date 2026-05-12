@@ -35,21 +35,34 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
 
   Future<void> _loadClientFiles() async
   {
-    setState(() { _isLoading = true; _errorMessage = null; });
+    if (mounted)
+    {
+      setState(() { _isLoading = true; _errorMessage = null; });
+    }
 
     try
     {
       final service = context.read<KlientenAkteHttpService>();
       final files = await service.getAll();
-      setState(() => _clientFiles = files);
+
+      if (mounted)
+      {
+        setState(() => _clientFiles = files);
+      }
     }
     catch (e)
     {
-      setState(() => _errorMessage = 'Fehler beim Laden der Klientenakten.');
+      if (mounted)
+      {
+        setState(() => _errorMessage = 'Fehler beim Laden der Klientenakten.');
+      }
     }
     finally
     {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted)
+      {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -86,11 +99,17 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
             hintText: 'Suchen ...',
             onChanged: (value)
             {
-              setState(() => _searchText = value);
+              if (mounted)
+              {
+                setState(() => _searchText = value);
+              }
             },
             onSearchPressed: ()
             {
-              setState(() => _searchText = _searchController.text);
+              if (mounted)
+              {
+                setState(() => _searchText = _searchController.text);
+              }
             },
           ),
 
@@ -102,7 +121,11 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
             onTap: () async
             {
               await Navigator.pushNamed(context, Routes.PAGE_CREATE_CLIENT_FILE);
-              _loadClientFiles();
+
+              if (mounted)
+              {
+                _loadClientFiles();
+              }
             },
           ),
 
@@ -120,13 +143,23 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
             {
               final displayId = _formatId(file);
               final id = file['id']?.toString() ?? '';
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: AppStandardTileCard(
                   title: displayId,
-                  onTap: ()
+                  onTap: () async
                   {
-                    Navigator.pushNamed(context, Routes.PAGE_CLIENT_FILE, arguments: id);
+                    await Navigator.pushNamed(
+                      context,
+                      Routes.PAGE_CLIENT_FILE,
+                      arguments: id,
+                    );
+
+                    if (mounted)
+                    {
+                      _loadClientFiles();
+                    }
                   },
                 ),
               );

@@ -21,6 +21,7 @@ import 'package:app/screens/outcome_evaluation_detail_widget.dart';
 import 'package:app/screens/outcome_evaluation_widget.dart';
 import 'package:app/screens/register_widget.dart';
 import 'package:app/screens/settings_widget.dart';
+import 'package:app/service/gespraech_http_service.dart';
 import 'package:app/service/klienten_akte_http_service.dart';
 import 'package:app/service/user_http_service.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ void main()
 {
   runApp(const MainApp());
 }
+
 class AuthCheckWidget extends StatefulWidget
 {
   const AuthCheckWidget({ super.key });
@@ -83,7 +85,9 @@ class MainApp extends StatelessWidget
       baseUrl: 'http://localhost:3000/api',
       sessionStore: sessionStore,
     );
+
     final klientenAkteHttpService = KlientenAkteHttpService(apiClient: apiClient);
+    final gespraechHttpService = GespraechHttpService(apiClient: apiClient);
     final userHttpService = UserHttpService(
       apiClient: apiClient,
       sessionStore: sessionStore,
@@ -95,6 +99,7 @@ class MainApp extends StatelessWidget
         ChangeNotifierProvider(create: (_) => ThemeController()),
         Provider<UserHttpService>.value(value: userHttpService),
         Provider<KlientenAkteHttpService>.value(value: klientenAkteHttpService),
+        Provider<GespraechHttpService>.value(value: gespraechHttpService),
         Provider<KlarnameHttpService>.value(value: KlarnameHttpService(apiClient: apiClient)),
       ],
       child: Consumer<ThemeController>(
@@ -103,28 +108,28 @@ class MainApp extends StatelessWidget
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             routes:
-{
-  Routes.PAGE_HOME: (context) => AuthGuard(child: ClientFilesWidget()),
-  Routes.PAGE_LOGIN: (context) => LoginWidget(),
-  Routes.PAGE_REGISTER: (context) => RegisterWidget(),
-  Routes.PAGE_SETTINGS: (context) => AuthGuard(child: SettingsWidget()),
-  Routes.PAGE_CLEAR_NAME: (context) => AuthGuard(child: ClearNameWidget()),
-  Routes.PAGE_CLIENT_FILES: (context) => AuthGuard(child: ClientFilesWidget()),
-  Routes.PAGE_CHANGE_PASSWORD: (context) => AuthGuard(child: ChangePasswordWidget()),
-  Routes.PAGE_DELETE_PROFILE: (context) => AuthGuard(child: DeleteProfileWidget()),
-  Routes.PAGE_CREATE_CLIENT_FILE: (context) => AuthGuard(child: CreateClientFileWidget()),
-  Routes.PAGE_CLIENT_FILE: (context) => AuthGuard(child: ClientFileWidget()),
-  Routes.PAGE_EXPORT_CONVERSATION: (context) => AuthGuard(child: ExportConversationWidget()),
-  Routes.PAGE_CONVERSATION_NOTES: (context) => AuthGuard(child: ConversationNotesWidget()),
-  Routes.PAGE_CONVERSATION: (context) => AuthGuard(child: ConversationWidget()),
-  Routes.PAGE_FILTER: (context) => AuthGuard(child: FilterWidget()),
-  Routes.PAGE_ASSESSMENT: (context) => AuthGuard(child: AssessmentWidget()),
-  Routes.PAGE_DIAGNOSIS: (context) => AuthGuard(child: DiagnosisWidget()),
-  Routes.PAGE_OUTCOME_EVALUATION: (context) => AuthGuard(child: OutcomeEvaluationWidget()),
-  Routes.PAGE_OUTCOME_EVALUATION_DETAIL: (context) => AuthGuard(child: OutcomeEvaluationDetailWidget()),
-  Routes.PAGE_GOAL_SETTING: (context) => AuthGuard(child: GoalSettingWidget()),
-  Routes.PAGE_GOAL_EDITOR: (context) => AuthGuard(child: GoalEditorWidget()),
-},
+            {
+              Routes.PAGE_HOME: (context) => AuthGuard(child: ClientFilesWidget()),
+              Routes.PAGE_LOGIN: (context) => LoginWidget(),
+              Routes.PAGE_REGISTER: (context) => RegisterWidget(),
+              Routes.PAGE_SETTINGS: (context) => AuthGuard(child: SettingsWidget()),
+              Routes.PAGE_CLEAR_NAME: (context) => AuthGuard(child: ClearNameWidget()),
+              Routes.PAGE_CLIENT_FILES: (context) => AuthGuard(child: ClientFilesWidget()),
+              Routes.PAGE_CHANGE_PASSWORD: (context) => AuthGuard(child: ChangePasswordWidget()),
+              Routes.PAGE_DELETE_PROFILE: (context) => AuthGuard(child: DeleteProfileWidget()),
+              Routes.PAGE_CREATE_CLIENT_FILE: (context) => AuthGuard(child: CreateClientFileWidget()),
+              Routes.PAGE_CLIENT_FILE: (context) => AuthGuard(child: ClientFileWidget()),
+              Routes.PAGE_EXPORT_CONVERSATION: (context) => AuthGuard(child: ExportConversationWidget()),
+              Routes.PAGE_CONVERSATION_NOTES: (context) => AuthGuard(child: ConversationNotesWidget()),
+              Routes.PAGE_CONVERSATION: (context) => AuthGuard(child: ConversationWidget()),
+              Routes.PAGE_FILTER: (context) => AuthGuard(child: FilterWidget()),
+              Routes.PAGE_ASSESSMENT: (context) => AuthGuard(child: AssessmentWidget()),
+              Routes.PAGE_DIAGNOSIS: (context) => AuthGuard(child: DiagnosisWidget()),
+              Routes.PAGE_OUTCOME_EVALUATION: (context) => AuthGuard(child: OutcomeEvaluationWidget()),
+              Routes.PAGE_OUTCOME_EVALUATION_DETAIL: (context) => AuthGuard(child: OutcomeEvaluationDetailWidget()),
+              Routes.PAGE_GOAL_SETTING: (context) => AuthGuard(child: GoalSettingWidget()),
+              Routes.PAGE_GOAL_EDITOR: (context) => AuthGuard(child: GoalEditorWidget()),
+            },
             theme: themeController.theme,
             home: const AuthCheckWidget(),
           );

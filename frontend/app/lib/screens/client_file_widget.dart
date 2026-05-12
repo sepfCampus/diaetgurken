@@ -1,5 +1,7 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/service/gespraech_http_service.dart';
+import 'package:app/service/klienten_akte_http_service.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
@@ -8,6 +10,7 @@ import 'package:app/widgets/tiles/app_navigation_tile.dart';
 import 'package:app/widgets/tiles/app_side_button_tile.dart';
 import 'package:app/widgets/tiles/app_standard_tile_card.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ClientFileWidget extends StatefulWidget {
   const ClientFileWidget({super.key});
@@ -17,23 +20,111 @@ class ClientFileWidget extends StatefulWidget {
 }
 
 class _ClientFileWidgetState extends State<ClientFileWidget> {
-  final List<String> _conversations = [
-    '01.01.2026',
-    '14.01.2026',
-    '20.02.2026',
-  ];
+  List<Map<String, dynamic>> _conversations = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  String _formatId(String rawId)
-  {
-    final id = int.tryParse(rawId) ?? 0;
+  int _getClientFileId(BuildContext context) {
+    final argument = ModalRoute.of(context)?.settings.arguments;
+
+    if (argument is int) {
+      return argument;
+    }
+
+    if (argument is String) {
+      return int.tryParse(argument) ?? 0;
+    }
+
+    return 0;
+  }
+
+  String _formatId(int id) {
     return id.toString().padLeft(4, '0');
+  }
+
+  String _formatDate(dynamic rawDate) {
+    if (rawDate == null) {
+      return 'Kein Datum';
+    }
+
+    final date = DateTime.tryParse(rawDate.toString());
+
+    if (date == null) {
+      return rawDate.toString();
+    }
+
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year.toString();
+
+    return '$day.$month.$year';
+  }
+
+  String _toIsoDate(DateTime date) {
+    final year = date.year.toString().padLeft(4, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+
+    return '$year-$month-$day';
+  }
+
+  Future<void> _loadConversations(int klientenAkteId) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final service = context.read<GespraechHttpService>();
+      final conversations = await service.getAll(klientenAkteId: klientenAkteId);
+
+      if (mounted) {
+        setState(() => _conversations = conversations);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _errorMessage = 'Fehler beim Laden der Gespräche.');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _deleteClientFile(int klientenAkteId) async {
+    try {
+      final service = context.read<KlientenAkteHttpService>();
+      await service.delete(id: klientenAkteId);
+
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _errorMessage = 'Fehler beim Löschen der Klientenakte.');
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final klientenAkteId = _getClientFileId(context);
+
+    if (klientenAkteId > 0) {
+      _loadConversations(klientenAkteId);
+    } else {
+      _isLoading = false;
+      _errorMessage = 'Ungültige Klientenakte.';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final String rawId =
-        (ModalRoute.of(context)?.settings.arguments as String?) ?? '0';
-    final String clientId = _formatId(rawId);
+    final int klientenAkteId = _getClientFileId(context);
+    final String clientId = _formatId(klientenAkteId);
 
     return AppPageScaffold(
       title: 'Klientenakte ($clientId)',
@@ -49,37 +140,78 @@ class _ClientFileWidgetState extends State<ClientFileWidget> {
 
           AppSpacing.SPACED_BOX_H_SMALL,
 
-          ..._conversations.map((conversationDate) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.SM),
-              child: AppSideButtonTile(
-                title: conversationDate,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    Routes.PAGE_CONVERSATION,
-                    arguments: {'clientId': clientId, 'date': conversationDate},
-                  );
-                },
-                sideIcon: Icons.download_outlined,
-                onSidePressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    Routes.PAGE_EXPORT_CONVERSATION,
-                    arguments: {'clientId': clientId, 'date': conversationDate},
-                  );
-                },
-              ),
-            );
-          }),
+          if (_isLoading)
+            const Center(child: CircularProgressIndicator())
+          else if (_errorMessage != null)
+            Text(
+              _errorMessage!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            )
+          else if (_conversations.isEmpty)
+            const Text('Noch keine Gespräche vorhanden.')
+          else
+            ..._conversations.map((conversation) {
+              final int gespraechId = conversation['id'] as int;
+              final String conversationDate = _formatDate(conversation['datum']);
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.SM),
+                child: AppSideButtonTile(
+                  title: conversationDate,
+                  onTap: () async {
+                    await Navigator.pushNamed(
+                      context,
+                      Routes.PAGE_CONVERSATION,
+                      arguments: {
+                        'clientId': clientId,
+                        'klientenAkteId': klientenAkteId,
+                        'gespraechId': gespraechId,
+                        'date': conversationDate,
+                        'datum': conversation['datum'],
+                      },
+                    );
+
+                    if (mounted) {
+                      _loadConversations(klientenAkteId);
+                    }
+                  },
+                  sideIcon: Icons.download_outlined,
+                  onSidePressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      Routes.PAGE_EXPORT_CONVERSATION,
+                      arguments: {
+                        'clientId': clientId,
+                        'klientenAkteId': klientenAkteId,
+                        'gespraechId': gespraechId,
+                        'date': conversationDate,
+                      },
+                    );
+                  },
+                ),
+              );
+            }),
 
           AppSpacing.SPACED_BOX_H_SMALL,
 
           AppNavigationTile(
             title: 'Neu',
             trailingIcon: Icons.add,
-            onTap: () {
-              Navigator.pushNamed(context, Routes.PAGE_HOME);
+            onTap: () async {
+              await Navigator.pushNamed(
+                context,
+                Routes.PAGE_CONVERSATION,
+                arguments: {
+                  'clientId': clientId,
+                  'klientenAkteId': klientenAkteId,
+                  'date': _formatDate(_toIsoDate(DateTime.now())),
+                  'datum': _toIsoDate(DateTime.now()),
+                },
+              );
+
+              if (mounted) {
+                _loadConversations(klientenAkteId);
+              }
             },
           ),
 
@@ -91,13 +223,18 @@ class _ClientFileWidgetState extends State<ClientFileWidget> {
               AppSecondaryButton(
                 buttonText: 'Akte löschen',
                 onPressed: () {
-                  Navigator.pop(context);
+                  _deleteClientFile(klientenAkteId);
                 },
               ),
 
               AppSpacing.SPACED_BOX_W_SMALL,
 
-              AppPrimaryButton(buttonText: 'Speichern', onPressed: () {}),
+              AppPrimaryButton(
+                buttonText: 'Zurück',
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+              ),
             ],
           ),
         ],
