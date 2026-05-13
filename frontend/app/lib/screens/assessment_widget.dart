@@ -1,5 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/service/gespraech_http_service.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -9,6 +10,7 @@ import 'package:app/widgets/sections/app_expandable_section.dart';
 import 'package:app/widgets/tiles/app_labeled_side_text_field.dart';
 import 'package:app/widgets/tiles/app_navigation_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AssessmentWidget extends StatefulWidget
 {
@@ -20,9 +22,202 @@ class AssessmentWidget extends StatefulWidget
 
 class _AssessmentWidgetState extends State<AssessmentWidget>
 {
-  final TextEditingController _heightController = TextEditingController(text: '185');
-  final TextEditingController _weightController = TextEditingController(text: '92');
-  final TextEditingController _waistController = TextEditingController(text: '98');
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _waistController = TextEditingController();
+
+  bool _didLoad = false;
+  bool _isLoading = true;
+  bool _isSaving = false;
+  String? _errorMessage;
+
+  Map<String, dynamic> _getArguments(BuildContext context)
+  {
+    final args = ModalRoute.of(context)?.settings.arguments;
+
+    if (args is Map<String, dynamic>)
+    {
+      return args;
+    }
+
+    return {};
+  }
+
+  int? _getIntArgument(Map<String, dynamic> args, String key)
+  {
+    final value = args[key];
+
+    if (value is int)
+    {
+      return value;
+    }
+
+    if (value is String)
+    {
+      return int.tryParse(value);
+    }
+
+    return null;
+  }
+
+  dynamic _fieldValue(String text)
+  {
+    final cleaned = text.trim();
+
+    if (cleaned.isEmpty)
+    {
+      return null;
+    }
+
+    return num.tryParse(cleaned.replaceAll(',', '.')) ?? cleaned;
+  }
+
+  String _valueToText(dynamic value)
+  {
+    if (value == null)
+    {
+      return '';
+    }
+
+    return value.toString();
+  }
+
+  Map<String, dynamic> _buildAssessment()
+  {
+    return {
+      'koerperfunktionUndStruktur': {
+        'groesseCm': _fieldValue(_heightController.text),
+        'gewichtKg': _fieldValue(_weightController.text),
+        'taillenumfangCm': _fieldValue(_waistController.text),
+      },
+    };
+  }
+
+  Future<void> _loadAssessment() async
+  {
+    final args = _getArguments(context);
+
+    final klientenAkteId = _getIntArgument(args, 'klientenAkteId');
+    final gespraechId = _getIntArgument(args, 'gespraechId');
+
+    if (klientenAkteId == null || gespraechId == null)
+    {
+      setState(()
+      {
+        _isLoading = false;
+        _errorMessage = 'Bitte Gespräch zuerst speichern und erneut öffnen.';
+      });
+      return;
+    }
+
+    setState(()
+    {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try
+    {
+      final service = context.read<GespraechHttpService>();
+
+      final conversation = await service.getById(
+        klientenAkteId: klientenAkteId,
+        gespraechId: gespraechId,
+      );
+
+      final assessmentRaw = conversation['assessment'];
+
+      if (assessmentRaw is Map)
+      {
+        final assessment = Map<String, dynamic>.from(assessmentRaw);
+        final sectionRaw = assessment['koerperfunktionUndStruktur'];
+
+        if (sectionRaw is Map)
+        {
+          final section = Map<String, dynamic>.from(sectionRaw);
+
+          _heightController.text = _valueToText(section['groesseCm']);
+          _weightController.text = _valueToText(section['gewichtKg']);
+          _waistController.text = _valueToText(section['taillenumfangCm']);
+        }
+      }
+    }
+    catch (e)
+    {
+      if (mounted)
+      {
+        setState(() => _errorMessage = 'Fehler beim Laden des Assessments.');
+      }
+    }
+    finally
+    {
+      if (mounted)
+      {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<bool> _saveAssessment() async
+  {
+    final args = _getArguments(context);
+
+    final klientenAkteId = _getIntArgument(args, 'klientenAkteId');
+    final gespraechId = _getIntArgument(args, 'gespraechId');
+
+    if (klientenAkteId == null || gespraechId == null)
+    {
+      setState(() => _errorMessage = 'Bitte Gespräch zuerst speichern und erneut öffnen.');
+      return false;
+    }
+
+    setState(()
+    {
+      _isSaving = true;
+      _errorMessage = null;
+    });
+
+    try
+    {
+      final service = context.read<GespraechHttpService>();
+
+      await service.updateAssessment(
+        klientenAkteId: klientenAkteId,
+        gespraechId: gespraechId,
+        assessment: _buildAssessment(),
+      );
+
+      return true;
+    }
+    catch (e)
+    {
+      if (mounted)
+      {
+        setState(() => _errorMessage = 'Fehler beim Speichern des Assessments.');
+      }
+
+      return false;
+    }
+    finally
+    {
+      if (mounted)
+      {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies()
+  {
+    super.didChangeDependencies();
+
+    if (!_didLoad)
+    {
+      _didLoad = true;
+      _loadAssessment();
+    }
+  }
 
   @override
   void dispose()
@@ -36,10 +231,10 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
   @override
   Widget build(BuildContext context)
   {
-    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args = _getArguments(context);
 
-    final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? '14.01.2026';
+    final String clientId = args['clientId']?.toString() ?? '0000';
+    final String date = args['date']?.toString() ?? '';
 
     return AppPageScaffold(
       title: 'Assessment ($clientId) - $date',
@@ -61,6 +256,8 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
                 {
                   'clientId': clientId,
                   'date': date,
+                  'klientenAkteId': args['klientenAkteId'],
+                  'gespraechId': args['gespraechId'],
                 }
               );
             }
@@ -68,127 +265,150 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
 
           AppSpacing.SPACED_BOX_H_MEDIUM,
 
-          AppExpandableSection(
-            title: 'Körperfunktion und -struktur',
-            initiallyExpanded: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (_isLoading)
+            const Center(child: CircularProgressIndicator())
+          else ...[
+            AppExpandableSection(
+              title: 'Körperfunktion und -struktur',
+              initiallyExpanded: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children:
+                [
+                  AppLabeledSideTextField(
+                    label: 'Größe (cm)',
+                    controller: _heightController,
+                    keyboardType: TextInputType.number,
+                    sideIcon: Icons.delete_outline,
+                    onSidePressed: ()
+                    {
+                      setState(()
+                      {
+                        _heightController.clear();
+                      });
+                    }
+                  ),
+
+                  AppSpacing.SPACED_BOX_H_MEDIUM,
+
+                  AppLabeledSideTextField(
+                    label: 'Gewicht (kg)',
+                    controller: _weightController,
+                    keyboardType: TextInputType.number,
+                    sideIcon: Icons.delete_outline,
+                    onSidePressed: ()
+                    {
+                      setState(()
+                      {
+                        _weightController.clear();
+                      });
+                    }
+                  ),
+
+                  AppSpacing.SPACED_BOX_H_MEDIUM,
+
+                  AppLabeledSideTextField(
+                    label: 'Taillenumfang (cm)',
+                    controller: _waistController,
+                    keyboardType: TextInputType.number,
+                    sideIcon: Icons.delete_outline,
+                    onSidePressed: ()
+                    {
+                      setState(()
+                      {
+                        _waistController.clear();
+                      });
+                    }
+                  )
+                ]
+              )
+            ),
+
+            AppSpacing.SPACED_BOX_H_MEDIUM,
+
+            AppExpandableSection(
+              title: 'Aktivitäten',
+              initiallyExpanded: false,
+              child: const SizedBox.shrink(),
+            ),
+
+            AppSpacing.SPACED_BOX_H_SMALL,
+
+            AppExpandableSection(
+              title: 'Partizipation',
+              initiallyExpanded: false,
+              child: const SizedBox.shrink(),
+            ),
+
+            AppSpacing.SPACED_BOX_H_SMALL,
+
+            AppExpandableSection(
+              title: 'Umweltfaktoren',
+              initiallyExpanded: false,
+              child: const SizedBox.shrink(),
+            ),
+
+            AppSpacing.SPACED_BOX_H_SMALL,
+
+            AppExpandableSection(
+              title: 'personenbez. Faktoren',
+              initiallyExpanded: false,
+              child: const SizedBox.shrink(),
+            ),
+
+            if (_errorMessage != null) ...[
+              AppSpacing.SPACED_BOX_H_LARGE,
+              Text(
+                _errorMessage!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+
+            AppSpacing.SPACED_BOX_H_LARGE,
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children:
               [
-                AppLabeledSideTextField(
-                  label: 'Größe (cm)',
-                  controller: _heightController,
-                  keyboardType: TextInputType.number,
-                  sideIcon: Icons.delete_outline,
-                  onSidePressed: ()
+                AppSecondaryButton(
+                  buttonText: 'Abbrechen',
+                  onPressed: ()
                   {
-                    setState(()
-                    {
-                      _heightController.clear();
-                    });
-                  }
+                    Navigator.pop(context);
+                  },
                 ),
 
-                AppSpacing.SPACED_BOX_H_MEDIUM,
+                AppSpacing.SPACED_BOX_W_SMALL,
 
-                AppLabeledSideTextField(
-                  label: 'Gewicht (kg)',
-                  controller: _weightController,
-                  keyboardType: TextInputType.number,
-                  sideIcon: Icons.delete_outline,
-                  onSidePressed: ()
-                  {
-                    setState(()
-                    {
-                      _weightController.clear();
-                    });
-                  }
-                ),
+                _isSaving
+                  ? const CircularProgressIndicator()
+                  : AppPrimaryButton(
+                      buttonText: 'Diagnose →',
+                      onPressed: () async
+                      {
+                        final saved = await _saveAssessment();
 
-                AppSpacing.SPACED_BOX_H_MEDIUM,
+                        if (!saved || !mounted)
+                        {
+                          return;
+                        }
 
-                AppLabeledSideTextField(
-                  label: 'Taillenumfang (cm)',
-                  controller: _waistController,
-                  keyboardType: TextInputType.number,
-                  sideIcon: Icons.delete_outline,
-                  onSidePressed: ()
-                  {
-                    setState(()
-                    {
-                      _waistController.clear();
-                    });
-                  }
-                )
+                        Navigator.pushNamed(
+                          context,
+                          Routes.PAGE_DIAGNOSIS,
+                          arguments:
+                          {
+                            'clientId': clientId,
+                            'date': date,
+                            'klientenAkteId': args['klientenAkteId'],
+                            'gespraechId': args['gespraechId'],
+                          }
+                        );
+                      }
+                    )
               ]
             )
-          ),
-
-          AppSpacing.SPACED_BOX_H_MEDIUM,
-
-          AppExpandableSection(
-            title: 'Aktivitäten',
-            initiallyExpanded: false,
-            child: const SizedBox.shrink(),
-          ),
-
-          AppSpacing.SPACED_BOX_H_SMALL,
-
-          AppExpandableSection(
-            title: 'Partizipation',
-            initiallyExpanded: false,
-            child: const SizedBox.shrink(),
-          ),
-
-          AppSpacing.SPACED_BOX_H_SMALL,
-
-          AppExpandableSection(
-            title: 'Umweltfaktoren',
-            initiallyExpanded: false,
-            child: const SizedBox.shrink(),
-          ),
-
-          AppSpacing.SPACED_BOX_H_SMALL,
-
-          AppExpandableSection(
-            title: 'personenbez. Faktoren',
-            initiallyExpanded: false,
-            child: const SizedBox.shrink(),
-          ),
-
-          AppSpacing.SPACED_BOX_H_LARGE,
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children:
-            [
-              AppSecondaryButton(
-                buttonText: 'Abbrechen',
-                onPressed: ()
-                {
-                  Navigator.pop(context);
-                },
-              ),
-
-              AppSpacing.SPACED_BOX_W_SMALL,
-
-              AppPrimaryButton(
-                buttonText: 'Diagnose →',
-                onPressed: ()
-                {
-                  Navigator.pushNamed(
-                    context,
-                    Routes.PAGE_DIAGNOSIS,
-                    arguments:
-                    {
-                      'clientId': clientId,
-                      'date': date,
-                    }
-                  );
-                }
-              )
-            ]
-          )
+          ],
         ]
       )
     );

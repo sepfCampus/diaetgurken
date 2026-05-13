@@ -204,6 +204,7 @@ class _ConversationWidgetState extends State<ConversationWidget> {
                 {
                   'clientId': clientId,
                   'date': formattedDate,
+                  'klientenAkteId': args['klientenAkteId'],
                   'gespraechId': gespraechId,
                 },
               );
