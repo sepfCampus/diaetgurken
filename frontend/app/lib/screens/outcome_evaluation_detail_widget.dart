@@ -1,5 +1,8 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/vo/outcome/outcome.dart';
+import 'package:app/vo/outcome/outcome_goal.dart';
+import 'package:app/vo/outcome/outcome_sub_goal.dart';
 import 'package:app/widgets/forms/app_labeled_field.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
@@ -20,35 +23,44 @@ class OutcomeEvaluationDetailWidget extends StatefulWidget
 
 class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailWidget>
 {
-  double _interventionProgress = 55;
+  late Map<String, dynamic> _conversation;
+  late Outcome _outcome;
+  late OutcomeGoal _outcomeGoal;
+  late int _outcomeIndex;
 
-  final TextEditingController _interventionNoteController = TextEditingController();
+  late TextEditingController _interventionNoteController;
 
-  final List<_GoalEvaluationEntry> _actionGoals =
-  [
-    _GoalEvaluationEntry(
-      title: '4 x in der Woche selbst kochen',
-      progress: 40,
-    ),
+  final List<_GoalEvaluationEntry> _actionGoals = [];
+  final List<_GoalEvaluationEntry> _measureGoals = [];
 
-    _GoalEvaluationEntry(
-      title: 'Täglich 2 x Gemüse essen',
-      progress: 40,
-    ),
-  ];
+  bool _initialized = false;
 
-  final List<_GoalEvaluationEntry> _measureGoals =
-  [
-    _GoalEvaluationEntry(
-      title: 'Wöchentlichen Essensplan erstellen',
-      progress: 20,
-    ),
+  @override
+  void didChangeDependencies()
+  {
+    super.didChangeDependencies();
 
-    _GoalEvaluationEntry(
-      title: 'Einkaufsliste vorbereiten',
-      progress: 60,
-    ),
-  ];
+    if(_initialized)
+    {
+      return;
+    }
+
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _outcomeIndex = args?['outcomeIndex'] ?? 0;
+
+    _outcome = Outcome.fromJson(_conversation['outcome']);
+    _outcomeGoal = _outcome.elements[_outcomeIndex];
+
+    _interventionNoteController = TextEditingController(text: _outcomeGoal.note);
+
+    _actionGoals.addAll(_outcomeGoal.handlungsziele.map((goal) => _GoalEvaluationEntry.fromOutcomeSubGoal(goal)));
+    _measureGoals.addAll(_outcomeGoal.massnahmenziele.map((goal) => _GoalEvaluationEntry.fromOutcomeSubGoal(goal),));
+
+    _initialized = true;
+  }
 
   @override
   void dispose()
@@ -68,14 +80,31 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
     super.dispose();
   }
 
+  void _saveToConversation()
+  {
+    _outcomeGoal.note = _interventionNoteController.text;
+
+    _outcomeGoal.handlungsziele = _actionGoals.map((entry)
+    {
+      return OutcomeSubGoal(text: entry.title, success: entry.progress, note: entry.noteController.text);
+    }).toList();
+
+    _outcomeGoal.massnahmenziele = _measureGoals.map((entry)
+    {
+      return OutcomeSubGoal(text: entry.title, success: entry.progress, note: entry.noteController.text);
+    }).toList();
+
+    _outcome.elements[_outcomeIndex] = _outcomeGoal;
+    _conversation['outcome'] = _outcome.toJson();
+  }
+
   @override
   Widget build(BuildContext context)
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? '14.01.2026';
-    final String outcomeTitle = args?['outcomeTitle'] ?? 'Reduktion der Kalorienzunahme';
+    final String date = args?['date'] ?? _conversation['datum'] ?? '14.01.2026';
 
     return AppPageScaffold(
       title: 'Outcome-Evaluation ($clientId)',
@@ -85,7 +114,7 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
         [
-          AppStandardTileCard(title: outcomeTitle),
+          AppStandardTileCard(title: _outcomeGoal.text),
 
           AppSpacing.SPACED_BOX_H_MEDIUM,
 
@@ -99,12 +128,12 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
           AppSpacing.SPACED_BOX_H_EXTRA_SMALL,
 
           _ProgressSlider(
-            value: _interventionProgress,
+            value: _outcomeGoal.success,
             onChanged: (value)
             {
               setState(()
               {
-                _interventionProgress = value;
+                _outcomeGoal.success = value;
               });
             },
           ),
@@ -199,6 +228,8 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
                 buttonText: 'Speichern',
                 onPressed: ()
                 {
+                  _saveToConversation();
+
                   Navigator.pushNamed(
                     context,
                     Routes.PAGE_OUTCOME_EVALUATION,
@@ -206,7 +237,8 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
                     {
                       'clientId': clientId,
                       'date': date,
-                    }
+                      'conversation': _conversation,
+                    },
                   );
                 },
               ),
@@ -224,7 +256,11 @@ class _GoalEvaluationCard extends StatelessWidget
   final String questionLabel;
   final VoidCallback? onChanged;
 
-  const _GoalEvaluationCard({ required this.entry, required this.questionLabel, this.onChanged});
+  const _GoalEvaluationCard({
+    required this.entry,
+    required this.questionLabel,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context)
@@ -241,7 +277,7 @@ class _GoalEvaluationCard extends StatelessWidget
           questionLabel,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w500,
-          )
+          ),
         ),
 
         AppSpacing.SPACED_BOX_H_EXTRA_SMALL,
@@ -276,7 +312,10 @@ class _ProgressSlider extends StatelessWidget
   final double value;
   final ValueChanged<double> onChanged;
 
-  const _ProgressSlider({ required this.value, required this.onChanged });
+  const _ProgressSlider({
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context)
@@ -331,6 +370,11 @@ class _GoalEvaluationEntry
   final TextEditingController noteController;
 
   _GoalEvaluationEntry({ required this.title, required this.progress, String note = '' }) : noteController = TextEditingController(text: note);
+
+  factory _GoalEvaluationEntry.fromOutcomeSubGoal(OutcomeSubGoal goal)
+  {
+    return _GoalEvaluationEntry(title: goal.text, progress: goal.success, note: goal.note);
+  }
 
   void dispose()
   {

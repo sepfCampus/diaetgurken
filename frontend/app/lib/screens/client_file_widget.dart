@@ -1,5 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/data/daos/memory/mock_conversation_repository.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
@@ -19,91 +20,117 @@ class ClientFileWidget extends StatefulWidget
 
 class _ClientFileWidgetState extends State<ClientFileWidget>
 {
-  final List<String> _conversations =
-  [
-    '01.01.2026',
-    '14.01.2026',
-    '20.02.2026',
-  ];
+  late Future<List<Map<String, dynamic>>> _conversationsFuture;
+
+  @override
+  void didChangeDependencies()
+  {
+    super.didChangeDependencies();
+
+    final String clientId = (ModalRoute.of(context)?.settings.arguments as String) ?? '?';
+    _conversationsFuture = MockConversationRepository.getConversationsForClient(clientId);
+  }
 
   @override
   Widget build(BuildContext context)
   {
-    final String clientId = (ModalRoute.of(context)?.settings.arguments as String?) ?? '?';;
-
+    final String clientId = (ModalRoute.of(context)?.settings.arguments as String) ?? '?';
+    
     return AppPageScaffold(
       title: 'Klientenakte ($clientId)',
       drawer: LayoutUtil.getStandardAppDrawer(context),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-        [
-          AppStandardTileCard(title: clientId),
-
-          AppSpacing.SPACED_BOX_H_LARGE,
-
-          Text('Gespräche:', style: Theme.of(context).textTheme.bodyMedium),
-
-          AppSpacing.SPACED_BOX_H_SMALL,
-
-          ..._conversations.map((conversationDate)
+      child: FutureBuilder(
+        future: this._conversationsFuture,
+        builder: (context, snapshot)
+        {
+          if(snapshot.connectionState == ConnectionState.waiting)
           {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.SM),
-              child: AppSideButtonTile(
-                title: conversationDate,
-                onTap: ()
-                {
-                  Navigator.pushNamed(context, Routes.PAGE_CONVERSATION, arguments:
-                                      { 'clientId': clientId, 'date': conversationDate });
-                },
-                sideIcon: Icons.download_outlined,
-                onSidePressed: ()
-                {
-                  Navigator.pushNamed(context, Routes.PAGE_EXPORT_CONVERSATION, arguments:
-                                      { 'clientId': clientId, 'date': conversationDate });
-                }
-              )
-            );
-          }),
+            return const Center(child: CircularProgressIndicator());
+          }
 
-          AppSpacing.SPACED_BOX_H_SMALL,
+          if(snapshot.hasError)
+          {
+            return Center(child: Text('Daten konnten nicht geladen werden :('));
+          }
 
-          AppNavigationTile(
-            title: 'Neu',
-            trailingIcon: Icons.add,
-            onTap: ()
-            {
-              Navigator.pushNamed(context, Routes.PAGE_HOME);
-            }
-          ),
+          final conversations = snapshot.data ?? [];
 
-          AppSpacing.SPACED_BOX_H_LARGE,
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children:
             [
-              AppSecondaryButton(
-                buttonText: 'Akte löschen',
-                onPressed: ()
+              AppStandardTileCard(title: clientId),
+
+              AppSpacing.SPACED_BOX_H_LARGE,
+
+              Text('Gespräche:', style: Theme.of(context).textTheme.bodyMedium),
+
+              AppSpacing.SPACED_BOX_H_SMALL,
+
+              ...conversations.map((conversation)
+              {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.SM),
+                  child: AppSideButtonTile(
+                    title: conversation['datum'] ?? '?',
+                    onTap: ()
+                    {
+                      Navigator.pushNamed(context, Routes.PAGE_CONVERSATION, arguments:
+                                          { 'clientId': clientId, 'date': conversation['datum'] ?? '?', 'conversation': conversation });
+                    },
+                    sideIcon: Icons.download_outlined,
+                    onSidePressed: ()
+                    {
+                      Navigator.pushNamed(context, Routes.PAGE_EXPORT_CONVERSATION, arguments:
+                                          { 'clientId': clientId, 'date': conversation['datum'] ?? '?', 'conversation': conversation });
+                    }
+                  )
+                );
+              }),
+
+              AppSpacing.SPACED_BOX_H_SMALL,
+
+              AppNavigationTile(
+                title: 'Neu',
+                trailingIcon: Icons.add,
+                onTap: () async
                 {
-                  Navigator.pop(context);
+                  final conversations = await _conversationsFuture;
+
+                  final newConversation = MockConversationRepository.createConversation(conversations: conversations, datum: '2026-04-04');
+
+                  Navigator.pushNamed(context, Routes.PAGE_CONVERSATION, arguments: { 'clientId': clientId, 'date': newConversation['datum'], 'conversation': newConversation });
                 },
               ),
 
-              AppSpacing.SPACED_BOX_W_SMALL,
+              AppSpacing.SPACED_BOX_H_LARGE,
 
-              AppPrimaryButton(
-                buttonText: 'Speichern',
-                onPressed: ()
-                {
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children:
+                [
+                  AppSecondaryButton(
+                    buttonText: 'Akte löschen',
+                    onPressed: ()
+                    {
+                      Navigator.pop(context);
+                    },
+                  ),
 
-                }
+                  AppSpacing.SPACED_BOX_W_SMALL,
+
+                  AppPrimaryButton(
+                    buttonText: 'Speichern',
+                    onPressed: ()
+                    {
+
+                    }
+                  )
+                ]
               )
             ]
-          )
-        ]
+          );
+        }
       )
     );
   }

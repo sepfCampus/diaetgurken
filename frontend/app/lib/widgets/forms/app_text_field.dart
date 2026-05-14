@@ -30,6 +30,7 @@ class AppTextField extends StatelessWidget
       enabled: enabled,
       maxLines: maxLines,
       keyboardType: keyboardType,
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,

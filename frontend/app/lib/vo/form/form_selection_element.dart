@@ -1,4 +1,5 @@
 import 'package:app/vo/form/form_base_element.dart';
+import 'package:app/vo/form/form_element_category.dart';
 import 'package:app/vo/form/form_element_type.dart';
 
 class FormSelectionOptionElement
@@ -25,7 +26,7 @@ class FormSelectionElement extends FormBaseElement
   Map<String, FormSelectionOptionElement> options = {};
   bool multipleSelection;
 
-  FormSelectionElement(String name, String? displayName, List<FormSelectionOptionElement> options, this.multipleSelection):super(FormElementType.SELECTION, name, displayName)
+  FormSelectionElement(String name, String? displayName, FormElementCategory category, List<String> filterOptions, List<FormSelectionOptionElement> options, this.multipleSelection):super(FormElementType.SELECTION, name, displayName, category, filterOptions)
   {
     for(var option in options)
     {
@@ -37,7 +38,7 @@ class FormSelectionElement extends FormBaseElement
   {
     final rawOptions = json['options'] as List<dynamic>? ?? [];
 
-    return FormSelectionElement(json['name'], json['displayName'],
+    return FormSelectionElement(json['name'], json['displayName'], FormElementCategory.fromName(json['category'] ?? 'body'), List<String>.from(json['filterOptions'] ?? []),
                                 rawOptions.map((option) => FormSelectionOptionElement.fromJson(option)).toList(),
                                 json['multipleSelection'] ?? false);
   }
@@ -45,6 +46,6 @@ class FormSelectionElement extends FormBaseElement
   @override
   Map<String, dynamic> toJson()
   {
-    return { 'type': type.name, 'name': name, 'displayName': displayName, 'multipleSelection': multipleSelection, 'options': options.values.map((options) => options.toJson()).toList() };
+    return { 'type': type.name, 'name': name, 'displayName': displayName, 'category': category, 'filterOptions': filterOptions, 'multipleSelection': multipleSelection, 'options': options.values.map((options) => options.toJson()).toList() };
   }
 }

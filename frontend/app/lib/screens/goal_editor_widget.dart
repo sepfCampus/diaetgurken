@@ -1,5 +1,10 @@
 import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/vo/assessment/assessment.dart';
+import 'package:app/vo/goal/goals.dart';
+import 'package:app/vo/goal/intervention_goal.dart';
+import 'package:app/vo/goal/sub_goal.dart';
+import 'package:app/vo/util/goal_suggestion_util.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -13,7 +18,7 @@ import 'package:flutter/material.dart';
 
 class GoalEditorWidget extends StatefulWidget
 {
-  const GoalEditorWidget({ super.key });
+  const GoalEditorWidget({super.key});
 
   @override
   State<GoalEditorWidget> createState() => _GoalEditorWidgetState();
@@ -21,39 +26,40 @@ class GoalEditorWidget extends StatefulWidget
 
 class _GoalEditorWidgetState extends State<GoalEditorWidget>
 {
-  final TextEditingController _goalTitleController = TextEditingController(text: 'Reduktion der Kalorienzunahme');
+  late InterventionGoal _goal;
+  late Goals _goals;
+  late Assessment _assessment;
 
-  final List<String> _goalTitleOptions =
-  [
-    'Reduktion der Kalorienaufnahme',
-    'Reduktion der Fettaufnahme',
-    'Steigerung der Proteinzufuhr',
-    'Gewichtsstabilisierung',
-  ];
+  late TextEditingController _goalTitleController;
 
-  final List<_GoalEntry> _actionGoals =
-  [
-    _GoalEntry(text: '5 x in der Woche selbst kochen'),
-    _GoalEntry(text: 'Täglich 1 x Obst essen'),
-  ];
-
+  final List<_GoalEntry> _actionGoals = [];
   final List<_GoalEntry> _measureGoals = [];
 
-  final List<String> _actionGoalOptions =
-  [
-    '5 x in der Woche selbst kochen',
-    'Täglich 1 x Obst essen',
-    '3 x in der Woche Vollkorn essen',
-    '2 Liter Wasser pro Tag trinken',
-  ];
+  bool _initialized = false;
 
-  final List<String> _measureGoalOptions =
-  [
-    'Essensplan vorbereiten',
-    'Einkaufsliste schreiben',
-    'Portionsgrößen besprechen',
-    'Zwischenmahlzeiten planen',
-  ];
+  @override
+  void didChangeDependencies()
+  {
+    super.didChangeDependencies();
+
+    if(_initialized)
+    {
+      return;
+    }
+
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    _goal = args?['goal'] as InterventionGoal? ?? InterventionGoal();
+    _goals = args?['goals'] as Goals;
+    _assessment = args?['assessment'] as Assessment? ?? Assessment([]);
+
+    _goalTitleController = TextEditingController(text: _goal.text);
+
+    _actionGoals.addAll(_goal.handlungsziele.map((goal) => _GoalEntry(text: goal.text)));
+    _measureGoals.addAll(_goal.massnahmenziele.map((goal) => _GoalEntry(text: goal.text)));
+
+    _initialized = true;
+  }
 
   @override
   void dispose()
@@ -73,6 +79,11 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
     super.dispose();
   }
 
+  List<String> _getSuggestions(String key)
+  {
+    return GoalSuggestionUtil.getSuggestionsToShow(_goals.suggestions[key] ?? [], _assessment);
+  }
+
   void _addActionGoal()
   {
     setState(()
@@ -83,8 +94,7 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
 
   void _removeActionGoal(int index)
   {
-    setState(()
-    {
+    setState(() {
       _actionGoals[index].dispose();
       _actionGoals.removeAt(index);
     });
@@ -92,19 +102,32 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
 
   void _addMeasureGoal()
   {
-    setState(()
-    {
+    setState(() {
       _measureGoals.add(_GoalEntry());
     });
   }
 
   void _removeMeasureGoal(int index)
   {
-    setState(()
-    {
+    setState(() {
       _measureGoals[index].dispose();
       _measureGoals.removeAt(index);
     });
+  }
+
+  InterventionGoal _buildGoalFromUi()
+  {
+    return InterventionGoal(
+      text: _goalTitleController.text,
+      handlungsziele: _actionGoals
+          .map((entry) => SubGoal(text: entry.controller.text))
+          .where((goal) => goal.text.trim().isNotEmpty)
+          .toList(),
+      massnahmenziele: _measureGoals
+          .map((entry) => SubGoal(text: entry.controller.text))
+          .where((goal) => goal.text.trim().isNotEmpty)
+          .toList(),
+    );
   }
 
   @override
@@ -114,7 +137,6 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
 
     final String clientId = args?['clientId'] ?? '000009';
     final String date = args?['date'] ?? '14.01.2026';
-    final String goalTitle = args?['goalTitle'] ?? 'Reduktion der Kalorienzunahme';
 
     return AppPageScaffold(
       title: 'Interventionsziel erstellen ($clientId)',
@@ -122,11 +144,10 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
       trailing: AppNotesButton(clientId: clientId, date: date),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-        [
+        children: [
           AppComboField(
             controller: _goalTitleController,
-            options: _goalTitleOptions,
+            options: _getSuggestions('interventionsziele'),
             hintText: 'Interventionsziel ...',
           ),
 
@@ -136,19 +157,16 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
             title: 'Handlungsziele',
             initiallyExpanded: true,
             child: Column(
-              children:
-              [
-                ...List.generate(_actionGoals.length, (index)
-                {
+              children: [
+                ...List.generate(_actionGoals.length, (index) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.SM),
                     child: AppComboSideButtonField(
                       controller: _actionGoals[index].controller,
-                      options: _actionGoalOptions,
+                      options: _getSuggestions('handlungsziele'),
                       hintText: 'Handlungsziel ...',
                       sideIcon: Icons.delete_outline,
-                      onSidePressed: ()
-                      {
+                      onSidePressed: () {
                         _removeActionGoal(index);
                       },
                     ),
@@ -170,19 +188,16 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
             title: 'Maßnahmenziele',
             initiallyExpanded: false,
             child: Column(
-              children:
-              [
-                ...List.generate(_measureGoals.length, (index)
-                {
+              children: [
+                ...List.generate(_measureGoals.length, (index) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.SM),
                     child: AppComboSideButtonField(
                       controller: _measureGoals[index].controller,
-                      options: _measureGoalOptions,
+                      options: _getSuggestions('massnahmenziele'),
                       hintText: 'Maßnahmenziel ...',
                       sideIcon: Icons.delete_outline,
-                      onSidePressed: ()
-                      {
+                      onSidePressed: () {
                         _removeMeasureGoal(index);
                       },
                     ),
@@ -205,8 +220,7 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
             child: AppSecondaryButton(
               buttonText: 'Löschen',
               width: AppSizes.BUTTON_WIDTH_MEDIUM,
-              onPressed: ()
-              {
+              onPressed: () {
                 Navigator.pop(context);
               },
             ),
@@ -216,8 +230,7 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
 
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
-            children:
-            [
+            children: [
               AppSecondaryButton(
                 buttonText: 'Abbrechen',
                 width: AppSizes.BUTTON_WIDTH_MEDIUM,
@@ -234,26 +247,24 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
                 width: AppSizes.BUTTON_WIDTH_MEDIUM,
                 onPressed: ()
                 {
-                  Navigator.pop(context);
+                  Navigator.pop(context, _buildGoalFromUi());
                 },
               ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 }
 
-class _GoalEntry
-{
+class _GoalEntry {
   final TextEditingController controller;
 
-  _GoalEntry({ String text = '' })
+  _GoalEntry({String text = ''})
       : controller = TextEditingController(text: text);
 
-  void dispose()
-  {
+  void dispose() {
     controller.dispose();
   }
 }

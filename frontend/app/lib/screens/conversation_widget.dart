@@ -18,8 +18,10 @@ class ConversationWidget extends StatelessWidget
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? '14.01.2026';
+    final String clientId = args?['clientId'] ?? '?';
+    final String date = args?['date'] ?? '?';
+
+    final Map<String, dynamic>? conversation = args?['conversation'];
 
     return AppPageScaffold(
       title: 'Gespräch ($clientId) - $date',
@@ -61,6 +63,7 @@ class ConversationWidget extends StatelessWidget
                 {
                   'clientId': clientId,
                   'date': date,
+                  'conversation': conversation
                 },
               );
             },
@@ -79,6 +82,7 @@ class ConversationWidget extends StatelessWidget
                 {
                   'clientId': clientId,
                   'date': date,
+                  'conversation': conversation
                 },
               );
             },
@@ -97,6 +101,7 @@ class ConversationWidget extends StatelessWidget
                 {
                   'clientId': clientId,
                   'date': date,
+                  'conversation': conversation
                 },
               );
             },
@@ -115,6 +120,7 @@ class ConversationWidget extends StatelessWidget
                 {
                   'clientId': clientId,
                   'date': date,
+                  'conversation': conversation
                 },
               );
             },
