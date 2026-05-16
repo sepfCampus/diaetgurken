@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 //a simple standard tile
-class AppStandardTileCard extends StatelessWidget
-{
+class AppStandardTileCard extends StatelessWidget {
   final String title; //text shown inside the tile card
   final VoidCallback? onTap; // callback when the tile is tapped
   final Widget? trailing; // optional widget on the right side
 
-  const AppStandardTileCard({ super.key, required this.title, this.onTap, this.trailing });
+  const AppStandardTileCard({
+    super.key,
+    required this.title,
+    this.onTap,
+    this.trailing,
+  });
 
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
 
@@ -26,10 +29,7 @@ final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
         ),
         decoration: BoxDecoration(
           color: theme.colorScheme.secondary,
-          border: Border.all(
-            color: theme.colorScheme.primary,
-            width: 1,
-          ),
+          border: Border.all(color: theme.colorScheme.primary, width: 1),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
@@ -38,14 +38,15 @@ final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
               child: Text(
                 title,
                 style: theme.textTheme.bodyMedium,
-                textAlign:
-                    trailing == null ? TextAlign.center : TextAlign.start,
+                textAlign: trailing == null
+                    ? TextAlign.center
+                    : TextAlign.start,
               ),
             ),
-            if (trailing != null) trailing!
-          ]
-        )
-      )
+            ?trailing,
+          ],
+        ),
+      ),
     );
   }
 }

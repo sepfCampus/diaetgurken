@@ -17,13 +17,13 @@ const requireLogin = require("../middlewares/requireLogin");
  *             type: object
  *             required:
  *               - email
- *               - password
+ *               - passwort
  *               - registerNr
  *             properties:
  *               email:
  *                 type: string
  *                 example: test@test.at
- *               password:
+ *               passwort:
  *                 type: string
  *                 example: 123456
  *               registerNr:
@@ -54,14 +54,18 @@ router.post("/register", authController.register);
  *             type: object
  *             required:
  *               - email
- *               - password
+ *               - passwort
+ *               - registerNr
  *             properties:
  *               email:
  *                 type: string
  *                 example: test@test.at
- *               password:
+ *               passwort:
  *                 type: string
  *                 example: 123456
+ *               registerNr:
+ *                 type: string
+ *                 example: REG001
  *     responses:
  *       200:
  *         description: Login erfolgreich

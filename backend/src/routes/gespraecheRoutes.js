@@ -215,4 +215,107 @@ router.put("/:id", requireLogin, gespraechController.update);
  */
 router.delete("/:id", requireLogin, gespraechController.remove);
 
+/**
+ * @swagger
+ * /users/klientenakten/{klientenAkteId}/gespraech/{gespraechId}/export/pdf:
+ *   get:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
+ *     summary: Exportiert ein Gespräch als PDF
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: gespraechId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: schriftgroesse
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [standard, gross]
+ *           example: gross
+ *         description: Schriftgröße für den PDF-Export
+ *       - in: query
+ *         name: kontrast
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [standard, hoherKontrast]
+ *           example: hoherKontrast
+ *         description: Kontrastmodus im PDF-Export
+ *     responses:
+ *       200:
+ *         description: PDF erfolgreich generiert
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       401:
+ *         description: Nicht eingeloggt
+ *       403:
+ *         description: Kein Zugriff auf dieses Gespräch
+ *       404:
+ *         description: Gespräch oder Klientenakte nicht gefunden
+ */
+
+/**
+ * @swagger
+ * /users/klientenakten/{klientenAkteId}/gespraech/{gespraechId}/export/docx:
+ *   get:
+ *     tags:
+ *       - Benutzer - Klientenakten - Gespräche
+ *     summary: Exportiert ein Gespräch als Word-Dokument
+ *     parameters:
+ *       - in: path
+ *         name: klientenAkteId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: gespraechId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: schriftgroesse
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [standard, gross]
+ *           example: gross
+ *         description: Schriftgröße für den Word-Export
+ *       - in: query
+ *         name: kontrast
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [standard, hoherKontrast]
+ *           example: hoherKontrast
+ *         description: Kontrastmodus im Word-Export
+ *     responses:
+ *       200:
+ *         description: Word-Dokument erfolgreich generiert
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       401:
+ *         description: Nicht eingeloggt
+ *       403:
+ *         description: Kein Zugriff auf dieses Gespräch
+ *       404:
+ *         description: Gespräch oder Klientenakte nicht gefunden
+ */
+const pdfExportController = require("../controllers/pdfExportController");
+router.get("/:gespraechId/export/pdf", requireLogin, pdfExportController.exportGespräch);
+router.get("/:gespraechId/export/docx", requireLogin, pdfExportController.exportGesprächDocx);
+
 module.exports = router;

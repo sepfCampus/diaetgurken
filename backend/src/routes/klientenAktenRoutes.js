@@ -24,6 +24,17 @@ router.get("/", requireLogin, klientenAkteController.getAll);
  *     tags:
  *       - Benutzer - Klientenakten
  *     summary: Legt eine neue Klientenakte für den eingeloggten Benutzer an
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Klarname zur neuen Klientenakte
+ *                 example: "Max Mustermann"
  *     responses:
  *       201:
  *         description: Klientenakte erfolgreich angelegt
@@ -56,5 +67,7 @@ router.post("/", requireLogin, klientenAkteController.create);
  *         description: Klientenakte nicht gefunden
  */
 router.delete("/:id", requireLogin, klientenAkteController.remove);
+
+
 
 module.exports = router;

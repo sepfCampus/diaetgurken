@@ -2,9 +2,22 @@ const userRepository = require("../repositories/prisma/userRepositoryPrisma");
 const { hashPassword, comparePassword } = require("../utils/passwordUtil");
 const ApiError = require("../utils/ApiError");
 
-async function register({ email, password, registerNr }) {
-    if (!email || !password || !registerNr) {
+async function register({ email, passwort, registerNr }) {
+    if (!email || !passwort || !registerNr) {
         throw new ApiError(400, "Email, Passwort und Registernummer sind erforderlich");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        throw new ApiError(400, "Ungültige E-Mail-Adresse");
+    }
+
+    if (passwort.length < 6) {
+        throw new ApiError(400, "Passwort muss mindestens 6 Zeichen lang sein");
+    }
+
+    if (registerNr.trim().length === 0) {
+        throw new ApiError(400, "Registernummer darf nicht leer sein");
     }
 
     const existingEmail = await userRepository.findByEmail(email);
@@ -17,24 +30,20 @@ async function register({ email, password, registerNr }) {
         throw new ApiError(409, "Registernummer ist bereits registriert");
     }
 
-    const passwordHash = await hashPassword(password);
+    const passwordHash = await hashPassword(passwort);
+    const user = await userRepository.create({ email, registerNr, passwordHash });
 
-    const user = await userRepository.create({
-        email,
-        registerNr,
-        passwordHash,
-    });
-
-    return {
-        id: user.id,
-        email: user.email,
-        registerNr: user.registerNr,
-    };
+    return { id: user.id, email: user.email, registerNr: user.registerNr };
 }
 
-async function login({ email, password }, session) {
-    if (!email || !password) {
-        throw new ApiError(400, "Email und Passwort sind erforderlich");
+async function login({ email, passwort, registerNr }, session) {
+    if (!email || !passwort || !registerNr) {
+        throw new ApiError(400, "Email, Passwort und Registernummer sind erforderlich");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        throw new ApiError(400, "Ungültige E-Mail-Adresse");
     }
 
     const user = await userRepository.findByEmail(email);
@@ -42,18 +51,18 @@ async function login({ email, password }, session) {
         throw new ApiError(401, "Ungültige Anmeldedaten");
     }
 
-    const passwordMatches = await comparePassword(password, user.passwordHash);
-    if (!passwordMatches) {
+    if (user.registerNr !== registerNr) {
+        throw new ApiError(401, "Ungültige Anmeldedaten");
+    }
+
+    const passwortMatches = await comparePassword(passwort, user.passwordHash);
+    if (!passwortMatches) {
         throw new ApiError(401, "Ungültige Anmeldedaten");
     }
 
     session.userId = user.id;
 
-    return {
-        id: user.id,
-        email: user.email,
-        registerNr: user.registerNr,
-    };
+    return { id: user.id, email: user.email, registerNr: user.registerNr };
 }
 
 async function logout(session) {
@@ -78,11 +87,7 @@ async function whoami(session) {
         throw new ApiError(404, "Benutzer nicht gefunden");
     }
 
-    return {
-        id: user.id,
-        email: user.email,
-        registerNr: user.registerNr,
-    };
+    return { id: user.id, email: user.email, registerNr: user.registerNr };
 }
 
 module.exports = {

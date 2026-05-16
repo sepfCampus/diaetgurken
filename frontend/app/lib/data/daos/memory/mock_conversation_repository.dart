@@ -17,6 +17,8 @@ class MockConversationRepository
     const mockJson = '''
     [
       {
+        "id": 3,
+        "klientenAkteId": 3,
         "datum": "2026-01-01",
         "formMetaData": {
           "elements": [

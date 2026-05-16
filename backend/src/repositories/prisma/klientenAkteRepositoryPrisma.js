@@ -9,6 +9,7 @@ async function findByUserId(userId) {
 async function findById(id) {
     return prisma.klientenAkte.findUnique({
         where: { id },
+        include: { klarname: true },
     });
 }
 
