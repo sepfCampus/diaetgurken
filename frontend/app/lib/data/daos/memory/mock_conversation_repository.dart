@@ -233,7 +233,140 @@ class MockConversationRepository
           }
         },
         "outcome": {
-          "elements": []
+          "elements":
+          [
+                {
+                  "text": "Reduktion der Kalorienaufnahme",
+
+                  "success": 70,
+
+                  "note": "Kalorienaufnahme unter der Woche deutlich reduziert.",
+
+                  "handlungsziele": [
+                    {
+                      "text": "5 x pro Woche selbst kochen",
+                      "success": 80,
+                      "note": "Unter der Woche fast vollständig umgesetzt."
+                    },
+
+                    {
+                      "text": "Täglich 1 x Obst essen",
+                      "success": 60,
+                      "note": "An Arbeitstagen gut, am Wochenende unregelmäßig."
+                    }
+                  ],
+
+                  "massnahmenziele": [
+                    {
+                      "text": "Einkaufsliste vorbereiten",
+                      "success": 75,
+                      "note": "Hat spontane Einkäufe reduziert."
+                    },
+
+                    {
+                      "text": "Portionsgrößen besprechen",
+                      "success": 50,
+                      "note": "Thema weiterhin schwierig."
+                    }
+                  ]
+                },
+
+                {
+                  "text": "Verbesserung der Mahlzeitenstruktur",
+
+                  "success": 65,
+
+                  "note": "Regelmäßigeres Frühstück etabliert.",
+
+                  "handlungsziele": [
+                    {
+                      "text": "Frühstück an mindestens 5 Tagen pro Woche essen",
+                      "success": 70,
+                      "note": "Großteils erfolgreich umgesetzt."
+                    },
+
+                    {
+                      "text": "Mittagessen nicht auslassen",
+                      "success": 55,
+                      "note": "Bei Stresssituationen ausgelassen."
+                    }
+                  ],
+
+                  "massnahmenziele": [
+                    {
+                      "text": "Wochenplan erstellen",
+                      "success": 60,
+                      "note": "Teilweise verwendet."
+                    }
+                  ]
+                },
+
+                {
+                  "text": "Steigerung der Alltagsbewegung",
+
+                  "success": 55,
+
+                  "note": "Bewegung verbessert, aber noch unregelmäßig.",
+
+                  "handlungsziele": [
+                    {
+                      "text": "3 x pro Woche 20 Minuten spazieren gehen",
+                      "success": 60,
+                      "note": "Zwei bis drei Spaziergänge pro Woche erreicht."
+                    },
+
+                    {
+                      "text": "Stufen statt Lift verwenden",
+                      "success": 45,
+                      "note": "Im Arbeitsalltag oft vergessen."
+                    }
+                  ],
+
+                  "massnahmenziele": [
+                    {
+                      "text": "Spazierzeiten im Kalender eintragen",
+                      "success": 65,
+                      "note": "Erinnerungen waren hilfreich."
+                    }
+                  ]
+                },
+
+                {
+                  "text": "Reduktion stressbedingter Snacks",
+
+                  "success": 40,
+
+                  "note": "Stressessen weiterhin stark vorhanden.",
+
+                  "handlungsziele": [
+                    {
+                      "text": "Süßigkeiten auf 2 Portionen pro Woche begrenzen",
+                      "success": 35,
+                      "note": "Vor allem abends schwierig."
+                    },
+
+                    {
+                      "text": "Bei Stress Wasser trinken statt snacken",
+                      "success": 45,
+                      "note": "Teilweise umgesetzt."
+                    }
+                  ],
+
+                  "massnahmenziele": [
+                    {
+                      "text": "Snackalternativen vorbereiten",
+                      "success": 55,
+                      "note": "Obst und Nüsse waren hilfreich."
+                    },
+
+                    {
+                      "text": "Stresssituationen dokumentieren",
+                      "success": 30,
+                      "note": "Nur selten eingetragen."
+                    }
+                  ]
+                }
+          ]
         },
         "notizen": "Erstgespräch: Fokus auf Gewicht, Essstruktur, Alltagsbewegung und Stress."
       },
