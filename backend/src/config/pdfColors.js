@@ -1,0 +1,12 @@
+module.exports = {
+    PRIMARY: "#275027",
+    SECONDARY: "#A7C0A5",
+    TERTIARY: "#6DA5A5",
+    QUATERNARY: "#1D768F",
+    BODY: "#70BCD3BA",
+    CARD_BACKGROUND: "#EDF6EF",
+    PAGE_BACKGROUND: "#F8FBF8",
+    TEXT: "#222222",
+    MUTED_TEXT: "#44505A",
+    BORDER: "#D8E4D8",
+};

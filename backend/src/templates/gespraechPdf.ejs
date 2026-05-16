@@ -6,34 +6,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gesprächsprotokoll</title>
     <style>
+        :root {
+            --primary-color: <%=colors.PRIMARY %>;
+            --secondary-color: <%=colors.SECONDARY %>;
+            --tertiary-color: <%=colors.TERTIARY %>;
+            --quaternary-color: <%=colors.QUATERNARY %>;
+            --body-color: <%=colors.BODY %>;
+            --card-background: <%=colors.CARD_BACKGROUND %>;
+            --page-background: <%=colors.PAGE_BACKGROUND %>;
+            --text-color: <%=colors.TEXT %>;
+            --muted-text: <%=colors.MUTED_TEXT %>;
+            --border-color: <%=colors.BORDER %>;
+            --font-scale: <%=fontScale || 1 %>;
+        }
+
         body {
             font-family: Arial, sans-serif;
             line-height: 1.1;
             margin: 5px;
-            color: #222;
+            background-color: var(--page-background);
+            color: var(--text-color);
+            font-size: calc(1rem * var(--font-scale));
         }
 
         .header {
-            border-bottom: 2px solid #0d6efd;
+            border-bottom: 2px solid var(--primary-color);
             padding-bottom: 8px;
             margin-bottom: 14px;
+            position: relative;
         }
 
         .header h1 {
-            color: #0d6efd;
+            color: var(--primary-color);
             margin: 0;
-            font-size: 1.75rem;
+            font-size: calc(1.75rem * var(--font-scale));
         }
 
         .header p {
             margin: 6px 0 0;
-            font-size: 0.95rem;
-            color: #445;
+            font-size: calc(0.95rem * var(--font-scale));
+            color: var(--muted-text);
+        }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            max-width: 120px;
+            max-height: 60px;
         }
 
         .meta-info,
         .section {
-            background-color: #f7f9fc;
+            background-color: var(--card-background);
             padding: 12px 14px;
             border-radius: 8px;
             margin-bottom: 14px;
@@ -44,24 +69,32 @@
         }
 
         .section h2 {
-            color: #2e3d49;
-            border-bottom: 1px solid #dfe4ea;
+            color: var(--quaternary-color);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 6px;
             margin-bottom: 10px;
-            font-size: 1rem;
+            font-size: calc(1rem * var(--font-scale));
         }
 
-        .field {}
+        .field {
+            margin-bottom: 10px;
+        }
 
         .field-label {
+            display: block;
             font-weight: bold;
-            color: #1f2937;
-            margin-right: 6px;
+            color: var(--text-color);
+            margin-bottom: 5px;
         }
 
         .field-value {
-            color: #3b4a54;
-            margin: 4px 0 0;
+            display: block;
+            color: var(--muted-text);
+            margin: 0;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
         }
 
         .subsection {
@@ -70,7 +103,7 @@
 
         .subsection h3 {
             margin: 6px 0 8px;
-            font-size: 1rem;
+            font-size: calc(1rem * var(--font-scale));
             color: #1f2937;
         }
 
@@ -81,9 +114,9 @@
         .footer {
             margin-top: 18px;
             padding-top: 12px;
-            border-top: 1px solid #dfe4ea;
-            font-size: 0.9rem;
-            color: #5f6a72;
+            border-top: 1px solid var(--border-color);
+            font-size: calc(0.9rem * var(--font-scale));
+            color: var(--muted-text);
         }
     </style>
 </head>
@@ -93,6 +126,9 @@
         <h1>Gesprächsprotokoll</h1>
         <p>Exportiert am: <%= new Date(generatedAt).toLocaleString('de-DE') %>
         </p>
+        <% if (logoSrc) { %>
+            <img src="<%= logoSrc %>" alt="Logo" class="logo">
+            <% } %>
     </div>
 
     <div class="meta-info">
@@ -110,108 +146,151 @@
         </div>
     </div>
 
-    <% function renderObject(obj) { %>
-        <% if (!obj || Object.keys(obj).length===0) { %>
-            <div class="field">
-                <span class="field-value">Keine Daten vorhanden</span>
-            </div>
-            <% } else { %>
-                <% Object.entries(obj).forEach(function(entry) { %>
-                    <div class="field">
-                        <span class="field-label">
-                            <%= entry[0] %>
-                        </span>
-                        <span class="field-value">
-                            <%= typeof entry[1]==='object' && entry[1] !==null ? JSON.stringify(entry[1], null, 2) :
-                                (entry[1] ?? 'Nicht angegeben' ) %>
-                        </span>
-                    </div>
-                    <% }); %>
-                        <% } %>
-                            <% } %>
+    <% function formatLabel(key) { const map={ compliance: 'Compliance' , motivation: 'Motivation' ,
+        risikoFaktoren: 'Risikofaktoren' , erfolg: 'Erfolg' , notizen: 'Notizen' , ziel: 'Ziel' , ziele: 'Ziele' ,
+        titel: 'Titel' , beschreibung: 'Beschreibung' , status: 'Status' , datum: 'Datum' , name: 'Name' ,
+        vorname: 'Vorname' , nachname: 'Nachname' , email: 'E-Mail' , telefon: 'Telefon' , adresse: 'Adresse' ,
+        telefonnummer: 'Telefonnummer' , diagnosis: 'Diagnose' , diagnosen: 'Diagnosen' , wahrnehmung: 'Wahrnehmung' ,
+        bemerkung: 'Bemerkung' , bemerkungen: 'Bemerkungen' , kommentar: 'Kommentar' , kommentare: 'Kommentare' ,
+        outcome: 'Outcome' , kategorie: 'Kategorie' , score: 'Score' , }; if (map[key]) return map[key]; return key
+        .replace(/([A-Z])/g, ' $1' ) .replace(/_/g, ' ' ) .replace(/^./, str=> str.toUpperCase());
+        }
 
-                                <% if (gespraech.formMetaData && Array.isArray(gespraech.formMetaData.fields) &&
-                                    gespraech.formMetaData.fields.length> 0) { %>
-                                    <% } else if (gespraech.formMetaData) { %>
+        function formatValue(value) {
+        if (value === null || value === undefined) {
+        return 'Nicht angegeben';
+        }
+
+        if (Array.isArray(value)) {
+        if (value.length === 0) return '-';
+        return value
+        .map(item => {
+        if (item === null || item === undefined) return '';
+        if (typeof item === 'object') {
+        if (typeof item.toString === 'function' && item.toString() !== '[object Object]') {
+        return item.toString();
+        }
+        return JSON.stringify(item);
+        }
+        return item;
+        })
+        .filter(Boolean)
+        .join(', ');
+        }
+
+        if (typeof value === 'object') {
+        const entries = Object.entries(value);
+        if (entries.length === 0) return '-';
+        return entries
+        .map(([k, v]) => `${formatLabel(k)}: ${formatValue(v)}`)
+        .join(', ');
+        }
+
+        return value;
+        }
+
+        function renderObject(obj) {
+        if (!obj || Object.keys(obj).length === 0) {
+        %>
+        <div class="field">
+            <span class="field-value">Keine Daten vorhanden</span>
+        </div>
+        <% } else { Object.entries(obj).forEach(function(entry) { %>
+            <div class="field">
+                <span class="field-label">
+                    <%= formatLabel(entry[0]) %>
+                </span>
+                <span class="field-value">
+                    <%= formatValue(entry[1]) %>
+                </span>
+            </div>
+            <% }); } } %>
+
+                <% if (gespraech.formMetaData && Array.isArray(gespraech.formMetaData.fields) &&
+                    gespraech.formMetaData.fields.length> 0) { %>
+                    <% } else if (gespraech.formMetaData) { %>
+                        <div class="section">
+                            <h2>Formulardaten</h2>
+                            <% renderObject(gespraech.formMetaData); %>
+                        </div>
+                        <% } %>
+
+                            <% if (gespraech.assessment && Object.keys(gespraech.assessment).length>
+                                0)
+                                { %>
+                                <div class="section">
+                                    <h2>Assessment</h2>
+                                    <% renderObject(gespraech.assessment); %>
+                                </div>
+                                <% } %>
+
+                                    <% if (gespraech.diagnosen && Array.isArray(gespraech.diagnosen) &&
+                                        gespraech.diagnosen.length> 0) { %>
                                         <div class="section">
-                                            <h2>Formulardaten</h2>
-                                            <% renderObject(gespraech.formMetaData); %>
+                                            <h2>Diagnosen</h2>
+                                            <% gespraech.diagnosen.forEach(function(item) { %>
+                                                <div class="list-item">
+                                                    <strong>
+                                                        <%= item.code || 'Code unbekannt' %>
+                                                    </strong>
+                                                    <% if (item.description) { %> – <%= item.description %>
+                                                            <% } %>
+                                                </div>
+                                                <% }); %>
                                         </div>
                                         <% } %>
 
-                                            <% if (gespraech.assessment && Object.keys(gespraech.assessment).length> 0)
-                                                { %>
+                                            <% if (gespraech.ziele && Array.isArray(gespraech.ziele) &&
+                                                gespraech.ziele.length> 0) { %>
                                                 <div class="section">
-                                                    <h2>Assessment</h2>
-                                                    <% renderObject(gespraech.assessment); %>
-                                                </div>
-                                                <% } %>
-
-                                                    <% if (gespraech.diagnosen && Array.isArray(gespraech.diagnosen) &&
-                                                        gespraech.diagnosen.length> 0) { %>
-                                                        <div class="section">
-                                                            <h2>Diagnosen</h2>
-                                                            <% gespraech.diagnosen.forEach(function(item) { %>
-                                                                <div class="list-item">
-                                                                    <strong>
-                                                                        <%= item.code || 'Code unbekannt' %>
-                                                                    </strong>
-                                                                    <% if (item.description) { %> – <%= item.description
-                                                                            %>
-                                                                            <% } %>
+                                                    <h2>Ziele</h2>
+                                                    <% gespraech.ziele.forEach(function(ziel, index) { %>
+                                                        <div class="subsection">
+                                                            <h3>Ziel <%= index + 1 %>
+                                                            </h3>
+                                                            <% Object.entries(ziel).forEach(function(entry) { %>
+                                                                <div class="field">
+                                                                    <span class="field-label">
+                                                                        <%= formatLabel(entry[0]) %>
+                                                                    </span>
+                                                                    <span class="field-value">
+                                                                        <%= entry[1] ?? '-' %>
+                                                                    </span>
                                                                 </div>
                                                                 <% }); %>
                                                         </div>
+                                                        <% }); %>
+                                                </div>
+                                                <% } %>
+
+                                                    <% if (gespraech.outcome && Object.keys(gespraech.outcome).length>
+                                                        0) {
+                                                        %>
+                                                        <div class="section">
+                                                            <h2>Outcome</h2>
+                                                            <% renderObject(gespraech.outcome); %>
+                                                        </div>
                                                         <% } %>
 
-                                                            <% if (gespraech.ziele && Array.isArray(gespraech.ziele) &&
-                                                                gespraech.ziele.length> 0) { %>
+                                                            <% if (gespraech.notizen) { %>
                                                                 <div class="section">
-                                                                    <h2>Ziele</h2>
-                                                                    <% gespraech.ziele.forEach(function(ziel, index) {
-                                                                        %>
-                                                                        <div class="subsection">
-                                                                            <h3>Ziel <%= index + 1 %>
-                                                                            </h3>
-                                                                            <% Object.entries(ziel).forEach(function(entry)
-                                                                                { %>
-                                                                                <div class="field">
-                                                                                    <span class="field-label">
-                                                                                        <%= entry[0] %>
-                                                                                    </span>
-                                                                                    <span class="field-value">
-                                                                                        <%= entry[1] ?? '-' %>
-                                                                                    </span>
-                                                                                </div>
-                                                                                <% }); %>
-                                                                        </div>
-                                                                        <% }); %>
+                                                                    <h2>Notizen</h2>
+                                                                    <div class="field-value">
+                                                                        <%= gespraech.notizen %>
+                                                                    </div>
                                                                 </div>
                                                                 <% } %>
 
-                                                                    <% if (gespraech.outcome &&
-                                                                        Object.keys(gespraech.outcome).length> 0) { %>
-                                                                        <div class="section">
-                                                                            <h2>Outcome</h2>
-                                                                            <% renderObject(gespraech.outcome); %>
-                                                                        </div>
-                                                                        <% } %>
-
-                                                                            <% if (gespraech.notizen) { %>
-                                                                                <div class="section">
-                                                                                    <h2>Notizen</h2>
-                                                                                    <div class="field-value">
-                                                                                        <%= gespraech.notizen %>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <% } %>
-
-                                                                                    <div class="footer">
-                                                                                        <p>Dieses Dokument enthält die
-                                                                                            wichtigsten Gesprächsinhalte
-                                                                                            in einem kompakten Layout.
-                                                                                        </p>
-                                                                                    </div>
+                                                                    <div class="footer">
+                                                                        <p>Dieses Dokument
+                                                                            enthält
+                                                                            die
+                                                                            wichtigsten
+                                                                            Gesprächsinhalte
+                                                                            in einem kompakten
+                                                                            Layout.
+                                                                        </p>
+                                                                    </div>
 </body>
 
 </html>

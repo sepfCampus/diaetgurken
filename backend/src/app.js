@@ -9,13 +9,16 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({ 
-  origin: true, 
-  credentials: true 
+app.use(cors({
+    origin: true,
+    credentials: true
 }));
 
 app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Statische Dateien (für Logos, Bilder etc.)
+app.use(express.static('public'));
 
 app.use(
     session({
