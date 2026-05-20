@@ -8,70 +8,92 @@ import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class LoginWidget extends StatefulWidget
-{
-  const LoginWidget({ super.key });
+
+class LoginWidget extends StatefulWidget {
+  const LoginWidget({super.key});
 
   @override
   State<LoginWidget> createState() => _LoginWidgetState();
 }
 
-class _LoginWidgetState extends State<LoginWidget>
-{
+class _LoginWidgetState extends State<LoginWidget> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _registerNumberController = TextEditingController();
+  final TextEditingController _registerNumberController =
+      TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLoading = false;
   String? _errorMessage;
 
   @override
-  void dispose()
-  {
+  void dispose() {
     _emailController.dispose();
     _registerNumberController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  String? _validate()
-  {
+  void _showPasswordForgotten() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Passwort vergessen?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Bitte wenden Sie sich per E-Mail an die Administratoren:'),
+          const SizedBox(height: 12),
+          const SelectableText('loretta.malinovic@stud.hcw.ac.at'),
+          const SelectableText('alexandra.monte@stud.hcw.ac.at'),
+          const SelectableText('florian.gebauer@stud.hcw.ac.at'),
+          const SelectableText('sebastian.pfeiffer@stud.hcw.ac.at'),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Schließen'),
+        ),
+      ],
+    ),
+  );
+}
+
+  String? _validate() {
     final email = _emailController.text.trim();
     final registerNr = _registerNumberController.text.trim();
     final passwort = _passwordController.text;
 
-    if (email.isEmpty || registerNr.isEmpty || passwort.isEmpty)
-    {
+    if (email.isEmpty || registerNr.isEmpty || passwort.isEmpty) {
       return 'Bitte alle Felder ausfüllen.';
     }
 
     final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    if (!emailRegex.hasMatch(email))
-    {
+    if (!emailRegex.hasMatch(email)) {
       return 'Ungültige E-Mail-Adresse.';
     }
 
-    if (passwort.length < 6)
-    {
+    if (passwort.length < 6) {
       return 'Passwort muss mindestens 6 Zeichen lang sein.';
     }
 
     return null;
   }
 
-  Future<void> _login() async
-  {
+  Future<void> _login() async {
     final error = _validate();
-    if (error != null)
-    {
+    if (error != null) {
       setState(() => _errorMessage = error);
       return;
     }
 
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-    try
-    {
+    try {
       final userService = context.read<UserHttpService>();
       await userService.login(
         email: _emailController.text.trim(),
@@ -79,24 +101,22 @@ class _LoginWidgetState extends State<LoginWidget>
         registerNr: _registerNumberController.text.trim(),
       );
 
-      if (mounted)
-      {
-        Navigator.of(context).pushNamedAndRemoveUntil(Routes.PAGE_HOME, (route) => false);
+      if (mounted) {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil(Routes.PAGE_HOME, (route) => false);
       }
-    }
-    catch (e)
-    {
-      setState(() => _errorMessage = 'Login fehlgeschlagen. Bitte Daten überprüfen.');
-    }
-    finally
-    {
+    } catch (e) {
+      setState(
+        () => _errorMessage = 'Login fehlgeschlagen. Bitte Daten überprüfen.',
+      );
+    } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -105,19 +125,23 @@ class _LoginWidgetState extends State<LoginWidget>
           child: SingleChildScrollView(
             padding: AppSpacing.PAGE_PADDING,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: AppSizes.MAX_CONTENT_WIDTH),
+              constraints: const BoxConstraints(
+                maxWidth: AppSizes.MAX_CONTENT_WIDTH,
+              ),
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: theme.scaffoldBackgroundColor,
-                  border: Border.all(color: theme.colorScheme.primary, width: 2),
+                  border: Border.all(
+                    color: theme.colorScheme.primary,
+                    width: 2,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                  [
+                  children: [
                     AppTextField(
                       hintText: 'E-Mail',
                       controller: _emailController,
@@ -139,8 +163,24 @@ class _LoginWidgetState extends State<LoginWidget>
                       obscureText: true,
                     ),
 
+                    AppSpacing.SPACED_BOX_H_SMALL,
+
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _showPasswordForgotten,
+                        child: Text(
+                          'Passwort vergessen?',
+                          style: TextStyle(
+                            color: theme.colorScheme.primary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+
                     if (_errorMessage != null) ...[
-                      AppSpacing.SPACED_BOX_H_LARGE,
+                      AppSpacing.SPACED_BOX_H_SMALL,
                       Text(
                         _errorMessage!,
                         style: TextStyle(color: theme.colorScheme.error),
@@ -151,12 +191,10 @@ class _LoginWidgetState extends State<LoginWidget>
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children:
-                      [
+                      children: [
                         AppSecondaryButton(
                           buttonText: 'Registrieren',
-                          onPressed: ()
-                          {
+                          onPressed: () {
                             Navigator.pushNamed(context, Routes.PAGE_REGISTER);
                           },
                         ),
@@ -164,11 +202,11 @@ class _LoginWidgetState extends State<LoginWidget>
                         AppSpacing.SPACED_BOX_W_SMALL,
 
                         _isLoading
-                          ? const CircularProgressIndicator()
-                          : AppPrimaryButton(
-                              buttonText: 'Login',
-                              onPressed: _login,
-                            ),
+                            ? const CircularProgressIndicator()
+                            : AppPrimaryButton(
+                                buttonText: 'Login',
+                                onPressed: _login,
+                              ),
                       ],
                     ),
                   ],
