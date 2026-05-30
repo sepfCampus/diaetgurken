@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/vo/assessment/assessment.dart';
@@ -53,7 +51,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
   Future<void> _openGoalEditor(int index, String clientId, String date) async
   {
     final result = await Navigator.pushNamed(context, Routes.PAGE_GOAL_EDITOR,
-                                             arguments: { 'clientId': clientId, 'date': date, 'goal': _goals.elements[index], 'goals': _goals, 'assessment': _assessment });
+                                             arguments: { 'conversation': _conversation, 'clientId': clientId, 'date': date, 'goal': _goals.elements[index], 'goals': _goals, 'assessment': _assessment });
 
     if(result is InterventionGoal)
     {
@@ -89,7 +87,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
     return AppPageScaffold(
       title: 'Zielsetzung ($clientId) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
-      trailing: AppNotesButton(clientId: clientId, date: date),
+      trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
