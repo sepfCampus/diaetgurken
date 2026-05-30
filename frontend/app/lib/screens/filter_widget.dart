@@ -18,8 +18,9 @@ class FilterWidget extends StatefulWidget
 class _FilterWidgetState extends State<FilterWidget>
 {
   late Map<String, dynamic> _conversation;
-  final Set<String> _selectedFilters = { 'Übergewicht' };
-  
+
+  final Set<String> _selectedFilters = {};
+
   bool _initialized = false;
 
   @override
@@ -32,67 +33,120 @@ class _FilterWidgetState extends State<FilterWidget>
       return;
     }
 
-    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     _conversation = args?['conversation'] as Map<String, dynamic>;
 
+    final storedFilters =
+        (_conversation['selectedFilters'] as List<dynamic>? ?? [])
+            .cast<String>();
+
+    _selectedFilters.addAll(storedFilters);
+
     _initialized = true;
+  }
+
+  List<String> _getAvailableFilters()
+  {
+    final Set<String> filters = {};
+
+    final formMetaData =
+        _conversation['formMetaData'] as Map<String, dynamic>;
+
+    final elements =
+        formMetaData['elements'] as List<dynamic>? ?? [];
+
+    for(final element in elements)
+    {
+      final filterOptions =
+          element['filterOptions'] as List<dynamic>? ?? [];
+
+      for(final filter in filterOptions)
+      {
+        filters.add(filter.toString());
+      }
+    }
+
+    return filters.toList()..sort();
+  }
+
+  void _updateConversationFilters()
+  {
+    _conversation['selectedFilters'] =
+        _selectedFilters.toList();
+  }
+
+  void _toggleFilter(String filter)
+  {
+    setState(()
+    {
+      if(_selectedFilters.contains(filter))
+      {
+        _selectedFilters.remove(filter);
+      }
+
+      else
+      {
+        _selectedFilters.add(filter);
+      }
+
+      _updateConversationFilters();
+    });
   }
 
   @override
   Widget build(BuildContext context)
   {
-    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     final String clientId = args?['clientId'] ?? '?';
     final String date = args?['date'] ?? '?';
+
+    final availableFilters = _getAvailableFilters();
 
     return AppPageScaffold(
       title: 'Filter ($clientId)',
       drawer: LayoutUtil.getStandardAppDrawer(context),
 
-      trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
+      trailing: AppNotesButton(
+        conversation: _conversation,
+        clientId: clientId,
+        date: date,
+      ),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
         [
-          // FILTER CHIPS
           Wrap(
             spacing: AppSpacing.SM,
             runSpacing: AppSpacing.SM,
             children:
             [
-              AppFilterChipTile(
-                label: 'Übergewicht',
-                selected: _selectedFilters.contains('Übergewicht'),
-                onPressed: ()
-                {
-                  setState(()
+              ...availableFilters.map((filter)
+              {
+                return AppFilterChipTile(
+                  label: filter,
+                  selected: _selectedFilters.contains(filter),
+                  onPressed: ()
                   {
-                    if(_selectedFilters.contains('Übergewicht'))
-                    {
-                      _selectedFilters.remove('Übergewicht');
-                    }
-                    else
-                    {
-                      _selectedFilters.add('Übergewicht');
-                    }
-                  });
-                }
-              )
-            ]
+                    _toggleFilter(filter);
+                  },
+                );
+              }),
+            ],
           ),
 
           AppSpacing.SPACED_BOX_H_LARGE,
 
-          // BUTTONS
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children:
             [
               AppSecondaryButton(
-                buttonText: 'Abbrechen',
+                buttonText: 'Zurück',
                 onPressed: ()
                 {
                   Navigator.pop(context);
@@ -105,8 +159,10 @@ class _FilterWidgetState extends State<FilterWidget>
                 buttonText: 'Speichern',
                 onPressed: ()
                 {
+                  _updateConversationFilters();
 
-                }
+                  Navigator.pop(context);
+                },
               )
             ]
           )

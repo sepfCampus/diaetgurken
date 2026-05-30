@@ -378,6 +378,13 @@ class MockConversationRepository
         "formMetaData": {
           "elements": [
             {
+              "type": "Text",
+              "name": "Test",
+              "displayName": "Testfeld",
+              "category": "body",
+              "filterOptions": ["overweight"]
+            },
+            {
               "type": "Number",
               "name": "height",
               "displayName": "Größe (cm)",

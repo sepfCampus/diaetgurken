@@ -1,5 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/vo/form/form_base_element.dart';
 import 'package:app/widgets/forms/app_assessment_form_widget.dart';
 import 'package:app/vo/assessment/assessment.dart';
 import 'package:app/vo/form/form_meta_data.dart';
@@ -55,6 +56,27 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
     final String clientId = args?['clientId'] ?? '?';
     final String date = args?['date'] ?? '?';
 
+    final selectedFilters = (_conversation['selectedFilters'] as List<dynamic>? ?? []).cast<String>();
+
+    List<FormBaseElement> elementsToShow;
+
+    //if no filter is selected, every filter is selected
+    if(selectedFilters.isEmpty)
+    {
+      elementsToShow = _formMetaData.elements;
+    }
+
+    else
+    {
+      elementsToShow = _formMetaData.elements.where((element)
+      {
+        return element.filterOptions.any((filter)
+        {
+          return selectedFilters.contains(filter);
+        });
+      }).toList();
+    }
+
     return AppPageScaffold(
       title: 'Assessment ($clientId) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
@@ -66,17 +88,19 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
           AppNavigationTile(
             title: 'Filter',
             trailingIcon: Icons.filter_alt_outlined,
-            onTap: ()
+            onTap: () async
             {
-              Navigator.pushNamed(context, Routes.PAGE_FILTER,
-                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
+              await Navigator.pushNamed(context, Routes.PAGE_FILTER,
+                                        arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
+              
+              setState(() { }); //the state has been updated by the filter widget - new filters have been set - so this widget is informed that the state has changed              
             }
           ),
 
           AppSpacing.SPACED_BOX_H_MEDIUM,
 
           AppAssessmentFormWidget(
-            elements: _formMetaData.elements,
+            elements: elementsToShow,
             assessment: _assessment,
             onChanged: (assessment)
             {
