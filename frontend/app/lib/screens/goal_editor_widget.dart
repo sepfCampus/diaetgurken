@@ -138,8 +138,8 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? '14.01.2026';
+    final String clientId = args?['clientId'] ?? '?';
+    final String date = args?['date'] ?? '?';
 
     return AppPageScaffold(
       title: 'Interventionsziel erstellen ($clientId)',
@@ -223,8 +223,9 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
             child: AppSecondaryButton(
               buttonText: 'Löschen',
               width: AppSizes.BUTTON_WIDTH_MEDIUM,
-              onPressed: () {
-                Navigator.pop(context);
+              onPressed: ()
+              {
+                Navigator.pop(context, 'delete');
               },
             ),
           ),
