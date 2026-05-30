@@ -58,6 +58,16 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
       setState(()
       {
         _goals.elements[index] = result;
+        _conversation['ziele'] = _goals.toJson();
+      });
+    }
+
+    else if(result == 'delete')
+    {
+      setState(()
+      {
+        _goals.elements.removeAt(index);
+        _conversation['ziele'] = _goals.toJson();
       });
     }
   }
@@ -65,13 +75,14 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
   Future<void> _addGoal(String clientId, String date) async
   {
     final result = await Navigator.pushNamed(context, Routes.PAGE_GOAL_EDITOR,
-                                             arguments: { 'clientId': clientId, 'date': date, 'goal': InterventionGoal(), 'goals': _goals, 'assessment': _assessment });
+                                             arguments: { 'conversation': _conversation,  'clientId': clientId, 'date': date, 'goal': InterventionGoal(), 'goals': _goals, 'assessment': _assessment });
 
     if(result is InterventionGoal)
     {
       setState(()
       {
         _goals.elements.add(result);
+        _conversation['ziele'] = _goals.toJson();
       });
     }
   }
@@ -126,6 +137,8 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
                 buttonText: 'Zurück',
                 onPressed: ()
                 {
+                  _conversation['ziele'] = _goals.toJson();
+
                   Navigator.pushReplacementNamed(context, Routes.PAGE_OUTCOME_EVALUATION,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
                 },
@@ -137,6 +150,8 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
                 buttonText: 'Abschließen',
                 onPressed: ()
                 {
+                  _conversation['ziele'] = _goals.toJson();
+
                   Navigator.pushReplacementNamed(context, Routes.PAGE_CONVERSATION,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
                 },
