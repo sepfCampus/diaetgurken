@@ -26,6 +26,7 @@ class GoalEditorWidget extends StatefulWidget
 
 class _GoalEditorWidgetState extends State<GoalEditorWidget>
 {
+  late Map<String, dynamic> _conversation;
   late InterventionGoal _goal;
   late Goals _goals;
   late Assessment _assessment;
@@ -48,6 +49,8 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
     }
 
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    _conversation = args?['conversation'] as Map<String, dynamic>;
 
     _goal = args?['goal'] as InterventionGoal? ?? InterventionGoal();
     _goals = args?['goals'] as Goals;
@@ -141,7 +144,7 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
     return AppPageScaffold(
       title: 'Interventionsziel erstellen ($clientId)',
       drawer: LayoutUtil.getStandardAppDrawer(context),
-      trailing: AppNotesButton(clientId: clientId, date: date),
+      trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

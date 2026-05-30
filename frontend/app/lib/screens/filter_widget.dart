@@ -17,21 +17,41 @@ class FilterWidget extends StatefulWidget
 
 class _FilterWidgetState extends State<FilterWidget>
 {
+  late Map<String, dynamic> _conversation;
   final Set<String> _selectedFilters = { 'Übergewicht' };
+  
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies()
+  {
+    super.didChangeDependencies();
+
+    if(_initialized)
+    {
+      return;
+    }
+
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    _conversation = args?['conversation'] as Map<String, dynamic>;
+
+    _initialized = true;
+  }
 
   @override
   Widget build(BuildContext context)
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? '14.01.2026';
+    final String clientId = args?['clientId'] ?? '?';
+    final String date = args?['date'] ?? '?';
 
     return AppPageScaffold(
       title: 'Filter ($clientId)',
       drawer: LayoutUtil.getStandardAppDrawer(context),
 
-      trailing: AppNotesButton(clientId: clientId, date: date),
+      trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/widgets/forms/app_assessment_form_widget.dart';
@@ -60,7 +58,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
     return AppPageScaffold(
       title: 'Assessment ($clientId) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
-      trailing: AppNotesButton(clientId: clientId, date: date),
+      trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:

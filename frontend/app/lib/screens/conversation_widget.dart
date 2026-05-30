@@ -27,7 +27,7 @@ class ConversationWidget extends StatelessWidget
       title: 'Gespräch ($clientId) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
 
-      trailing: AppNotesButton(clientId: clientId, date: date),
+      trailing: AppNotesButton(conversation: conversation ?? new Map(), clientId: clientId, date: date),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

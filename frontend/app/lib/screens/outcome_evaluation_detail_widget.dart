@@ -109,7 +109,7 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
     return AppPageScaffold(
       title: 'Outcome-Evaluation ($clientId)',
       drawer: LayoutUtil.getStandardAppDrawer(context),
-      trailing: AppNotesButton(clientId: clientId, date: date),
+      trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:

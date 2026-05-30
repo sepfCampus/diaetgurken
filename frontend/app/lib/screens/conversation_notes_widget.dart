@@ -15,7 +15,31 @@ class ConversationNotesWidget extends StatefulWidget
 
 class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
 {
-  final TextEditingController _notesController = TextEditingController(text: 'Klient möchte Gewicht um mindestens 10 kg verringern\n\nsehr engagiert');
+  late Map<String, dynamic> _conversation;
+  late TextEditingController _notesController;
+
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies()
+  {
+    super.didChangeDependencies();
+
+    if(_initialized)
+    {
+      return;
+    }
+
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    _conversation = args?['conversation'] as Map<String, dynamic>;
+
+    _notesController = TextEditingController(
+      text: _conversation['notizen'] ?? '',
+    );
+
+    _initialized = true;
+  }
 
   @override
   void dispose()
@@ -24,13 +48,18 @@ class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
     super.dispose();
   }
 
+  void _saveNotes()
+  {
+    _conversation['notizen'] = _notesController.text;
+  }
+
   @override
   Widget build(BuildContext context)
   {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? '01.01.2026';
+    final String clientId = args?['clientId'] ?? '?';
+    final String date = args?['date'] ?? _conversation['datum'] ?? '?';
 
     return AppPageScaffold(
       title: 'Notizen ($clientId) $date',
@@ -40,7 +69,6 @@ class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
         [
-          //Text area
           Container(
             height: 350,
             padding: const EdgeInsets.all(12),
@@ -65,16 +93,20 @@ class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
 
           AppSpacing.SPACED_BOX_H_LARGE,
 
-          // BUTTONS
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children:
             [
               AppSecondaryButton(
-                buttonText: 'Abbrechen',
+                buttonText: 'Zurück',
                 onPressed: ()
                 {
-                  Navigator.pop(context);
+                  _saveNotes();
+
+                  Navigator.pop(
+                    context,
+                    _conversation,
+                  );
                 },
               ),
 
@@ -84,7 +116,12 @@ class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
                 buttonText: 'Speichern',
                 onPressed: ()
                 {
-                  
+                  _saveNotes();
+
+                  Navigator.pop(
+                    context,
+                    _conversation,
+                  );
                 },
               ),
             ],
