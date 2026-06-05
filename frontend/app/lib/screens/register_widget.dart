@@ -1,7 +1,8 @@
 import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
-import 'package:app/service/user_http_service.dart';
+import 'package:app/service/user_service.dart';
+import 'package:app/vo/user.dart';
 import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -80,11 +81,10 @@ class _RegisterWidgetState extends State<RegisterWidget>
 
     try
     {
-      final userService = context.read<UserHttpService>();
+      final userService = context.read<UserService>();
       await userService.register(
-        email: _emailController.text.trim(),
-        passwort: _passwordController.text,
-        registerNr: _registerNumberController.text.trim(),
+        new User(-1, _registerNumberController.text.trim(), _emailController.text.trim()),
+        _passwordController.text,
       );
 
       if (mounted)

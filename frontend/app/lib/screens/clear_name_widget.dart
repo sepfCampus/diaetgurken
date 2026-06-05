@@ -1,6 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
-import 'package:app/service/klarname_http_service.dart';
-import 'package:app/service/klienten_akte_http_service.dart';
+import 'package:app/service/client_file_service.dart';
+import 'package:app/vo/client_file.dart';
 import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -22,8 +22,8 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
 {
   final TextEditingController _passwordController = TextEditingController();
 
-  List<Map<String, dynamic>> _clientFiles = [];
-  Map<String, dynamic>? _selectedFile;
+  List<ClientFile> _clientFiles = [];
+  ClientFile? _selectedFile;
   String? _klarname;
   bool _isLoading = false;
   String? _errorMessage;
@@ -39,7 +39,7 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
   {
     try
     {
-      final service = context.read<KlientenAkteHttpService>();
+      final service = context.read<ClientFileService>();
       final files = await service.getAll();
       setState(()
       {
@@ -53,9 +53,9 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
     }
   }
 
-  String _formatId(Map<String, dynamic> file)
+  String _formatId(ClientFile file)
   {
-    final id = file['id'] as int? ?? 0;
+    final id = file.id as int? ?? 0;
     return id.toString().padLeft(4, '0');
   }
 
@@ -77,11 +77,8 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
 
     try
     {
-      final service = context.read<KlarnameHttpService>();
-      final name = await service.getKlarname(
-        klientenAkteId: _selectedFile!['id'].toString(),
-        password: _passwordController.text,
-      );
+      final service = context.read<ClientFileService>();
+      final name = await service.getClearName(_selectedFile!.id.toString(), _passwordController.text);
       setState(() => _klarname = name);
     }
     catch (e)
@@ -96,7 +93,7 @@ class _ClearNameWidgetState extends State<ClearNameWidget>
 
   void _showDropdown(BuildContext context) async
   {
-    final selected = await showModalBottomSheet<Map<String, dynamic>>(
+    final selected = await showModalBottomSheet<ClientFile>(
       context: context,
       builder: (ctx) => ListView(
         children: _clientFiles.map((file)
