@@ -1,6 +1,7 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
-import 'package:app/service/klienten_akte_http_service.dart';
+import 'package:app/service/client_file_service.dart';
+import 'package:app/vo/client_file.dart';
 import 'package:app/widgets/forms/app_search_field.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
 import 'package:app/widgets/layout/layout_util.dart';
@@ -22,7 +23,7 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
   final TextEditingController _searchController = TextEditingController();
 
   String _searchText = '';
-  List<Map<String, dynamic>> _clientFiles = [];
+  List<ClientFile> _clientFiles = [];
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -42,7 +43,7 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
 
     try
     {
-      final service = context.read<KlientenAkteHttpService>();
+      final service = context.read<ClientFileService>();
       final files = await service.getAll();
 
       if (mounted)
@@ -66,9 +67,9 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
     }
   }
 
-  String _formatId(Map<String, dynamic> file)
+  String _formatId(ClientFile file)
   {
-    final id = file['id'] as int? ?? 0;
+    final id = file.id as int? ?? 0;
     return id.toString().padLeft(4, '0');
   }
 
@@ -142,7 +143,7 @@ class _ClientFilesWidgetState extends State<ClientFilesWidget>
             ...filtered.map((file)
             {
               final displayId = _formatId(file);
-              final id = file['id']?.toString() ?? '';
+              final id = file.id.toString();
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),

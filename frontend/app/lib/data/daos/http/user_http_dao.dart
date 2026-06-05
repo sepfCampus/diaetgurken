@@ -11,6 +11,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
 
   UserHttpDao({ required this.apiClient, required this.sessionStore });
 
+  @override
   Future<UserHttpEntity> register(UserHttpEntity userEntity, String password) async
   {
     final response = await apiClient.post('/auth/register',
@@ -18,7 +19,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
                                           {
                                             'email': userEntity.email,
                                             'registerNr': userEntity.registerNr,
-                                            'password': password
+                                            'passwort': password
                                           },
     );
 
@@ -34,13 +35,15 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     }
   }
 
-  Future<UserHttpEntity> login(String email, String password) async
+  @override
+  Future<UserHttpEntity> login(String email, String registerNr, String password) async
   {
     final response = await apiClient.post('/auth/login',
                                           body:
                                           {
                                             'email': email,
-                                            'password': password
+                                            'registerNr': registerNr,
+                                            'passwort': password
                                           });
 
     if(!response.isSuccess)
@@ -55,6 +58,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     }
   }
 
+  @override
   Future<void> logout() async
   {
     final response = await apiClient.post('/auth/logout');
@@ -67,6 +71,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     await sessionStore.clear();
   }
 
+  @override
   Future<UserHttpEntity> getCurrentUser() async
   {
     final response = await apiClient.post('/auth/whoami', body: {});
@@ -83,6 +88,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     }
   }
 
+  @override
   Future<UserHttpEntity> updateUser(UserHttpEntity updatedUserEntity, String? password) async
   {
     final response = await apiClient.put('/users',
@@ -90,7 +96,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
                                          {
                                           'email': updatedUserEntity.email,
                                           'registerNr': updatedUserEntity.registerNr,
-                                          'password': password
+                                          'passwort': password
                                          });
 
     if(!response.isSuccess)
@@ -105,6 +111,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     }
   }
 
+  @override
   Future<void> deleteUser(UserHttpEntity userEntity) async
   {
     final response = await apiClient.delete('/users');
@@ -112,6 +119,21 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     if(!response.isSuccess)
     {
       throw Exception('User konnte nicht gelöscht werden.');
+    }
+  }
+
+  @override
+  Future<bool> isLoggedIn() async
+  {
+    try
+    {
+      final response = await apiClient.get('/auth/whoami');
+      return response.isSuccess;
+    }
+
+    catch(exception)
+    {
+      return false;
     }
   }
 }

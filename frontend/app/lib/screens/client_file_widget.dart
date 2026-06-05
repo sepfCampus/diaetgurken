@@ -1,6 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
-import 'package:app/service/klienten_akte_http_service.dart';
+import 'package:app/service/client_file_service.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
@@ -132,8 +132,8 @@ class _ClientFileWidgetState extends State<ClientFileWidget> {
 
   Future<void> _deleteClientFile(int klientenAkteId) async {
     try {
-      final service = context.read<KlientenAkteHttpService>();
-      await service.delete(id: klientenAkteId);
+      final service = context.read<ClientFileService>();
+      await service.delete(klientenAkteId);
 
       if (mounted) {
         Navigator.pop(context, true);

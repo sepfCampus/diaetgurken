@@ -1,4 +1,6 @@
 import 'package:app/data/daos/user_base_dao.dart';
+import 'package:app/data/entities/client_file_entity.dart';
+import 'package:app/data/entities/conversation_entity.dart';
 import 'package:app/data/entities/settings_entity.dart';
 import 'package:app/data/entities/user_entity.dart';
 import 'package:app/service/util/entity_vo_converter_base_util.dart';
@@ -7,7 +9,7 @@ import 'package:app/vo/user.dart';
 class UserService
 {
   UserBaseDao<UserEntity> _userDao;
-  EntityVoConverterBaseUtil<SettingsEntity, UserEntity> _entityVoConverterUtil;
+  EntityVoConverterBaseUtil<SettingsEntity, UserEntity, ConversationEntity, ClientFileEntity> _entityVoConverterUtil;
 
   UserService(this._userDao, this._entityVoConverterUtil);
 
@@ -17,9 +19,9 @@ class UserService
     return this._entityVoConverterUtil.convertUserEntityToVo(userEntity);
   }
 
-  Future<User> login(String email, String password) async
+  Future<User> login(String email, String registerNr, String password) async
   {
-    UserEntity userEntity = await this._userDao.login(email, password);
+    UserEntity userEntity = await this._userDao.login(email, registerNr, password);
     return this._entityVoConverterUtil.convertUserEntityToVo(userEntity);
   }
 
@@ -43,5 +45,10 @@ class UserService
   Future<void> deleteUser(User user) async
   {
     await this._userDao.deleteUser(this._entityVoConverterUtil.convertUserVoToEntity(user));
+  }
+
+  Future<bool> isLoggedIn() async
+  {
+    return await this._userDao.isLoggedIn();
   }
 }

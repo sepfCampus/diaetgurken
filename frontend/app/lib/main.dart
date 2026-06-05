@@ -1,4 +1,13 @@
 import 'package:app/config/theme/theme_controller.dart';
+import 'package:app/data/daos/http/client_file_http_dao.dart';
+import 'package:app/data/daos/http/conversation_http_dao.dart';
+import 'package:app/data/daos/http/settings_http_dao.dart';
+import 'package:app/data/daos/http/user_http_dao.dart';
+import 'package:app/service/client_file_service.dart';
+import 'package:app/service/conversation_service.dart';
+import 'package:app/service/settings_service.dart';
+import 'package:app/service/user_service.dart';
+import 'package:app/service/util/entity_vo_converter_http_util.dart';
 import 'package:app/widgets/auth_guard.dart';
 import 'package:app/data/daos/http/api/memory_session_store.dart';
 import 'package:app/data/daos/http/api/session_api_client.dart';
@@ -21,13 +30,9 @@ import 'package:app/screens/outcome_evaluation_detail_widget.dart';
 import 'package:app/screens/outcome_evaluation_widget.dart';
 import 'package:app/screens/register_widget.dart';
 import 'package:app/screens/settings_widget.dart';
-import 'package:app/service/gespraech_http_service.dart';
-import 'package:app/service/klienten_akte_http_service.dart';
-import 'package:app/service/user_http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:provider/provider.dart';
-import 'package:app/service/klarname_http_service.dart';
 
 void main()
 {
@@ -53,7 +58,7 @@ class _AuthCheckWidgetState extends State<AuthCheckWidget>
 
   Future<void> _checkLogin() async
   {
-    final userService = context.read<UserHttpService>();
+    final userService = context.read<UserService>();
     final isLoggedIn = await userService.isLoggedIn();
 
     if (mounted)
@@ -81,26 +86,20 @@ class MainApp extends StatelessWidget
   Widget build(BuildContext context)
   {
     final sessionStore = MemorySessionStore();
-    final apiClient = SessionApiClient(
-      baseUrl: 'http://localhost:3000/api',
-      sessionStore: sessionStore,
-    );
+    final apiClient = SessionApiClient( baseUrl: 'http://localhost:3000/api', sessionStore: sessionStore);
 
-    final klientenAkteHttpService = KlientenAkteHttpService(apiClient: apiClient);
-    final gespraechHttpService = GespraechHttpService(apiClient: apiClient);
-    final userHttpService = UserHttpService(
-      apiClient: apiClient,
-      sessionStore: sessionStore,
-    );
+    final userService = UserService(UserHttpDao(apiClient: apiClient, sessionStore: sessionStore), EntityVoConverterHttpUtil());
+    final settingsService = SettingsService(SettingsHttpDao(apiClient: apiClient), EntityVoConverterHttpUtil());
+    final conversationService = ConversationService(ConversationHttpDao(apiClient: apiClient), EntityVoConverterHttpUtil());
+    final clientFileService = ClientFileService(ClientFileHttpDao(apiClient: apiClient), EntityVoConverterHttpUtil(), userService, conversationService);
 
     return MultiProvider(
       providers:
       [
         ChangeNotifierProvider(create: (_) => ThemeController()),
-        Provider<UserHttpService>.value(value: userHttpService),
-        Provider<KlientenAkteHttpService>.value(value: klientenAkteHttpService),
-        Provider<GespraechHttpService>.value(value: gespraechHttpService),
-        Provider<KlarnameHttpService>.value(value: KlarnameHttpService(apiClient: apiClient)),
+        Provider<UserService>.value(value: userService),
+        Provider<ClientFileService>.value(value: clientFileService),
+        Provider<ConversationService>.value(value: conversationService),
       ],
       child: Consumer<ThemeController>(
         builder: (context, themeController, _)

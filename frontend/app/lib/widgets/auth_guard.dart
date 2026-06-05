@@ -1,5 +1,5 @@
 import 'package:app/config/navigation/routes.dart';
-import 'package:app/service/user_http_service.dart';
+import 'package:app/service/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,7 +28,7 @@ class _AuthGuardState extends State<AuthGuard>
   {
     try
     {
-      final userService = context.read<UserHttpService>();
+      final userService = context.read<UserService>();
       final isLoggedIn = await userService.isLoggedIn();
 
       if (mounted)

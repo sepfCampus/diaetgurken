@@ -1,6 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
-import 'package:app/service/klienten_akte_http_service.dart';
+import 'package:app/service/client_file_service.dart';
 import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -37,8 +37,8 @@ class _CreateClientFileWidgetState extends State<CreateClientFileWidget>
 
     try
     {
-      final service = context.read<KlientenAkteHttpService>();
-      await service.create(name: _nameController.text.trim());
+      final service = context.read<ClientFileService>();
+      await service.create(_nameController.text.trim());
 
       if (mounted)
       {

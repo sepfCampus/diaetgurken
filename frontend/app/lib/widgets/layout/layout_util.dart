@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/navigation/routes.dart';
-import 'package:app/service/user_http_service.dart';
+import 'package:app/service/user_service.dart';
 import 'package:app/widgets/layout/app_drawer.dart';
 import 'package:app/widgets/layout/app_drawer_item.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,7 @@ class LayoutUtil
       {
         try
         {
-          final userService = context.read<UserHttpService>();
+          final userService = context.read<UserService>();
           await userService.logout();
         }
         catch (e) {}
