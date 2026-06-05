@@ -1,5 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:app/vo/outcome/outcome.dart';
 import 'package:app/vo/outcome/outcome_goal.dart';
 import 'package:app/vo/outcome/outcome_sub_goal.dart';
@@ -23,7 +24,7 @@ class OutcomeEvaluationDetailWidget extends StatefulWidget
 
 class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
   late Outcome _outcome;
   late OutcomeGoal _outcomeGoal;
   late int _outcomeIndex;
@@ -48,10 +49,10 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _conversation = args?['conversation'] as Conversation;
     _outcomeIndex = args?['outcomeIndex'] ?? 0;
 
-    _outcome = Outcome.fromJson(_conversation['outcome']);
+    _outcome = _conversation.outcome;
     _outcomeGoal = _outcome.elements[_outcomeIndex];
 
     _interventionNoteController = TextEditingController(text: _outcomeGoal.note);
@@ -95,7 +96,7 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
     }).toList();
 
     _outcome.elements[_outcomeIndex] = _outcomeGoal;
-    _conversation['outcome'] = _outcome.toJson();
+    _conversation.outcome = _outcome;
   }
 
   @override
@@ -104,7 +105,7 @@ class _OutcomeEvaluationDetailWidgetState extends State<OutcomeEvaluationDetailW
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? _conversation['datum'] ?? '14.01.2026';
+    final String date = args?['date'] ?? _conversation.datum ?? '?';
 
     return AppPageScaffold(
       title: 'Outcome-Evaluation ($clientId)',

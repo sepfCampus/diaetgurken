@@ -1,4 +1,5 @@
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -17,7 +18,7 @@ class FilterWidget extends StatefulWidget
 
 class _FilterWidgetState extends State<FilterWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
 
   final Set<String> _selectedFilters = {};
 
@@ -36,11 +37,9 @@ class _FilterWidgetState extends State<FilterWidget>
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _conversation = args?['conversation'] as Conversation;
 
-    final storedFilters =
-        (_conversation['selectedFilters'] as List<dynamic>? ?? [])
-            .cast<String>();
+    final storedFilters = (_conversation.selectedFilters as List<dynamic>? ?? []).cast<String>();
 
     _selectedFilters.addAll(storedFilters);
 
@@ -52,7 +51,7 @@ class _FilterWidgetState extends State<FilterWidget>
     final Set<String> filters = {};
 
     final formMetaData =
-        _conversation['formMetaData'] as Map<String, dynamic>;
+        _conversation.formMetaData as Map<String, dynamic>;
 
     final elements =
         formMetaData['elements'] as List<dynamic>? ?? [];
@@ -73,8 +72,7 @@ class _FilterWidgetState extends State<FilterWidget>
 
   void _updateConversationFilters()
   {
-    _conversation['selectedFilters'] =
-        _selectedFilters.toList();
+    _conversation.selectedFilters = _selectedFilters.toList();
   }
 
   void _toggleFilter(String filter)

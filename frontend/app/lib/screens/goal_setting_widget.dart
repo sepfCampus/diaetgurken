@@ -1,6 +1,7 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/vo/assessment/assessment.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:app/vo/goal/goals.dart';
 import 'package:app/vo/goal/intervention_goal.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
@@ -22,7 +23,7 @@ class GoalSettingWidget extends StatefulWidget
 
 class _GoalSettingWidgetState extends State<GoalSettingWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
   late Goals _goals;
   late Assessment _assessment;
 
@@ -40,10 +41,10 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
 
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _conversation = args?['conversation'] as Conversation;
 
-    _assessment = Assessment.fromJson(_conversation['assessment']);
-    _goals = Goals.fromJson(_conversation['ziele']);
+    _assessment = _conversation.assessment;
+    _goals = _conversation.ziele;
 
     _initialized = true;
   }
@@ -58,7 +59,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
       setState(()
       {
         _goals.elements[index] = result;
-        _conversation['ziele'] = _goals.toJson();
+        _conversation.ziele = _goals;
       });
     }
 
@@ -67,7 +68,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
       setState(()
       {
         _goals.elements.removeAt(index);
-        _conversation['ziele'] = _goals.toJson();
+        _conversation.ziele = _goals;
       });
     }
   }
@@ -82,7 +83,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
       setState(()
       {
         _goals.elements.add(result);
-        _conversation['ziele'] = _goals.toJson();
+        _conversation.ziele = _goals;
       });
     }
   }
@@ -137,7 +138,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
                 buttonText: 'Zurück',
                 onPressed: ()
                 {
-                  _conversation['ziele'] = _goals.toJson();
+                  _conversation.ziele = _goals;
 
                   Navigator.pushReplacementNamed(context, Routes.PAGE_OUTCOME_EVALUATION,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
@@ -150,16 +151,16 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
                 buttonText: 'Abschließen',
                 onPressed: ()
                 {
-                  _conversation['ziele'] = _goals.toJson();
+                  _conversation.ziele = _goals;
 
                   Navigator.pushReplacementNamed(context, Routes.PAGE_CONVERSATION,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
+                }
+              )
+            ]
+          )
+        ]
+      )
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:app/vo/form/form_base_element.dart';
 import 'package:app/widgets/forms/app_assessment_form_widget.dart';
 import 'package:app/vo/assessment/assessment.dart';
@@ -22,7 +23,7 @@ class AssessmentWidget extends StatefulWidget
 
 class _AssessmentWidgetState extends State<AssessmentWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
   late FormMetaData _formMetaData;
   late Assessment _assessment;
 
@@ -40,10 +41,10 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
 
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _conversation = args?['conversation'] as Conversation;
 
-    _formMetaData = FormMetaData.fromJson(_conversation['formMetaData']);
-    _assessment = Assessment.fromJson(_conversation['assessment']);
+    _formMetaData = _conversation.formMetaData;
+    _assessment = _conversation.assessment;
 
     _initialized = true;
   }
@@ -56,7 +57,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
     final String clientId = args?['clientId'] ?? '?';
     final String date = args?['date'] ?? '?';
 
-    final selectedFilters = (_conversation['selectedFilters'] as List<dynamic>? ?? []).cast<String>();
+    final selectedFilters = (_conversation.selectedFilters as List<dynamic>? ?? []).cast<String>();
 
     List<FormBaseElement> elementsToShow;
 
@@ -104,7 +105,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
             assessment: _assessment,
             onChanged: (assessment)
             {
-              _conversation['assessment'] = assessment.toJson();
+              _conversation.assessment = assessment;
             },
           ),
 
@@ -118,7 +119,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
                 buttonText: 'Zurück',
                 onPressed: ()
                 {
-                  _conversation['assessment'] = _assessment.toJson();
+                  _conversation.assessment = _assessment;
 
                   Navigator.pop(context, _conversation);
                 },
@@ -130,7 +131,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
                 buttonText: 'Diagnose →',
                 onPressed: ()
                 {
-                  _conversation['assessment'] = _assessment.toJson();
+                  _conversation.assessment = _assessment;
 
                   Navigator.pushReplacementNamed(context, Routes.PAGE_DIAGNOSIS,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });

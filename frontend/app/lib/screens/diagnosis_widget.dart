@@ -2,6 +2,7 @@ import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/vo/assessment/assessment.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:app/vo/diagnosis/diagnosis.dart';
 import 'package:app/vo/diagnosis/diagnosis_element.dart';
 import 'package:app/vo/util/diagnosis_suggestion_util.dart';
@@ -79,7 +80,7 @@ class DiagnosisWidget extends StatefulWidget
 
 class _DiagnosisWidgetState extends State<DiagnosisWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
   late Diagnosis _diagnosis;
   late Assessment _assessment;
 
@@ -110,10 +111,10 @@ void didChangeDependencies()
 
   final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-  _conversation = args?['conversation'] as Map<String, dynamic>;
+  _conversation = args?['conversation'] as Conversation;
 
-  _assessment = Assessment.fromJson(_conversation['assessment']);
-  _diagnosis = Diagnosis.fromJson(_conversation['diagnosen']);
+  _assessment = _conversation.assessment;
+  _diagnosis = _conversation.diagnosen;
 
   _diagnoses.clear();
 
@@ -289,7 +290,7 @@ void didChangeDependencies()
               AppSecondaryButton(
                 buttonText: 'Zurück',
                 onPressed: () {
-                  _conversation['diagnosen'] = _buildDiagnosisFromUi().toJson();
+                  _conversation.diagnosen = _buildDiagnosisFromUi();
                   Navigator.pushReplacementNamed(context, Routes.PAGE_ASSESSMENT,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
                 },
@@ -300,7 +301,7 @@ void didChangeDependencies()
               AppPrimaryButton(
                 buttonText: 'Outcome-Evaluation →',
                 onPressed: () {
-                  _conversation['diagnosen'] = _buildDiagnosisFromUi().toJson();
+                  _conversation.diagnosen = _buildDiagnosisFromUi();
                   Navigator.pushReplacementNamed(context, Routes.PAGE_OUTCOME_EVALUATION,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
                 }

@@ -1,6 +1,7 @@
 import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/vo/assessment/assessment.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:app/vo/goal/goals.dart';
 import 'package:app/vo/goal/intervention_goal.dart';
 import 'package:app/vo/goal/sub_goal.dart';
@@ -26,7 +27,7 @@ class GoalEditorWidget extends StatefulWidget
 
 class _GoalEditorWidgetState extends State<GoalEditorWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
   late InterventionGoal _goal;
   late Goals _goals;
   late Assessment _assessment;
@@ -50,7 +51,7 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
 
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _conversation = args?['conversation'] as Conversation;
 
     _goal = args?['goal'] as InterventionGoal? ?? InterventionGoal();
     _goals = args?['goals'] as Goals;

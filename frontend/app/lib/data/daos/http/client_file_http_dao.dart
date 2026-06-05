@@ -19,7 +19,14 @@ class ClientFileHttpDao extends ClientFileBaseDao<ClientFileHttpEntity>
       throw Exception("Laden der Klientenakten ist fehlgeschlagen.");
     }
 
-    final List<ClientFileHttpEntity> clientFiles = jsonDecode(response.body) as List<ClientFileHttpEntity>;
+    final List<dynamic> json = jsonDecode(response.body);
+    final List<ClientFileHttpEntity> clientFiles = [];
+
+    for(int i = 0; i < json.length; i++)
+    {
+      clientFiles.add(ClientFileHttpEntity.fromJson(json[i] as Map<String, dynamic>));
+    }
+
     return clientFiles;
   }
 

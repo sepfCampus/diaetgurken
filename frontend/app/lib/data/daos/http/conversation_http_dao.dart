@@ -20,7 +20,15 @@ class ConversationHttpDao extends ConversationBaseDao<ConversationHttpEntity>
       throw Exception('Fehler beim Laden der Gespräche.');
     }
 
-    return jsonDecode(response.body) as List<ConversationHttpEntity>;
+    List<dynamic> json = jsonDecode(response.body);
+    List<ConversationHttpEntity> conversations = [];
+
+    for(int i = 0; i < json.length; i++)
+    {
+      conversations.add(ConversationHttpEntity.fromJson(json[i] as Map<String, dynamic>));
+    }
+
+    return conversations;
   }
 
   @override
@@ -59,30 +67,20 @@ class ConversationHttpDao extends ConversationBaseDao<ConversationHttpEntity>
       throw Exception('Fehler beim Speichern des Gesprächs.');
     }
 
-    return jsonDecode(response.body);
+    return ConversationHttpEntity.fromJson(jsonDecode(response.body));
   }
 
   @override
   Future<ConversationHttpEntity> update(ConversationHttpEntity conversation) async
   {
-    final response = await apiClient.put('/users/klientenakten/${conversation.klientenAktenId}/gespraech/${conversation.id}', body:
-                                         {
-                                          'datum': conversation.datum,
-                                          'formMetaData': conversation.formMetaData,
-                                          'assessment': conversation.assessment,
-                                          'diagnosen': conversation.diagnosen,
-                                          'ziele': conversation.ziele,
-                                          'outcome': conversation.outcome,
-                                          'notizen': conversation.notizen,
-                                          'selectedFilters': conversation.selectedFilters
-                                         });
+    final response = await apiClient.put('/users/klientenakten/${conversation.klientenAktenId}/gespraech/${conversation.id}', body: conversation.toJson());
     
     if(!response.isSuccess)
     {
       throw Exception('Fehler beim Aktualisieren des Gesprächs.');
     }
 
-    return jsonDecode(response.body);
+    return ConversationHttpEntity.fromJson(jsonDecode(response.body));
   }
 
   @override

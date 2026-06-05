@@ -1,9 +1,10 @@
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:flutter/material.dart';
 
 class AppNotesButton extends StatelessWidget
 {
-  final Map<String, dynamic> conversation;
+  final Conversation conversation;
   final String clientId;
   final String date;
 

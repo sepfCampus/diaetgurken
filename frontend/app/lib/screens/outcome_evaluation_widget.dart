@@ -1,5 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/vo/conversation.dart';
 import 'package:app/vo/outcome/outcome.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
@@ -19,7 +20,7 @@ class OutcomeEvaluationWidget extends StatefulWidget
 
 class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
   late Outcome _outcome;
 
   bool _initialized = false;
@@ -36,8 +37,8 @@ class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
 
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
-    _outcome = Outcome.fromJson(_conversation['outcome']);
+    _conversation = args?['conversation'] as Conversation;
+    _outcome = _conversation.outcome;
 
     _initialized = true;
   }
@@ -48,7 +49,7 @@ class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     final String clientId = args?['clientId'] ?? '?';
-    final String date = args?['date'] ?? _conversation['datum'] ?? '?';
+    final String date = args?['date'] ?? _conversation.datum ?? '?';
 
     return AppPageScaffold(
       title: 'Outcome-Evaluation ($clientId) - $date',
@@ -78,7 +79,7 @@ class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
                   {
                     setState(()
                     {
-                      _outcome = Outcome.fromJson(_conversation['outcome']);
+                      _outcome = _conversation.outcome;
                     });
                   });
                 },
@@ -102,7 +103,7 @@ class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
                 buttonText: 'Zurück',
                 onPressed: ()
                 {
-                  _conversation['outcome'] = _outcome.toJson();
+                  _conversation.outcome = _outcome;
 
                   Navigator.pushReplacementNamed(context, Routes.PAGE_DIAGNOSIS,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
@@ -115,7 +116,7 @@ class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
                 buttonText: 'Zielsetzung →',
                 onPressed: ()
                 {
-                  _conversation['outcome'] = _outcome.toJson();
+                  _conversation.outcome = _outcome;
 
                   Navigator.pushReplacementNamed(context, Routes.PAGE_GOAL_SETTING,
                                                  arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });

@@ -3,11 +3,11 @@ abstract class ConversationEntity
   final int _id;
   final int _klientenAktenId;
   final String _datum;
-  final String _formMetaData;
-  final String _assessment;
-  final String _diagnosen;
-  final String _ziele;
-  final String _outcome;
+  final Map<String, dynamic> _formMetaData;
+  final Map<String, dynamic> _assessment;
+  final Map<String, dynamic> _diagnosen;
+  final Map<String, dynamic> _ziele;
+  final Map<String, dynamic> _outcome;
   final String _notizen;
   final List<String> _selectedFilters;
 
@@ -18,11 +18,11 @@ abstract class ConversationEntity
   int get id => this._id;
   int get klientenAktenId => this._klientenAktenId;
   String get datum => this._datum;
-  String get formMetaData => this._formMetaData;
-  String get assessment => this._assessment;
-  String get diagnosen => this._diagnosen;
-  String get ziele => this._ziele;
-  String get outcome => this._outcome;
+  Map<String, dynamic> get formMetaData => this._formMetaData;
+  Map<String, dynamic> get assessment => this._assessment;
+  Map<String, dynamic> get diagnosen => this._diagnosen;
+  Map<String, dynamic> get ziele => this._ziele;
+  Map<String, dynamic> get outcome => this._outcome;
   String get notizen => this._notizen;
   List<String> get selectedFilters => this._selectedFilters;
 }
