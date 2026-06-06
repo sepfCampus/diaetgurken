@@ -3,6 +3,8 @@ import 'package:app/config/navigation/routes.dart';
 import 'package:app/service/client_file_service.dart';
 import 'package:app/service/conversation_service.dart';
 import 'package:app/vo/conversation.dart';
+import 'package:app/vo/util/date_util.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
@@ -46,34 +48,12 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
     return 0;
   }
 
-  String _formatId(int id)
+  void _sortConversations()
   {
-    return id.toString().padLeft(4, '0');
-  }
-
-  String _formatDate(String rawDate)
-  {
-    final date = DateTime.tryParse(rawDate);
-
-    if(date == null)
+    _conversations.sort((a, b)
     {
-      return rawDate;
-    }
-
-    final day = date.day.toString().padLeft(2, '0');
-    final month = date.month.toString().padLeft(2, '0');
-    final year = date.year.toString();
-
-    return '$day.$month.$year';
-  }
-
-  String _toIsoDate(DateTime date)
-  {
-    final year = date.year.toString().padLeft(4, '0');
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-
-    return '$year-$month-$day';
+      return a.id.compareTo(b.id);
+    });
   }
 
   Future<void> _loadConversations(int klientenAkteId) async
@@ -95,6 +75,7 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
         setState(()
         {
           _conversations = conversations;
+          _sortConversations();
         });
       }
     }
@@ -148,18 +129,11 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
     }
   }
 
-  Future<void> _openConversation(int klientenAkteId, String clientId, Conversation conversation) async
+  Future<void> _openConversation(int clientId, Conversation conversation) async
   {
-    final result = await Navigator.pushNamed(
-      context,
-      Routes.PAGE_CONVERSATION,
-      arguments:
+    final result = await Navigator.pushNamed(context, Routes.PAGE_CONVERSATION, arguments:
       {
         'clientId': clientId,
-        'klientenAkteId': klientenAkteId,
-        'gespraechId': conversation.id,
-        'date': _formatDate(conversation.datum),
-        'datum': conversation.datum,
         'conversation': conversation,
       },
     );
@@ -177,6 +151,8 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
         {
           _conversations[index] = result;
         }
+
+        _sortConversations();
       });
     }
 
@@ -190,41 +166,35 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
         {
           return conversation.id == deletedConversation.id;
         });
+
+        _sortConversations();
       });
     }
 
     if(mounted)
     {
-      _loadConversations(klientenAkteId);
+      _loadConversations(clientId);
     }
   }
 
-  Future<void> _createConversation(int klientenAkteId, String clientId) async
+  Future<void> _createConversation(int klientenAkteId, int clientId) async
   {
     try
     {
       final conversationService = context.read<ConversationService>();
 
-      final datum = _toIsoDate(DateTime.now());
-
-      final conversation = await conversationService.create(
-        klientenAkteId,
-        datum,
-      );
+      final conversation = await conversationService.create(klientenAkteId);
 
       if(mounted)
       {
         setState(()
         {
           _conversations.add(conversation);
+          _sortConversations();
         });
       }
 
-      await _openConversation(
-        klientenAkteId,
-        clientId,
-        conversation,
-      );
+      await _openConversation(clientId, conversation);
     }
 
     catch(e)
@@ -233,7 +203,7 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
       {
         setState(()
         {
-          _errorMessage = 'Fehler beim Erstellen des Gesprächs.';
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
         });
       }
     }
@@ -268,16 +238,16 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
   Widget build(BuildContext context)
   {
     final int klientenAkteId = _getClientFileId(context);
-    final String clientId = _formatId(klientenAkteId);
+    final int clientId = klientenAkteId;
 
     return AppPageScaffold(
-      title: 'Klientenakte ($clientId)',
+      title: 'Klientenakte (${Formatter.formatClientId(clientId)})',
       drawer: LayoutUtil.getStandardAppDrawer(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
         [
-          AppStandardTileCard(title: clientId),
+          AppStandardTileCard(title: Formatter.formatClientId(clientId)),
 
           AppSpacing.SPACED_BOX_H_LARGE,
 
@@ -303,7 +273,7 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
           else
             ..._conversations.map((conversation)
             {
-              final String conversationDate = _formatDate(conversation.datum);
+              final String conversationDate = DateUtil.formatDate(conversation.datum);
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.SM),
@@ -311,11 +281,7 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
                   title: conversationDate,
                   onTap: ()
                   {
-                    _openConversation(
-                      klientenAkteId,
-                      clientId,
-                      conversation,
-                    );
+                    _openConversation(clientId, conversation);
                   },
                   sideIcon: Icons.download_outlined,
                   onSidePressed: ()
@@ -325,8 +291,7 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
                       Routes.PAGE_EXPORT_CONVERSATION,
                       arguments:
                       {
-                        'clientId': clientId,
-                        'klientenAkteId': klientenAkteId,
+                        'clientId': klientenAkteId,
                         'gespraechId': conversation.id,
                         'date': conversationDate,
                         'conversation': conversation,

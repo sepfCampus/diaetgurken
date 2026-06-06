@@ -5,6 +5,7 @@ import 'package:app/vo/conversation.dart';
 import 'package:app/vo/goal/goals.dart';
 import 'package:app/vo/goal/intervention_goal.dart';
 import 'package:app/vo/goal/sub_goal.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/vo/util/goal_suggestion_util.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
@@ -139,11 +140,11 @@ class _GoalEditorWidgetState extends State<GoalEditorWidget>
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
+    final int clientId = args?['clientId'] ?? -1;
     final String date = args?['date'] ?? '?';
 
     return AppPageScaffold(
-      title: 'Interventionsziel erstellen ($clientId)',
+      title: 'Interventionsziel erstellen (${Formatter.formatClientId(clientId)})',
       drawer: LayoutUtil.getStandardAppDrawer(context),
       trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(

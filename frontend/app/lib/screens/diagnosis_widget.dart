@@ -6,6 +6,7 @@ import 'package:app/vo/conversation.dart';
 import 'package:app/vo/diagnosis/diagnosis.dart';
 import 'package:app/vo/diagnosis/diagnosis_element.dart';
 import 'package:app/vo/util/diagnosis_suggestion_util.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -180,11 +181,11 @@ void didChangeDependencies()
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
+    final int clientId = args?['clientId'] ?? -1;
     final String date = args?['date'] ?? '?';
 
     return AppPageScaffold(
-      title: 'Diagnose ($clientId) - $date',
+      title: 'Diagnose (${Formatter.formatClientId(clientId)}) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
       trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(

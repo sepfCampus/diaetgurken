@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class AppNotesButton extends StatelessWidget
 {
   final Conversation conversation;
-  final String clientId;
+  final int clientId;
   final String date;
 
   const AppNotesButton({ super.key, required this.conversation, required this.clientId, required this.date });

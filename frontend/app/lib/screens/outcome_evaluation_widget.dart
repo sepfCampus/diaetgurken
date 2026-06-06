@@ -2,6 +2,7 @@ import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/vo/conversation.dart';
 import 'package:app/vo/outcome/outcome.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -48,11 +49,11 @@ class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
+    final int clientId = args?['clientId'] ?? -1;
     final String date = args?['date'] ?? _conversation.datum ?? '?';
 
     return AppPageScaffold(
-      title: 'Outcome-Evaluation ($clientId) - $date',
+      title: 'Outcome-Evaluation (${Formatter.formatClientId(clientId)}) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
       trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(
@@ -71,17 +72,40 @@ class _OutcomeEvaluationWidgetState extends State<OutcomeEvaluationWidget>
                   Icons.arrow_forward,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
-                onTap: ()
+                onTap: () async
                 {
-                  Navigator.pushNamed(context, Routes.PAGE_OUTCOME_EVALUATION_DETAIL,
+                  final result = await Navigator.pushNamed(
+                    context,
+                    Routes.PAGE_OUTCOME_EVALUATION_DETAIL,
+                    arguments:
+                    {
+                      'clientId': clientId,
+                      'date': date,
+                      'conversation': _conversation,
+                      'outcomeIndex': index,
+                    },
+                  );
+
+                  if(result is Conversation)
+                  {
+                    setState(()
+                    {
+                      _conversation = result;
+                      _outcome = _conversation.outcome;
+                    });
+                  }
+
+                  /*Navigator.pushReplacementNamed(context, Routes.PAGE_OUTCOME_EVALUATION_DETAIL,
                     arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation, 'outcomeIndex': index },
-                  ).then((_)
+                  );
+                  
+                  .then((_)
                   {
                     setState(()
                     {
                       _outcome = _conversation.outcome;
                     });
-                  });
+                  });*/
                 },
               ),
             );

@@ -2,6 +2,7 @@ import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/service/conversation_service.dart';
 import 'package:app/vo/conversation.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/app_labeled_field.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
@@ -69,7 +70,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
     );
   }
 
-  Future<void> _openPage(BuildContext context, String route, String clientId, int klientenAkteId) async
+  Future<void> _openPage(BuildContext context, String route, int clientId) async
   {
     _conversation = _buildConversationFromUi();
 
@@ -79,7 +80,6 @@ class _ConversationWidgetState extends State<ConversationWidget>
       arguments:
       {
         'clientId': clientId,
-        'klientenAkteId': klientenAkteId,
         'date': _conversation.datum,
         'conversation': _conversation,
       },
@@ -140,11 +140,10 @@ class _ConversationWidgetState extends State<ConversationWidget>
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
-    final int klientenAkteId = args?['klientenAkteId'] ?? 0;
+    final int clientId = args?['clientId'] ?? -1;
 
     return AppPageScaffold(
-      title: 'Gespräch ($clientId) - ${_dateController.text}',
+      title: 'Gespräch (${Formatter.formatClientId(clientId)}) - ${_dateController.text}',
       drawer: LayoutUtil.getStandardAppDrawer(context),
 
       trailing: AppNotesButton(
@@ -164,7 +163,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
 
           AppSpacing.SPACED_BOX_H_SMALL,
 
-          AppStandardTileCard(title: clientId),
+          AppStandardTileCard(title: Formatter.formatClientId(clientId)),
 
           AppSpacing.SPACED_BOX_H_MEDIUM,
 
@@ -184,7 +183,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
             title: 'Assessment',
             onTap: ()
             {
-              _openPage(context, Routes.PAGE_ASSESSMENT, clientId, klientenAkteId);
+              _openPage(context, Routes.PAGE_ASSESSMENT, clientId);
             },
           ),
 
@@ -194,7 +193,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
             title: 'Diagnose',
             onTap: ()
             {
-              _openPage(context, Routes.PAGE_DIAGNOSIS, clientId, klientenAkteId);
+              _openPage(context, Routes.PAGE_DIAGNOSIS, clientId);
             },
           ),
 
@@ -204,7 +203,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
             title: 'Outcome-Evaluation',
             onTap: ()
             {
-              _openPage(context, Routes.PAGE_OUTCOME_EVALUATION, clientId, klientenAkteId);
+              _openPage(context, Routes.PAGE_OUTCOME_EVALUATION, clientId);
             },
           ),
 
@@ -214,7 +213,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
             title: 'Zielsetzung',
             onTap: ()
             {
-              _openPage(context, Routes.PAGE_GOAL_SETTING, clientId, klientenAkteId);
+              _openPage(context, Routes.PAGE_GOAL_SETTING, clientId);
             },
           ),
 
@@ -230,7 +229,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
                 buttonText: 'Gespräch löschen',
                 onPressed: ()
                 {
-                  _deleteConversation(context, klientenAkteId);
+                  _deleteConversation(context, clientId);
                 },
               ),
 
@@ -238,7 +237,7 @@ class _ConversationWidgetState extends State<ConversationWidget>
                 buttonText: 'Speichern',
                 onPressed: ()
                 {
-                  _saveConversation(context, klientenAkteId);
+                  _saveConversation(context, clientId);
                 },
               ),
             ],

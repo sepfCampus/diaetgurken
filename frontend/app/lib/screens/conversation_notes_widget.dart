@@ -1,4 +1,6 @@
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/vo/conversation.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
@@ -15,7 +17,7 @@ class ConversationNotesWidget extends StatefulWidget
 
 class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
   late TextEditingController _notesController;
 
   bool _initialized = false;
@@ -32,10 +34,10 @@ class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
 
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _conversation = args?['conversation'] as Conversation;
 
     _notesController = TextEditingController(
-      text: _conversation['notizen'] ?? '',
+      text: _conversation.notizen,
     );
 
     _initialized = true;
@@ -50,7 +52,7 @@ class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
 
   void _saveNotes()
   {
-    _conversation['notizen'] = _notesController.text;
+    _conversation.notizen = _notesController.text;
   }
 
   @override
@@ -58,11 +60,11 @@ class _ConversationNotesWidgetState extends State<ConversationNotesWidget>
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
-    final String date = args?['date'] ?? _conversation['datum'] ?? '?';
+    final int clientId = args?['clientId'] ?? -1;
+    final String date = args?['date'] ?? _conversation.datum ?? '?';
 
     return AppPageScaffold(
-      title: 'Notizen ($clientId) $date',
+      title: 'Notizen (${Formatter.formatClientId(clientId)}) $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
 
       child: Column(

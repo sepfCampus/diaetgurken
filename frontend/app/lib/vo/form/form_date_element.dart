@@ -16,6 +16,6 @@ class FormDateElement extends FormBaseElement
   @override
   Map<String, dynamic> toJson()
   {
-    return { 'type': type.name, 'name': name, 'displayName': displayName, 'category': category, 'filterOptions': filterOptions, 'defaultValue': defaultValue?.toIso8601String() };
+    return { 'type': type.name, 'name': name, 'displayName': displayName, 'category': category.name, 'filterOptions': filterOptions, 'defaultValue': defaultValue?.toIso8601String() };
   }
 }

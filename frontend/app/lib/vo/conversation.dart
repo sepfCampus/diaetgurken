@@ -37,5 +37,5 @@ class Conversation
   set ziele(Goals value) { this._ziele = value; }
   set outcome(Outcome value) { this._outcome = value; }
   set notizen(String value) { this._notizen = value; }
-  set selectedFilters(List<String> value) { this._selectedFilters = selectedFilters; }
+  set selectedFilters(List<String> value) { this._selectedFilters = value; }
 }

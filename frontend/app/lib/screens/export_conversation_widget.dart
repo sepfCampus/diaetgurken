@@ -1,4 +1,5 @@
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/app_radio_group.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -25,11 +26,11 @@ class _ExportConversationWidgetState extends State<ExportConversationWidget>
   {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '000009';
-    final String date = args?['date'] ?? '01.01.2026';
+    final int clientId = args?['clientId'] ?? -1;
+    final String date = args?['date'] ?? '?';
 
     return AppPageScaffold(
-      title: 'Export Gespräch ($clientId) - $date',
+      title: 'Export Gespräch (${Formatter.formatClientId(clientId)}) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
 
       child: Column(

@@ -2,6 +2,7 @@ import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
 import 'package:app/vo/conversation.dart';
 import 'package:app/vo/form/form_base_element.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/app_assessment_form_widget.dart';
 import 'package:app/vo/assessment/assessment.dart';
 import 'package:app/vo/form/form_meta_data.dart';
@@ -54,7 +55,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
+    final int clientId = args?['clientId'] ?? -1;
     final String date = args?['date'] ?? '?';
 
     final selectedFilters = (_conversation.selectedFilters as List<dynamic>? ?? []).cast<String>();
@@ -79,7 +80,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
     }
 
     return AppPageScaffold(
-      title: 'Assessment ($clientId) - $date',
+      title: 'Assessment (${Formatter.formatClientId(clientId)}) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
       trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(
@@ -120,7 +121,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget>
                 onPressed: ()
                 {
                   _conversation.assessment = _assessment;
-
+      
                   Navigator.pop(context, _conversation);
                 },
               ),

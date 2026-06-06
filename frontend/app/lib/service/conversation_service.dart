@@ -5,8 +5,11 @@ import 'package:app/data/entities/client_file_entity.dart';
 import 'package:app/data/entities/conversation_entity.dart';
 import 'package:app/data/entities/settings_entity.dart';
 import 'package:app/data/entities/user_entity.dart';
+import 'package:app/service/util/conversation_creator.dart';
 import 'package:app/service/util/entity_vo_converter_base_util.dart';
 import 'package:app/vo/conversation.dart';
+import 'package:app/vo/outcome/outcome.dart';
+import 'package:app/vo/util/outcome_creator_util.dart';
 
 class ConversationService
 {
@@ -35,9 +38,38 @@ class ConversationService
     return this._entityVoConverterUtil.convertConversationEntityToVo(conversationEntity);
   }
 
-  Future<Conversation> create(int clientFileId, String date) async
+  Future<Conversation?> _getLastConversation(int clientFileId) async
   {
-    ConversationEntity conversationEntity = await this._conversationDao.create(clientFileId, date);
+    List<Conversation> conversations = await this.getAll(clientFileId);
+
+    int highestConversationId = -1;
+    Conversation? lastConversation;
+
+    for(int i = 0; i < conversations.length; i++)
+    {
+      if(highestConversationId < conversations[i].id)
+      {
+        lastConversation = conversations[i];
+        highestConversationId = lastConversation.id;
+      }
+    }
+
+    return lastConversation;
+  }
+
+  Future<Conversation> create(int clientFileId, { Conversation? conversation }) async
+  {
+    Conversation? lastConversation = await this._getLastConversation(clientFileId);
+    Outcome outcome = Outcome(elements: []);
+
+    if(lastConversation != null)
+    {
+      outcome = OutcomeCreatorUtil.createOutcomeFromGoals(lastConversation.ziele);
+    }
+
+    conversation = conversation ?? ConversationCreator.createDefaultConversation(outcome: outcome);
+
+    ConversationEntity conversationEntity = await this._conversationDao.create(this._entityVoConverterUtil.convertConversationToEntity(conversation, clientFileId));
     return this._entityVoConverterUtil.convertConversationEntityToVo(conversationEntity);
   }
 

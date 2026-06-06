@@ -4,6 +4,7 @@ import 'package:app/vo/assessment/assessment.dart';
 import 'package:app/vo/conversation.dart';
 import 'package:app/vo/goal/goals.dart';
 import 'package:app/vo/goal/intervention_goal.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -49,7 +50,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
     _initialized = true;
   }
 
-  Future<void> _openGoalEditor(int index, String clientId, String date) async
+  Future<void> _openGoalEditor(int index, int clientId, String date) async
   {
     final result = await Navigator.pushNamed(context, Routes.PAGE_GOAL_EDITOR,
                                              arguments: { 'conversation': _conversation, 'clientId': clientId, 'date': date, 'goal': _goals.elements[index], 'goals': _goals, 'assessment': _assessment });
@@ -73,7 +74,7 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
     }
   }
 
-  Future<void> _addGoal(String clientId, String date) async
+  Future<void> _addGoal(int clientId, String date) async
   {
     final result = await Navigator.pushNamed(context, Routes.PAGE_GOAL_EDITOR,
                                              arguments: { 'conversation': _conversation,  'clientId': clientId, 'date': date, 'goal': InterventionGoal(), 'goals': _goals, 'assessment': _assessment });
@@ -93,11 +94,11 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
   {
     final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
+    final int clientId = args?['clientId'] ?? -1;
     final String date = args?['date'] ?? '?';
 
     return AppPageScaffold(
-      title: 'Zielsetzung ($clientId) - $date',
+      title: 'Zielsetzung (${Formatter.formatClientId(clientId)}) - $date',
       drawer: LayoutUtil.getStandardAppDrawer(context),
       trailing: AppNotesButton(conversation: _conversation, clientId: clientId, date: date),
       child: Column(
@@ -153,8 +154,9 @@ class _GoalSettingWidgetState extends State<GoalSettingWidget>
                 {
                   _conversation.ziele = _goals;
 
-                  Navigator.pushReplacementNamed(context, Routes.PAGE_CONVERSATION,
-                                                 arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });
+                  /*Navigator.pushReplacementNamed(context, Routes.PAGE_CONVERSATION,
+                                                 arguments: { 'clientId': clientId, 'date': date, 'conversation': _conversation });*/
+                  Navigator.pop(context, _conversation);
                 }
               )
             ]
