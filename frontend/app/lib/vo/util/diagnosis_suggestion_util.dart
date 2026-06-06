@@ -36,13 +36,13 @@ class DiagnosisSuggestionUtil
     {
       final actualValue = assessment.getValue(condition.fieldName);
 
-      if(!_matchesCondition(actualValue, condition))
+      if(assessment.hasAnswer(condition.fieldName) && _matchesCondition(actualValue, condition))
       {
-        return false;
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
   static List<String> getSuggestionsToShow(List<DiagnosisSuggestion> suggestions, Assessment assessment)

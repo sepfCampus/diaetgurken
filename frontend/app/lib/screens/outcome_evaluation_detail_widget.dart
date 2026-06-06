@@ -1,5 +1,4 @@
 import 'package:app/config/layout/app_spacing.dart';
-import 'package:app/config/navigation/routes.dart';
 import 'package:app/vo/conversation.dart';
 import 'package:app/vo/outcome/outcome.dart';
 import 'package:app/vo/outcome/outcome_goal.dart';

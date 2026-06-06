@@ -7,7 +7,9 @@ import 'package:app/data/entities/settings_entity.dart';
 import 'package:app/data/entities/user_entity.dart';
 import 'package:app/service/util/conversation_creator.dart';
 import 'package:app/service/util/entity_vo_converter_base_util.dart';
+import 'package:app/vo/assessment/assessment.dart';
 import 'package:app/vo/conversation.dart';
+import 'package:app/vo/diagnosis/diagnosis.dart';
 import 'package:app/vo/outcome/outcome.dart';
 import 'package:app/vo/util/outcome_creator_util.dart';
 
@@ -60,14 +62,18 @@ class ConversationService
   Future<Conversation> create(int clientFileId, { Conversation? conversation }) async
   {
     Conversation? lastConversation = await this._getLastConversation(clientFileId);
+    Assessment assessment = Assessment([]);
+    Diagnosis diagnosis = Diagnosis(elements: [], suggestions: {});
     Outcome outcome = Outcome(elements: []);
 
     if(lastConversation != null)
     {
+      assessment = Assessment.fromJson(lastConversation.assessment.toJson()); //basically a copy operation (a new Assessment object is created)
+      diagnosis = Diagnosis.fromJson(lastConversation.diagnosen.toJson());
       outcome = OutcomeCreatorUtil.createOutcomeFromGoals(lastConversation.ziele);
     }
 
-    conversation = conversation ?? ConversationCreator.createDefaultConversation(outcome: outcome);
+    conversation = conversation ?? ConversationCreator.createDefaultConversation(assessment: assessment, diagnosis: diagnosis, outcome: outcome);
 
     ConversationEntity conversationEntity = await this._conversationDao.create(this._entityVoConverterUtil.convertConversationToEntity(conversation, clientFileId));
     return this._entityVoConverterUtil.convertConversationEntityToVo(conversationEntity);
