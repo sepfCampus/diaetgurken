@@ -33,7 +33,6 @@ abstract class FormBaseElement
       case FormElementType.TRUE_FALSE: return FormTrueFalseElement.fromJson(json);
       case FormElementType.DATE: return FormDateElement.fromJson(json);
       case FormElementType.SELECTION: return FormSelectionElement.fromJson(json);
-      default: throw "Invalid form element type!";
     }
   }
 
