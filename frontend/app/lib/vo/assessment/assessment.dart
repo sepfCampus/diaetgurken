@@ -19,17 +19,17 @@ class Assessment
 
   void setValue(String fieldName, dynamic value)
   {
-    elements[fieldName] = AssessmentElement(fieldName, value, elements[fieldName]!.noAnswerProvided);
+    elements[fieldName] = AssessmentElement(fieldName, value, elements[fieldName]?.noAnswerProvided ?? false);
   }
 
   bool hasAnswer(String fieldName)
   {
-    return !(elements[fieldName]!.noAnswerProvided);
+    return !(elements[fieldName]?.noAnswerProvided ?? true);
   }
 
   void setNoAnswerProvided(String fieldName, bool noAnswerProvided)
   {
-    elements[fieldName] = AssessmentElement(fieldName, elements[fieldName]!.value, noAnswerProvided);
+    elements[fieldName] = AssessmentElement(fieldName, elements[fieldName]?.value, noAnswerProvided);
   }
 
   factory Assessment.fromJson(Map<String, dynamic> json)
