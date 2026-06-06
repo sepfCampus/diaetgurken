@@ -31,7 +31,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     else
     {
       final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
-      return UserHttpEntity(json['id'] as int, json['email'] as String, json['registerNr'] as String);
+      return UserHttpEntity.fromJson(json);
     }
   }
 
@@ -54,7 +54,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     else
     {
       final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
-      return UserHttpEntity(json['id'] as int, json['email'] as String, json['registerNr'] as String);
+      return UserHttpEntity.fromJson(json);
     }
   }
 
@@ -74,7 +74,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
   @override
   Future<UserHttpEntity> getCurrentUser() async
   {
-    final response = await apiClient.post('/auth/whoami', body: {});
+    final response = await apiClient.get('/auth/whoami');
 
     if(!response.isSuccess)
     {
@@ -84,7 +84,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     else
     {
       final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
-      return UserHttpEntity(json['id'] as int, json['email'] as String, json['registerNr'] as String);
+      return UserHttpEntity.fromJson(json);
     }
   }
 
@@ -107,7 +107,7 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     else
     {
       final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
-      return UserHttpEntity(json['id'] as int, json['email'] as String, json['registerNr'] as String);
+      return UserHttpEntity.fromJson(json);
     }
   }
 

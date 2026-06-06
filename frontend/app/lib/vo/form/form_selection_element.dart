@@ -46,6 +46,6 @@ class FormSelectionElement extends FormBaseElement
   @override
   Map<String, dynamic> toJson()
   {
-    return { 'type': type.name, 'name': name, 'displayName': displayName, 'category': category, 'filterOptions': filterOptions, 'multipleSelection': multipleSelection, 'options': options.values.map((options) => options.toJson()).toList() };
+    return { 'type': type.name, 'name': name, 'displayName': displayName, 'category': category.name, 'filterOptions': filterOptions, 'multipleSelection': multipleSelection, 'options': options.values.map((options) => options.toJson()).toList() };
   }
 }

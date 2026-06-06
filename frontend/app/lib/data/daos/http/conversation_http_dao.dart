@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:app/data/daos/conversation_base_dao.dart';
 import 'package:app/data/daos/http/api/api_client.dart';
 import 'package:app/data/entities/http/conversation_http_entity.dart';
+import 'package:app/vo/util/date_util.dart';
 
 class ConversationHttpDao extends ConversationBaseDao<ConversationHttpEntity>
 {
@@ -20,7 +21,18 @@ class ConversationHttpDao extends ConversationBaseDao<ConversationHttpEntity>
       throw Exception('Fehler beim Laden der Gespräche.');
     }
 
-    return jsonDecode(response.body) as List<ConversationHttpEntity>;
+    List<dynamic> json = jsonDecode(response.body);
+    List<ConversationHttpEntity> conversations = [];
+
+    for(int i = 0; i < json.length; i++)
+    {
+      ConversationHttpEntity conversationHttpEntity = ConversationHttpEntity.fromJson(json[i] as Map<String, dynamic>);
+
+      //the date needs to be reformatted
+      conversations.add(ConversationHttpEntity(conversationHttpEntity.id, conversationHttpEntity.klientenAktenId, DateUtil.formatDate(conversationHttpEntity.datum), conversationHttpEntity.formMetaData, conversationHttpEntity.assessment, conversationHttpEntity.diagnosen, conversationHttpEntity.ziele, conversationHttpEntity.outcome, conversationHttpEntity.notizen, conversationHttpEntity.selectedFilters));
+    }
+
+    return conversations;
   }
 
   @override
@@ -40,49 +52,34 @@ class ConversationHttpDao extends ConversationBaseDao<ConversationHttpEntity>
   }
 
   @override
-  Future<ConversationHttpEntity> create(int clientFileId, String date) async
+  Future<ConversationHttpEntity> create(ConversationHttpEntity conversation) async
   {
-    final response = await apiClient.post('/users/klientenakten/$clientFileId/gespraech', body:
-                                          {
-                                            'datum': date,
-                                            'formMetaData': {},
-                                            'assessment': {},
-                                            'diagnosen': {},
-                                            'ziele': {},
-                                            'outcome': {},
-                                            'notizen': '',
-                                            'selectedFilters': []
-                                          });
+    final response = await apiClient.post('/users/klientenakten/${conversation.klientenAktenId}/gespraech', body: conversation.toJson());
 
     if(!response.isSuccess)
     {
-      throw Exception('Fehler beim Speichern des Gesprächs.');
+      throw Exception(_extractErrorMessage(response.body, 'Fehler beim Speichern des Gesprächs.'));
     }
 
-    return jsonDecode(response.body);
+    ConversationHttpEntity conversationHttpEntity = ConversationHttpEntity.fromJson(json.decode(response.body) as Map<String, dynamic>);
+
+    //the date needs to be reformatted
+    ConversationHttpEntity result = ConversationHttpEntity(conversationHttpEntity.id, conversationHttpEntity.klientenAktenId, DateUtil.formatDate(conversationHttpEntity.datum), conversationHttpEntity.formMetaData, conversationHttpEntity.assessment, conversationHttpEntity.diagnosen, conversationHttpEntity.ziele, conversationHttpEntity.outcome, conversationHttpEntity.notizen, conversationHttpEntity.selectedFilters);
+
+    return result;
   }
 
   @override
   Future<ConversationHttpEntity> update(ConversationHttpEntity conversation) async
   {
-    final response = await apiClient.put('/users/klientenakten/${conversation.klientenAktenId}/gespraech/${conversation.id}', body:
-                                         {
-                                          'datum': conversation.datum,
-                                          'formMetaData': conversation.formMetaData,
-                                          'assessment': conversation.assessment,
-                                          'diagnosen': conversation.diagnosen,
-                                          'ziele': conversation.ziele,
-                                          'outcome': conversation.outcome,
-                                          'notizen': conversation.notizen,
-                                          'selectedFilters': conversation.selectedFilters
-                                         });
-    
+    final response = await apiClient.put('/users/klientenakten/${conversation.klientenAktenId}/gespraech/${conversation.id}', body: conversation.toJson());
+
     if(!response.isSuccess)
     {
       throw Exception('Fehler beim Aktualisieren des Gesprächs.');
     }
 
-    return jsonDecode(response.body);
+    return ConversationHttpEntity.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -94,5 +91,30 @@ class ConversationHttpDao extends ConversationBaseDao<ConversationHttpEntity>
     {
       throw Exception('Fehler beim Löschen des Gesprächs.');
     }
+  }
+
+  String _extractErrorMessage(String body, String fallback)
+  {
+    try
+    {
+      final decoded = jsonDecode(body);
+
+      if(decoded is Map<String, dynamic>)
+      {
+        final error = decoded['error'];
+
+        if(error is String && error.isNotEmpty)
+        {
+          return error;
+        }
+      }
+    }
+
+    catch(_)
+    {
+      // Use fallback for non-JSON error bodies.
+    }
+
+    return fallback;
   }
 }

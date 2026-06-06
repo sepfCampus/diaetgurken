@@ -1,4 +1,7 @@
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/vo/conversation.dart';
+import 'package:app/vo/form/form_meta_data.dart';
+import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/buttons/app_notes_button.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
@@ -17,7 +20,7 @@ class FilterWidget extends StatefulWidget
 
 class _FilterWidgetState extends State<FilterWidget>
 {
-  late Map<String, dynamic> _conversation;
+  late Conversation _conversation;
 
   final Set<String> _selectedFilters = {};
 
@@ -33,14 +36,11 @@ class _FilterWidgetState extends State<FilterWidget>
       return;
     }
 
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    _conversation = args?['conversation'] as Map<String, dynamic>;
+    _conversation = args?['conversation'] as Conversation;
 
-    final storedFilters =
-        (_conversation['selectedFilters'] as List<dynamic>? ?? [])
-            .cast<String>();
+    final storedFilters = _conversation.selectedFilters;
 
     _selectedFilters.addAll(storedFilters);
 
@@ -51,16 +51,12 @@ class _FilterWidgetState extends State<FilterWidget>
   {
     final Set<String> filters = {};
 
-    final formMetaData =
-        _conversation['formMetaData'] as Map<String, dynamic>;
-
-    final elements =
-        formMetaData['elements'] as List<dynamic>? ?? [];
+    final FormMetaData formMetaData = _conversation.formMetaData;
+    final elements = formMetaData.elements;
 
     for(final element in elements)
     {
-      final filterOptions =
-          element['filterOptions'] as List<dynamic>? ?? [];
+      final filterOptions = element.filterOptions;
 
       for(final filter in filterOptions)
       {
@@ -73,8 +69,7 @@ class _FilterWidgetState extends State<FilterWidget>
 
   void _updateConversationFilters()
   {
-    _conversation['selectedFilters'] =
-        _selectedFilters.toList();
+    _conversation.selectedFilters = _selectedFilters.toList();
   }
 
   void _toggleFilter(String filter)
@@ -98,16 +93,15 @@ class _FilterWidgetState extends State<FilterWidget>
   @override
   Widget build(BuildContext context)
   {
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final String clientId = args?['clientId'] ?? '?';
+    final int clientId = args?['clientId'] ?? -1;
     final String date = args?['date'] ?? '?';
 
     final availableFilters = _getAvailableFilters();
 
     return AppPageScaffold(
-      title: 'Filter ($clientId)',
+      title: 'Filter (${Formatter.formatClientId(clientId)})',
       drawer: LayoutUtil.getStandardAppDrawer(context),
 
       trailing: AppNotesButton(
