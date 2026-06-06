@@ -32,6 +32,12 @@ class DiagnosisSuggestionUtil
 
   static bool shouldShowSuggestion(DiagnosisSuggestion suggestion, Assessment assessment)
   {
+    print("shouldshowsuggestions");
+    if(suggestion.conditions.isEmpty)
+    {
+      return true;
+    }
+
     for(final condition in suggestion.conditions)
     {
       final actualValue = assessment.getValue(condition.fieldName);

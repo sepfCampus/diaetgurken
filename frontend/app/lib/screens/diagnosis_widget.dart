@@ -101,39 +101,39 @@ class _DiagnosisWidgetState extends State<DiagnosisWidget>
   }
 
   @override
-void didChangeDependencies()
-{
-  super.didChangeDependencies();
-
-  if(_initialized)
+  void didChangeDependencies()
   {
-    return;
-  }
+    super.didChangeDependencies();
 
-  final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
-  _conversation = args?['conversation'] as Conversation;
-
-  _assessment = _conversation.assessment;
-  _diagnosis = _conversation.diagnosen;
-
-  _diagnoses.clear();
-
-  if(_diagnosis.elements.isEmpty)
-  {
-    _diagnoses.add(_DiagnosisEntry.empty());
-  }
-
-  else
-  {
-    for(final diagnosis in _diagnosis.elements)
+    if(_initialized)
     {
-      _diagnoses.add(_DiagnosisEntry.fromDiagnosisElement(diagnosis));
+      return;
     }
-  }
 
-  _initialized = true;
-}
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    _conversation = args?['conversation'] as Conversation;
+
+    _assessment = _conversation.assessment;
+    _diagnosis = _conversation.diagnosen;
+
+    _diagnoses.clear();
+
+    if(_diagnosis.elements.isEmpty)
+    {
+      _diagnoses.add(_DiagnosisEntry.empty());
+    }
+
+    else
+    {
+      for(final diagnosis in _diagnosis.elements)
+      {
+        _diagnoses.add(_DiagnosisEntry.fromDiagnosisElement(diagnosis));
+      }
+    }
+
+    _initialized = true;
+  }
 
   List<String> _getVisibleSuggestions(String fieldName)
   {

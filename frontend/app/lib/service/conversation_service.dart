@@ -62,20 +62,24 @@ class ConversationService
   Future<Conversation> create(int clientFileId, { Conversation? conversation }) async
   {
     Conversation? lastConversation = await this._getLastConversation(clientFileId);
-    Assessment assessment = Assessment([]);
-    Diagnosis diagnosis = Diagnosis(elements: [], suggestions: {});
-    Outcome outcome = Outcome(elements: []);
+
+    Conversation conversationToCreate;
 
     if(lastConversation != null)
     {
-      assessment = Assessment.fromJson(lastConversation.assessment.toJson()); //basically a copy operation (a new Assessment object is created)
-      diagnosis = Diagnosis.fromJson(lastConversation.diagnosen.toJson());
-      outcome = OutcomeCreatorUtil.createOutcomeFromGoals(lastConversation.ziele);
+      Assessment assessment = Assessment.fromJson(lastConversation.assessment.toJson()); //basically a copy operation (a new Assessment object is created)
+      Diagnosis diagnosis = Diagnosis.fromJson(lastConversation.diagnosen.toJson());
+      Outcome outcome = OutcomeCreatorUtil.createOutcomeFromGoals(lastConversation.ziele);
+    
+      conversationToCreate = conversation ?? ConversationCreator.createDefaultConversation(assessment: assessment, diagnosis: diagnosis, outcome: outcome);
     }
 
-    conversation = conversation ?? ConversationCreator.createDefaultConversation(assessment: assessment, diagnosis: diagnosis, outcome: outcome);
+    else
+    {
+      conversationToCreate = conversation ?? ConversationCreator.createDefaultConversation();
+    }
 
-    ConversationEntity conversationEntity = await this._conversationDao.create(this._entityVoConverterUtil.convertConversationToEntity(conversation, clientFileId));
+    ConversationEntity conversationEntity = await this._conversationDao.create(this._entityVoConverterUtil.convertConversationToEntity(conversationToCreate, clientFileId));
     return this._entityVoConverterUtil.convertConversationEntityToVo(conversationEntity);
   }
 

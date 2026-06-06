@@ -52,6 +52,11 @@ class GoalSuggestionUtil
 
   static bool shouldShowSuggestion(GoalSuggestion suggestion, Assessment assessment)
   {
+    if(suggestion.conditions.isEmpty)
+    {
+      return true;
+    }
+
     for(final condition in suggestion.conditions)
     {
       final actualValue = assessment.getValue(condition.fieldName);

@@ -24,7 +24,12 @@ class Assessment
 
   bool hasAnswer(String fieldName)
   {
-    return !(elements[fieldName]?.noAnswerProvided ?? true);
+    if(elements[fieldName] == null)
+    {
+      return false;
+    }
+
+    return !(elements[fieldName]!.noAnswerProvided);
   }
 
   void setNoAnswerProvided(String fieldName, bool noAnswerProvided)
