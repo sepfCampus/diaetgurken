@@ -45,6 +45,41 @@ router.put("/", requireLogin, userController.updateUser);
 
 /**
  * @swagger
+ * /users/password:
+ *   put:
+ *     tags:
+ *       - Benutzer
+ *     summary: Ändert das Passwort des aktuell eingeloggten Benutzers (prüft altes Passwort)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 example: altesPasswort123
+ *               newPassword:
+ *                 type: string
+ *                 example: neuesPasswort123
+ *     responses:
+ *       200:
+ *         description: Passwort erfolgreich geändert
+ *       400:
+ *         description: Ungültige Eingabe
+ *       401:
+ *         description: Nicht eingeloggt oder altes Passwort falsch
+ *       404:
+ *         description: Benutzer nicht gefunden
+ */
+router.put("/password", requireLogin, userController.changePassword);
+
+/**
+ * @swagger
  * /users:
  *   delete:
  *     tags:

@@ -23,7 +23,18 @@ async function deleteUser(req, res, next) {
     }
 }
 
+async function changePassword(req, res, next) {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        await userService.changePassword(oldPassword, newPassword, req.session);
+        res.status(200).json({ message: "Passwort erfolgreich geändert" });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     updateUser,
     deleteUser,
+    changePassword,
 };
