@@ -24,6 +24,7 @@ async function create(klientenAkteId, data) {
             ziele: data.ziele ?? null,
             outcome: data.outcome ?? null,
             notizen: data.notizen ?? null,
+            selectedFilters: data.selectedFilters ?? [],
         },
     });
 }
@@ -40,6 +41,7 @@ async function updateById(id, klientenAkteId, data) {
             ziele: data.ziele ?? null,
             outcome: data.outcome ?? null,
             notizen: data.notizen ?? null,
+            selectedFilters: data.selectedFilters ?? [],
         },
     });
 }
