@@ -22,7 +22,7 @@ const requireLogin = require("../middlewares/requireLogin");
  *               email:
  *                 type: string
  *                 example: neu@test.at
- *               password:
+ *               passwort:
  *                 type: string
  *                 example: neuespasswort123
  *               registerNr:
