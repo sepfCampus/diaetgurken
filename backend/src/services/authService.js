@@ -35,7 +35,7 @@ async function register({ email, passwort, registerNr }) {
     const user = await userRepository.create({ email, registerNr, passwordHash });
 
     // Create default settings for the new user
-    await einstellungenRepository.upsert(user.id, "standard", "standard");
+    await einstellungenRepository.upsert(user.id, "Standard", "Standard");
 
     return { id: user.id, email: user.email, registerNr: user.registerNr };
 }
