@@ -98,6 +98,7 @@ class MainApp extends StatelessWidget
       [
         ChangeNotifierProvider(create: (_) => ThemeController()),
         Provider<UserService>.value(value: userService),
+        Provider<SettingsService>.value(value: settingsService),
         Provider<ClientFileService>.value(value: clientFileService),
         Provider<ConversationService>.value(value: conversationService),
       ],

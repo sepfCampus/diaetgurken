@@ -3,7 +3,7 @@ import 'package:app/data/entities/http/conversation_http_entity.dart';
 import 'package:app/data/entities/http/settings_http_entity.dart';
 import 'package:app/data/entities/http/user_http_entity.dart';
 import 'package:app/service/util/entity_vo_converter_base_util.dart';
-import 'package:app/vo/Settings.dart';
+import 'package:app/vo/settings.dart';
 import 'package:app/vo/assessment/assessment.dart';
 import 'package:app/vo/client_file.dart';
 import 'package:app/vo/conversation.dart';

@@ -1,9 +1,12 @@
 import 'package:app/config/layout/app_spacing.dart';
+import 'package:app/config/navigation/routes.dart';
+import 'package:app/service/user_service.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
 import 'package:app/widgets/layout/layout_util.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DeleteProfileWidget extends StatelessWidget
 {
@@ -30,9 +33,14 @@ class DeleteProfileWidget extends StatelessWidget
             width: double.infinity,
             child: AppSecondaryButton(
               buttonText: 'Profil löschen',
-              onPressed: ()
+              onPressed: () async
               {
+                final service = context.read<UserService>();
+                
+                final user = await service.getCurrentUser();
+                await service.deleteUser(user);
 
+                Navigator.pushNamedAndRemoveUntil(context, Routes.PAGE_LOGIN, (route) => false);
               }
             )
           ),
