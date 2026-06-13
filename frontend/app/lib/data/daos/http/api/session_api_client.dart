@@ -88,6 +88,23 @@ class SessionApiClient implements ApiClient
   }
 
   @override
+  Future<ApiResponse> getBytes(String path) async
+  {
+    final response = await _client.get(
+      _buildUri(path),
+      headers: await _headers()
+    );
+
+    await _storeCookies(response);
+
+    return ApiResponse(
+      statusCode: response.statusCode,
+      body: '',
+      bodyBytes: response.bodyBytes,
+    );
+  }
+
+  @override
   Future<ApiResponse> post(String path, { Map<String, dynamic>? body }) async
   {
     final response = await _client.post(

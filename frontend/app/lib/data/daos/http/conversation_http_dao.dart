@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:app/data/daos/conversation_base_dao.dart';
 import 'package:app/data/daos/http/api/api_client.dart';
@@ -116,5 +117,34 @@ class ConversationHttpDao extends ConversationBaseDao<ConversationHttpEntity>
     }
 
     return fallback;
+  }
+
+  Future<Uint8List> exportPdf({ required int clientId, required int conversationId,
+                                String fontSize = 'standard', String theme = 'standard'}) async
+  {
+    final response = await apiClient.getBytes(
+      '/users/klientenakten/$clientId/gespraech/$conversationId/export/pdf'
+      '?schriftgroesse=$fontSize&kontrast=$theme');
+
+    if(!response.isSuccess || response.bodyBytes == null)
+    {
+      throw Exception('PDF-Export fehlgeschlagen.');
+    }
+
+    return response.bodyBytes!;
+  }
+
+  Future<Uint8List> exportDocx({ required int clientId, required int conversationId,
+                                 String fontSize = 'standard', String theme = 'standard' }) async {
+    final response = await apiClient.getBytes(
+      '/users/klientenakten/$clientId/gespraech/$conversationId/export/docx'
+      '?schriftgroesse=$fontSize&kontrast=$theme');
+
+    if(!response.isSuccess || response.bodyBytes == null)
+    {
+      throw Exception('Word-Export fehlgeschlagen.');
+    }
+
+    return response.bodyBytes!;
   }
 }
