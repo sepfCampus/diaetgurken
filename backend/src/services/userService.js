@@ -15,7 +15,7 @@ async function deleteCurrentUser(session) {
     await userRepository.deleteById(session.userId);
 }
 
-async function updateCurrentUser({ email, password, registerNr }, session) {
+async function updateCurrentUser({ email, passwort, registerNr }, session) {
     if (!session?.userId) {
         throw new ApiError(401, "Nicht eingeloggt");
     }
@@ -44,8 +44,8 @@ async function updateCurrentUser({ email, password, registerNr }, session) {
         registerNr,
     };
 
-    if (password) {
-        updateData.passwordHash = await hashPassword(password);
+    if (passwort) {
+        updateData.passwordHash = await hashPassword(passwort);
     }
 
     const updatedUser = await userRepository.updateById(session.userId, updateData);
