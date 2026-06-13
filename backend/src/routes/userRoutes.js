@@ -8,7 +8,7 @@ const requireLogin = require("../middlewares/requireLogin");
  *   put:
  *     tags:
  *       - Benutzer
- *     summary: Aktualisiert den aktuell eingeloggten Benutzer
+ *     summary: Aktualisiert den aktuell eingeloggten Benutzer (nicht das Passwort - nutze PUT /users/password dafür)
  *     requestBody:
  *       required: true
  *       content:
@@ -22,9 +22,6 @@ const requireLogin = require("../middlewares/requireLogin");
  *               email:
  *                 type: string
  *                 example: neu@test.at
- *               passwort:
- *                 type: string
- *                 example: neuespasswort123
  *               registerNr:
  *                 type: string
  *                 example: REG999
