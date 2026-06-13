@@ -37,11 +37,11 @@ class AppSideButtonTile extends StatelessWidget
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.secondary,
-                  border: Border(
+                  /*border: Border(
                     left: BorderSide(color: theme.colorScheme.primary, width: 1),
                     top: BorderSide(color: theme.colorScheme.primary, width: 1),
                     bottom: BorderSide(color: theme.colorScheme.primary, width: 1),
-                  ),
+                  ),*/
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(6),
                     bottomLeft: Radius.circular(6),
