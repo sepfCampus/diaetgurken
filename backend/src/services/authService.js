@@ -1,4 +1,5 @@
 const userRepository = require("../repositories/prisma/userRepositoryPrisma");
+const einstellungenRepository = require("../repositories/prisma/einstellungenRepositoryPrisma");
 const { hashPassword, comparePassword } = require("../utils/passwordUtil");
 const ApiError = require("../utils/ApiError");
 
@@ -32,6 +33,9 @@ async function register({ email, passwort, registerNr }) {
 
     const passwordHash = await hashPassword(passwort);
     const user = await userRepository.create({ email, registerNr, passwordHash });
+
+    // Create default settings for the new user
+    await einstellungenRepository.upsert(user.id, "Standard", "Standard");
 
     return { id: user.id, email: user.email, registerNr: user.registerNr };
 }
