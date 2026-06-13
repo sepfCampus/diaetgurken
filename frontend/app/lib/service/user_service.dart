@@ -36,9 +36,14 @@ class UserService
     return this._entityVoConverterUtil.convertUserEntityToVo(userEntity);
   }
 
-  Future<User> updateUser(User updatedUser, String? password) async
+  Future<void> changePassword(String oldPassword, String newPassword) async
   {
-    UserEntity userEntity = await this._userDao.updateUser(this._entityVoConverterUtil.convertUserVoToEntity(updatedUser), password);
+    await this._userDao.changePassword(oldPassword, newPassword);
+  }
+
+  Future<User> updateUser(User updatedUser) async
+  {
+    UserEntity userEntity = await this._userDao.updateUser(this._entityVoConverterUtil.convertUserVoToEntity(updatedUser));
     return this._entityVoConverterUtil.convertUserEntityToVo(userEntity);
   }
 

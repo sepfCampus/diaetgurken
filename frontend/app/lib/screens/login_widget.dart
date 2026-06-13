@@ -1,13 +1,15 @@
 import 'package:app/config/layout/app_sizes.dart';
 import 'package:app/config/layout/app_spacing.dart';
 import 'package:app/config/navigation/routes.dart';
+import 'package:app/config/theme/theme_controller.dart';
+import 'package:app/service/settings_service.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/service/util/settings_util.dart';
 import 'package:app/widgets/forms/app_text_field.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
@@ -99,6 +101,12 @@ class _LoginWidgetState extends State<LoginWidget> {
         _emailController.text.trim(),
         _registerNumberController.text.trim(),
         _passwordController.text
+      );
+
+      await SettingsUtil.loadAndApplyCurrentUserSettings(
+        userService,
+        context.read<SettingsService>(),
+        context.read<ThemeController>(),
       );
 
       if (mounted) {

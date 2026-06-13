@@ -2,7 +2,7 @@ import 'package:app/data/entities/client_file_entity.dart';
 import 'package:app/data/entities/conversation_entity.dart';
 import 'package:app/data/entities/settings_entity.dart';
 import 'package:app/data/entities/user_entity.dart';
-import 'package:app/vo/Settings.dart';
+import 'package:app/vo/settings.dart';
 import 'package:app/vo/client_file.dart';
 import 'package:app/vo/conversation.dart';
 import 'package:app/vo/user.dart';

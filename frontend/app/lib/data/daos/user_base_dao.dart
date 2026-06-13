@@ -8,7 +8,8 @@ abstract class UserBaseDao<T extends UserEntity>
 
   Future<T> getCurrentUser();
 
-  Future<T> updateUser(T updatedUserEntity, String? password);
+  Future<T> updateUser(T updatedUserEntity);
+  Future<void> changePassword(String oldPassword, String newPassword);
   Future<void> deleteUser(T userEntity);
 
   Future<bool> isLoggedIn();

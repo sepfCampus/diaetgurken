@@ -89,14 +89,13 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
   }
 
   @override
-  Future<UserHttpEntity> updateUser(UserHttpEntity updatedUserEntity, String? password) async
+  Future<UserHttpEntity> updateUser(UserHttpEntity updatedUserEntity) async
   {
     final response = await apiClient.put('/users',
                                          body:
                                          {
                                           'email': updatedUserEntity.email,
-                                          'registerNr': updatedUserEntity.registerNr,
-                                          'passwort': password
+                                          'registerNr': updatedUserEntity.registerNr
                                          });
 
     if(!response.isSuccess)
@@ -108,6 +107,22 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
     {
       final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
       return UserHttpEntity.fromJson(json);
+    }
+  }
+
+  @override
+  Future<void> changePassword(String oldPassword, String newPassword) async
+  {
+    final response = await apiClient.put('/users/password',
+                                         body:
+                                         {
+                                          'oldPassword': oldPassword,
+                                          'newPassword': newPassword
+                                         });
+
+    if(!response.isSuccess)
+    {
+      throw Exception('Passwort konnte nicht geändert werden.');
     }
   }
 

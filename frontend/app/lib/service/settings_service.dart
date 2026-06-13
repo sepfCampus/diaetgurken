@@ -4,7 +4,7 @@ import 'package:app/data/entities/conversation_entity.dart';
 import 'package:app/data/entities/settings_entity.dart';
 import 'package:app/data/entities/user_entity.dart';
 import 'package:app/service/util/entity_vo_converter_base_util.dart';
-import 'package:app/vo/Settings.dart';
+import 'package:app/vo/settings.dart';
 
 class SettingsService
 {
@@ -19,7 +19,7 @@ class SettingsService
     return this._entityVoConverterUtil.convertSettingsEntityToVo(settingsEntity);
   }
 
-  void updateSettings(int userId, Settings settings) async
+  Future<void> updateSettings(int userId, Settings settings) async
   {
     this._settingsDao.updateSettings(this._entityVoConverterUtil.convertSettingsVoToEntity(userId, settings));
   }
