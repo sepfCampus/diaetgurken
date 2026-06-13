@@ -27,9 +27,10 @@ class AppTheme
       secondary: AppColor.LIGHT_SECONDARY,
       tertiary: AppColor.LIGHT_TERTIARY,
       surface: Colors.white,
+      error: AppColor.LIGHT_TERTIARY,
       onPrimary: Colors.white,
       onSecondary: Colors.black,
-      onSurface: Colors.black,
+      onSurface: Colors.black
     ),
 
     textTheme: AppTextTheme.getStandardTextTheme(
@@ -175,6 +176,7 @@ class AppTheme
       secondary: AppColor.HIGH_CONTRAST_SECONDARY,
       tertiary: AppColor.HIGH_CONTRAST_TERTIARY,
       surface: Colors.black,
+      error: AppColor.HIGH_CONTRAST_TERTIARY,
       onPrimary: Colors.black,
       onSecondary: Colors.black,
       onSurface: Colors.white,
