@@ -44,6 +44,7 @@ class _SettingsWidget extends State<SettingsWidget>
   {
     try
     {
+      print("---load data---");
       final userService = Provider.of<UserService>(context, listen: false);
       final settingsService = Provider.of<SettingsService>(context, listen: false);
 
@@ -103,7 +104,7 @@ class _SettingsWidget extends State<SettingsWidget>
     user.email = _emailController.text;
     user.registerNr = _registerNrController.text;
 
-    await userService.updateUser(user, "123123"); //TODO: send null instead of 123123
+    await userService.updateUser(user);
 
     final settings = Settings(
       _selectedColorMode,

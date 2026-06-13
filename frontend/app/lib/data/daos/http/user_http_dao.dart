@@ -89,14 +89,13 @@ class UserHttpDao extends UserBaseDao<UserHttpEntity>
   }
 
   @override
-  Future<UserHttpEntity> updateUser(UserHttpEntity updatedUserEntity, String? password) async
+  Future<UserHttpEntity> updateUser(UserHttpEntity updatedUserEntity) async
   {
     final response = await apiClient.put('/users',
                                          body:
                                          {
                                           'email': updatedUserEntity.email,
-                                          'registerNr': updatedUserEntity.registerNr,
-                                          'password': password
+                                          'registerNr': updatedUserEntity.registerNr
                                          });
 
     if(!response.isSuccess)

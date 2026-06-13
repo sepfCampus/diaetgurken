@@ -23,14 +23,14 @@ class SettingsHttpDao implements SettingsBaseDao<SettingsHttpEntity>
     final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
 
     return SettingsHttpEntity(json['userId'] as int? ?? userId,
-                              json['colorMode'] as String? ?? 'Standard',
-                              json['fontSize'] as String? ?? 'Standard');
+                              json['farbdarstellung'] as String? ?? 'Standard',
+                              json['schriftgroesse'] as String? ?? 'Standard');
   }
 
   @override
   Future<void> updateSettings(SettingsHttpEntity settings) async
   {
-    final response = await apiClient.put('/settings/${settings.userId}',
+    final response = await apiClient.put('/users/einstellung',
       body:
       {
         'farbdarstellung': settings.farbdarstellung,

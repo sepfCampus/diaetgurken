@@ -8,6 +8,7 @@ import 'package:app/service/conversation_service.dart';
 import 'package:app/service/settings_service.dart';
 import 'package:app/service/user_service.dart';
 import 'package:app/service/util/entity_vo_converter_http_util.dart';
+import 'package:app/service/util/settings_util.dart';
 import 'package:app/widgets/auth_guard.dart';
 import 'package:app/data/daos/http/api/memory_session_store.dart';
 import 'package:app/data/daos/http/api/session_api_client.dart';
@@ -59,13 +60,32 @@ class _AuthCheckWidgetState extends State<AuthCheckWidget>
   Future<void> _checkLogin() async
   {
     final userService = context.read<UserService>();
-    final isLoggedIn = await userService.isLoggedIn();
 
-    if (mounted)
+    try
     {
-      Navigator.of(context).pushReplacementNamed(
-        isLoggedIn ? Routes.PAGE_HOME : Routes.PAGE_LOGIN,
-      );
+      final isLoggedIn = await userService.isLoggedIn();
+
+      if(isLoggedIn)
+      {
+        await SettingsUtil.loadAndApplyCurrentUserSettings(userService, context.read<SettingsService>(), context.read<ThemeController>());
+      }
+
+      if(!mounted)
+      {
+        return;
+      }
+
+      Navigator.of(context).pushReplacementNamed(isLoggedIn ? Routes.PAGE_HOME : Routes.PAGE_LOGIN);
+    }
+
+    catch(error)
+    {
+      if(!mounted)
+      {
+        return;
+      }
+
+      Navigator.of(context).pushReplacementNamed(Routes.PAGE_LOGIN);
     }
   }
 
