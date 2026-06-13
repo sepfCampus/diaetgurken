@@ -17,7 +17,6 @@ const requireLogin = require("../middlewares/requireLogin");
  *             type: object
  *             required:
  *               - email
- *               - password
  *               - registerNr
  *             properties:
  *               email:

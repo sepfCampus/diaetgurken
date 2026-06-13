@@ -20,8 +20,8 @@ async function updateCurrentUser({ email, password, registerNr }, session) {
         throw new ApiError(401, "Nicht eingeloggt");
     }
 
-    if (!email || !password || !registerNr) {
-        throw new ApiError(400, "Email, Passwort und Registriernummer sind erforderlich");
+    if (!email || !registerNr) {
+        throw new ApiError(400, "Email und Registriernummer sind erforderlich");
     }
 
     const currentUser = await userRepository.findById(session.userId);
@@ -39,13 +39,16 @@ async function updateCurrentUser({ email, password, registerNr }, session) {
         throw new ApiError(409, "Registriernummer ist bereits vergeben");
     }
 
-    const passwordHash = await hashPassword(password);
-
-    const updatedUser = await userRepository.updateById(session.userId, {
+    const updateData = {
         email,
         registerNr,
-        passwordHash,
-    });
+    };
+
+    if (password) {
+        updateData.passwordHash = await hashPassword(password);
+    }
+
+    const updatedUser = await userRepository.updateById(session.userId, updateData);
 
     return {
         id: updatedUser.id,
