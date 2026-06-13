@@ -9,7 +9,7 @@ class AppColor
   static const LIGHT_BODY = Color(0x70BCD3BA);*/
 
   static const LIGHT_PRIMARY = Color(0xFF291711);
-  static const LIGHT_SECONDARY = Color.fromARGB(255, 245, 206, 109);
+  static const LIGHT_SECONDARY = Color(0xFFF5CE6D);
   static const LIGHT_TERTIARY = Color(0xFF124559);
   static const LIGHT_QUATERNARY = Color(0xFF598392);
   static const LIGHT_BODY = Color(0xFFFAFAFA);
@@ -24,5 +24,5 @@ class AppColor
   static const HIGH_CONTRAST_SECONDARY = Color(0xFF38A430);
   static const HIGH_CONTRAST_TERTIARY = Color(0xFF20A2A2);
   static const HIGH_CONTRAST_QUATERNARY = Color(0xFF00C8FF);
-  static const HIGH_CONTRAST_BODY = Color(0xFF000000);
+  static const HIGH_CONTRAST_BODY = Color.fromARGB(255, 40, 13, 13);
 }
