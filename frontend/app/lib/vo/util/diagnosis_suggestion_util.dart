@@ -32,7 +32,6 @@ class DiagnosisSuggestionUtil
 
   static bool shouldShowSuggestion(DiagnosisSuggestion suggestion, Assessment assessment)
   {
-    print("shouldshowsuggestions");
     if(suggestion.conditions.isEmpty)
     {
       return true;
