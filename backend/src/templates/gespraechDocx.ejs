@@ -3,261 +3,446 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Gesprächsprotokoll</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 11pt;
-            line-height: 1.4;
-            color: #222222;
-            margin: 20px;
-            background-color: #ffffff;
-        }
-
-        .header {
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            margin: 0 0 6px 0;
-            font-size: 18pt;
-            color: #1f4e79;
-        }
-
-        .header p {
-            margin: 2px 0 0 0;
-            color: #555555;
-        }
-
-        .logo {
-            width: 160px;
-            height: auto;
-            display: block;
-            margin: 0 0 16px auto;
-        }
-
-        .meta-info,
-        .section {
-            padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #d1d5db;
-            background-color: #f8fafc;
-        }
-
-        .section h2 {
-            margin: 0 0 10px 0;
-            font-size: 14pt;
-            color: #0f4a74;
-        }
-
-        .field {
-            margin-bottom: 8px;
-        }
-
-        .field-label {
-            display: block;
-            font-weight: bold;
-            color: #111827;
-            margin-bottom: 2px;
-        }
-
-        .field-value {
-            display: block;
-            color: #333333;
-        }
-
-        .list-item {
-            margin-bottom: 6px;
-            color: #333333;
-        }
-
-        .subsection {
-            margin-bottom: 12px;
-            padding-left: 8px;
-        }
-
-        .subsection h3 {
-            margin: 0 0 6px 0;
-            font-size: 12.5pt;
-            color: #111827;
-        }
-
-        .footer {
-            margin-top: 20px;
-            color: #6b7280;
-            font-size: 10pt;
-        }
-    </style>
+    <title>Diätologisches Assessmentblatt</title>
 </head>
 
-<body>
-    <% if (logoSrc) { %>
-        <img src="<%= logoSrc %>" alt="Logo" class="logo">
+<body style="margin: 0; padding: 0; background-color: #F8FBF8;">
+    <%
+        function hasValue(value) {
+            return value !== null && value !== undefined && value !== "";
+        }
+
+        function formatDate(value) {
+            if (!value) {
+                return "Nicht angegeben";
+            }
+
+            return new Date(value).toLocaleDateString("de-DE");
+        }
+
+        function getClientName() {
+            if (akte && akte.klarname && akte.klarname.name) {
+                return akte.klarname.name;
+            }
+
+            return "Unbekannt";
+        }
+
+        function getElements(container) {
+            if (!container) {
+                return [];
+            }
+
+            if (Array.isArray(container.elements)) {
+                return container.elements;
+            }
+
+            if (Array.isArray(container.fields)) {
+                return container.fields;
+            }
+
+            if (Array.isArray(container)) {
+                return container;
+            }
+
+            return [];
+        }
+
+        const formElements = getElements(gespraech.formMetaData);
+        const assessmentElements = getElements(gespraech.assessment);
+        const diagnosisElements = getElements(gespraech.diagnosen);
+        const goalElements = getElements(gespraech.ziele);
+        const outcomeElements = getElements(gespraech.outcome);
+
+        function getAssessmentValue(formElement) {
+            if (!formElement || !formElement.name) {
+                return null;
+            }
+
+            const field = assessmentElements.find(function (entry) {
+                return entry &&
+                    entry.fieldName &&
+                    entry.fieldName === formElement.name;
+            });
+
+            if (!field || field.value === null || field.value === undefined || field.value === "") {
+                return null;
+            }
+
+            const raw = field.value;
+
+            if (typeof raw === "boolean") {
+                return raw ? "ja" : "nein";
+            }
+
+            if (typeof raw === "number") {
+                return raw;
+            }
+
+            if (typeof raw === "string") {
+                const lower = raw.toLowerCase();
+
+                if (lower === "true") {
+                    return "ja";
+                }
+
+                if (lower === "false") {
+                    return "nein";
+                }
+
+                const option = formElement.options && formElement.options.find(function (opt) {
+                    return opt.name === raw || opt.text === raw || opt.value === raw;
+                });
+
+                return option && option.text ? option.text : raw;
+            }
+
+            if (Array.isArray(raw)) {
+                const values = raw
+                    .map(function (item) {
+                        if (!hasValue(item)) {
+                            return null;
+                        }
+
+                        if (typeof item === "object") {
+                            if (hasValue(item.text)) {
+                                return item.text;
+                            }
+
+                            if (hasValue(item.name)) {
+                                const option = formElement.options && formElement.options.find(function (opt) {
+                                    return opt.name === item.name || opt.text === item.name || opt.value === item.name;
+                                });
+
+                                return option && option.text ? option.text : item.name;
+                            }
+
+                            if (hasValue(item.value)) {
+                                return item.value;
+                            }
+
+                            return null;
+                        }
+
+                        return item;
+                    })
+                    .filter(function (item) {
+                        return hasValue(item);
+                    });
+
+                return values.length > 0 ? values.join(", ") : null;
+            }
+
+            if (typeof raw === "object") {
+                if (hasValue(raw.text)) {
+                    return raw.text;
+                }
+
+                if (hasValue(raw.name)) {
+                    const option = formElement.options && formElement.options.find(function (opt) {
+                        return opt.name === raw.name || opt.text === raw.name || opt.value === raw.name;
+                    });
+
+                    return option && option.text ? option.text : raw.name;
+                }
+
+                if (hasValue(raw.value)) {
+                    if (typeof raw.value === "boolean") {
+                        return raw.value ? "ja" : "nein";
+                    }
+
+                    return raw.value;
+                }
+
+                return null;
+            }
+
+            return raw;
+        }
+
+        function buildCategoryItems(categoryNames) {
+            return formElements
+                .filter(function (element) {
+                    return element &&
+                        element.category &&
+                        categoryNames.includes(element.category);
+                })
+                .map(function (element) {
+                    return {
+                        label: element.displayName || element.label || element.name || "Feld",
+                        value: getAssessmentValue(element),
+                    };
+                })
+                .filter(function (item) {
+                    return hasValue(item.value);
+                });
+        }
+
+        const categories = [
+            {
+                title: "Körperstrukturen/Körperfunktionen",
+                keys: ["body"],
+            },
+            {
+                title: "Aktivitäten",
+                keys: ["activity"],
+            },
+            {
+                title: "Partizipation",
+                keys: ["participation", "behavior"],
+            },
+            {
+                title: "Umweltfaktoren",
+                keys: ["environment"],
+            },
+            {
+                title: "Personenbezogene Faktoren",
+                keys: ["personal"],
+            },
+        ];
+
+        function getDiagnosisValue(diagnosis, keys) {
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+
+                if (hasValue(diagnosis[key])) {
+                    return diagnosis[key];
+                }
+            }
+
+            return null;
+        }
+
+        function getGoalText(goal) {
+            return goal.text || goal.ziel || goal.title || goal.titel || null;
+        }
+
+        function getGoalList(goal, key) {
+            if (!goal[key]) {
+                return [];
+            }
+
+            if (Array.isArray(goal[key])) {
+                return goal[key];
+            }
+
+            return [goal[key]];
+        }
+    %>
+
+    <div style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; line-height: 1.25; color: #222222; background-color: #F8FBF8;">
+
+        <% if (logoSrc) { %>
+            <p style="text-align: right; margin: 0 0 2px 0; padding: 0;">
+                <img src="<%= logoSrc %>" alt="Logo" width="34" style="width: 34px; height: auto;">
+            </p>
         <% } %>
 
-            <div class="header">
-                <h1>Gesprächsprotokoll</h1>
-                <p>Exportiert am: <%= new Date(generatedAt).toLocaleString('de-DE') %>
+        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 22pt; font-weight: bold; color: #245B2B; margin: 0 0 2px 0; padding: 0;">
+            Diätologisches Assessmentblatt
+        </p>
+
+        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 10pt; color: #44505A; margin: 0 0 5px 0; padding: 0;">
+            Exportiert am: <%= new Date(generatedAt).toLocaleString("de-DE") %>
+        </p>
+
+        <div style="border-top: 4px solid #245B2B; height: 1px; margin: 0 0 12px 0;"></div>
+
+        <div style="background-color: #EDF6EF; border-left: 5px solid #245B2B; padding: 10px 12px; margin-bottom: 14px;">
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 12pt; font-weight: bold; color: #222222; margin: 0 0 2px 0;">
+                Klient/in
+            </p>
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; color: #44505A; margin: 0 0 8px 0;">
+                <%= getClientName() %>
+            </p>
+
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 12pt; font-weight: bold; color: #222222; margin: 0 0 2px 0;">
+                Gesprächsdatum
+            </p>
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; color: #44505A; margin: 0;">
+                <%= formatDate(gespraech.datum) %>
+            </p>
+        </div>
+
+        <% if (formElements.length > 0) { %>
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 0 0 8px 0;">
+                Assessment & Körperstrukturen
+            </p>
+
+            <% categories.forEach(function (category) { %>
+                <%
+                    const items = buildCategoryItems(category.keys);
+                %>
+
+                <div style="background-color: #FFFFFF; border: 1px solid #D8E4D8; margin-bottom: 10px;">
+                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #EDF6EF; color: #245B2B; font-weight: bold; font-size: 12.5pt; padding: 7px 8px; margin: 0; border-bottom: 1px solid #D8E4D8;">
+                        <%= category.title %>
+                    </p>
+
+                    <div style="padding: 8px; min-height: 18px;">
+                        <% if (items.length > 0) { %>
+                            <% items.forEach(function (item) { %>
+                                <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border: 1px solid #D8E4D8; padding: 6px 7px; margin: 0 0 6px 0;">
+                                    <span style="font-weight: bold; color: #222222;"><%= item.label %>:</span>
+                                    <span style="color: #222222;"><%= item.value %></span>
+                                </p>
+                            <% }); %>
+                        <% } else { %>
+                            <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #6B7280; margin: 0;">&nbsp;</p>
+                        <% } %>
+                    </div>
+                </div>
+            <% }); %>
+        <% } %>
+
+        <% if (diagnosisElements.length > 0) { %>
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
+                Diätologische Diagnose (P-E-S-F-B)
+            </p>
+
+            <% diagnosisElements.forEach(function (diagnosis, index) { %>
+                <%
+                    const problem = getDiagnosisValue(diagnosis, ["problem", "ernaehrungsproblem", "p"]);
+                    const etiology = getDiagnosisValue(diagnosis, ["etiology", "ursache", "e"]);
+                    const signs = getDiagnosisValue(diagnosis, ["signsAndSymptoms", "symptom", "symptome", "s"]);
+                    const foerderfaktoren = getDiagnosisValue(diagnosis, ["foerderfaktoren", "foerderfaktor", "f"]);
+                    const barrieren = getDiagnosisValue(diagnosis, ["barrieren", "barriere", "b"]);
+                %>
+
+                <div style="background-color: #EDF6EF; border-left: 5px solid #1D768F; padding: 10px; margin-bottom: 10px;">
+                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; font-size: 12pt; color: #222222; margin: 0 0 7px 0;">
+                        Diagnose <%= index + 1 %>
+                    </p>
+
+                    <% if (hasValue(problem)) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
+                            <span style="font-weight: bold; color: #1D768F;">Ernährungsproblem (P):</span>
+                            <span style="color: #222222;"><%= problem %></span>
+                        </p>
+                    <% } %>
+
+                    <% if (hasValue(etiology)) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
+                            <span style="font-weight: bold; color: #1D768F;">Ursache (E):</span>
+                            <span style="color: #222222;"><%= etiology %></span>
+                        </p>
+                    <% } %>
+
+                    <% if (hasValue(signs)) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
+                            <span style="font-weight: bold; color: #1D768F;">Symptom/Anzeichen (S):</span>
+                            <span style="color: #222222;"><%= signs %></span>
+                        </p>
+                    <% } %>
+
+                    <% if (hasValue(foerderfaktoren)) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
+                            <span style="font-weight: bold; color: #1D768F;">Förderfaktor (F):</span>
+                            <span style="color: #222222;"><%= foerderfaktoren %></span>
+                        </p>
+                    <% } %>
+
+                    <% if (hasValue(barrieren)) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0;">
+                            <span style="font-weight: bold; color: #1D768F;">Barrieren (B):</span>
+                            <span style="color: #222222;"><%= barrieren %></span>
+                        </p>
+                    <% } %>
+                </div>
+            <% }); %>
+        <% } %>
+
+        <% if (goalElements.length > 0) { %>
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
+                Diätologische Ziele
+            </p>
+
+            <% goalElements.forEach(function (goal, index) { %>
+                <%
+                    const goalText = getGoalText(goal);
+                    const handlungsziele = getGoalList(goal, "handlungsziele");
+                    const massnahmenziele = getGoalList(goal, "massnahmenziele");
+                %>
+
+                <div style="background-color: #F0F8FF; border-left: 5px solid #A7C0A5; padding: 10px; margin-bottom: 10px;">
+                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; font-size: 12pt; color: #222222; margin: 0 0 7px 0;">
+                        Interventionsziel <%= index + 1 %>
+                    </p>
+
+                    <% if (hasValue(goalText)) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 4px 12px;">
+                            <strong>Ziel:</strong> <%= goalText %>
+                        </p>
+                    <% } %>
+
+                    <% if (handlungsziele.length > 0) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0;">
+                            Handlungsziele:
+                        </p>
+
+                        <% handlungsziele.forEach(function (handlungsziel) { %>
+                            <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 3px 12px;">
+                                • <%= handlungsziel.text || handlungsziel %>
+                            </p>
+                        <% }); %>
+                    <% } %>
+
+                    <% if (massnahmenziele.length > 0) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0;">
+                            Maßnahmenziele:
+                        </p>
+
+                        <% massnahmenziele.forEach(function (massnahmenziel) { %>
+                            <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 3px 12px;">
+                                • <%= massnahmenziel.text || massnahmenziel %>
+                            </p>
+                        <% }); %>
+                    <% } %>
+                </div>
+            <% }); %>
+        <% } %>
+
+        <% if (outcomeElements.length > 0) { %>
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
+                Outcomes & Ergebnisse
+            </p>
+
+            <% outcomeElements.forEach(function (outcome, index) { %>
+                <div style="background-color: #F0F8FF; border-left: 5px solid #A7C0A5; padding: 10px; margin-bottom: 10px;">
+                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #222222; margin: 0 0 5px 0;">
+                        Ziel <%= index + 1 %>
+                        <% if (typeof outcome.success === "number") { %>
+                            – Erfolg: <%= outcome.success > 1 ? outcome.success : outcome.success * 100 %>%
+                        <% } else { %>
+                            – Erfolg: Nicht bewertet
+                        <% } %>
+                    </p>
+
+                    <% if (hasValue(outcome.text)) { %>
+                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 0 12px;">
+                            <%= outcome.text %>
+                        </p>
+                    <% } %>
+                </div>
+            <% }); %>
+        <% } %>
+
+        <% if (gespraech.notizen) { %>
+            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
+                Notizen
+            </p>
+
+            <div style="background-color: #FFFBE6; border-left: 5px solid #FBC02D; padding: 10px; color: #222222;">
+                <p style="font-family: Calibri, Verdana, Arial, sans-serif; margin: 0;">
+                    <%= gespraech.notizen %>
                 </p>
             </div>
+        <% } %>
 
-            <div class="meta-info">
-                <div class="field">
-                    <span class="field-label">Klient</span>
-                    <span class="field-value">
-                        <%= akte?.klarname?.name || 'Unbekannt' %>
-                    </span>
-                </div>
-                <div class="field">
-                    <span class="field-label">Gesprächsdatum</span>
-                    <span class="field-value">
-                        <%= new Date(gespraech.datum).toLocaleDateString('de-DE') %>
-                    </span>
-                </div>
-            </div>
-
-            <% function formatLabel(key) { const map={ compliance: 'Compliance' , motivation: 'Motivation' ,
-                risikoFaktoren: 'Risikofaktoren' , erfolg: 'Erfolg' , notizen: 'Notizen' , ziel: 'Ziel' , ziele: 'Ziele'
-                , titel: 'Titel' , beschreibung: 'Beschreibung' , status: 'Status' , datum: 'Datum' , name: 'Name' ,
-                vorname: 'Vorname' , nachname: 'Nachname' , email: 'E-Mail' , telefon: 'Telefon' , adresse: 'Adresse' ,
-                telefonnummer: 'Telefonnummer' , diagnosis: 'Diagnose' , diagnosen: 'Diagnosen' ,
-                wahrnehmung: 'Wahrnehmung' , bemerkung: 'Bemerkung' , bemerkungen: 'Bemerkungen' ,
-                kommentar: 'Kommentar' , kommentare: 'Kommentare' , outcome: 'Outcome' , kategorie: 'Kategorie' ,
-                score: 'Score' , }; if (map[key]) return map[key]; return key.replace(/([A-Z])/g, ' $1'
-                ).replace(/_/g, ' ' ).replace(/^./, str=> str.toUpperCase());
-                }
-
-                function formatValue(value) {
-                if (value === null || value === undefined) {
-                return 'Nicht angegeben';
-                }
-
-                if (Array.isArray(value)) {
-                if (value.length === 0) return '-';
-                return value
-                .map(item => {
-                if (item === null || item === undefined) return '';
-                if (typeof item === 'object') {
-                if (typeof item.toString === 'function' && item.toString() !== '[object Object]') {
-                return item.toString();
-                }
-                return JSON.stringify(item);
-                }
-                return item;
-                })
-                .filter(Boolean)
-                .join(', ');
-                }
-
-                if (typeof value === 'object') {
-                const entries = Object.entries(value);
-                if (entries.length === 0) return '-';
-                return entries
-                .map(([k, v]) => `${formatLabel(k)}: ${formatValue(v)}`)
-                .join(', ');
-                }
-
-                return value;
-                }
-
-                function renderObject(obj) {
-                if (!obj || Object.keys(obj).length === 0) {
-                %>
-                <div class="field">
-                    <span class="field-value">Keine Daten vorhanden</span>
-                </div>
-                <% } else { Object.entries(obj).forEach(function(entry) { %>
-                    <div class="field">
-                        <span class="field-label">
-                            <%= formatLabel(entry[0]) %>
-                        </span>
-                        <span class="field-value">
-                            <%= formatValue(entry[1]) %>
-                        </span>
-                    </div>
-                    <% }); } } %>
-
-                        <% if (gespraech.formMetaData && Array.isArray(gespraech.formMetaData.fields) &&
-                            gespraech.formMetaData.fields.length> 0) { %>
-                            <div class="section">
-                                <h2>Formulardaten</h2>
-                                <% renderObject(gespraech.formMetaData); %>
-                            </div>
-                            <% } else if (gespraech.formMetaData) { %>
-                                <div class="section">
-                                    <h2>Formulardaten</h2>
-                                    <% renderObject(gespraech.formMetaData); %>
-                                </div>
-                                <% } %>
-
-                                    <% if (gespraech.assessment && Object.keys(gespraech.assessment).length> 0) { %>
-                                        <div class="section">
-                                            <h2>Assessment</h2>
-                                            <% renderObject(gespraech.assessment); %>
-                                        </div>
-                                        <% } %>
-
-                                            <% if (gespraech.diagnosen && Array.isArray(gespraech.diagnosen) &&
-                                                gespraech.diagnosen.length> 0) { %>
-                                                <div class="section">
-                                                    <h2>Diagnosen</h2>
-                                                    <% gespraech.diagnosen.forEach(function(item) { %>
-                                                        <div class="list-item">
-                                                            <strong>
-                                                                <%= item.code || 'Code unbekannt' %>
-                                                            </strong>
-                                                            <% if (item.description) { %> – <%= item.description %>
-                                                                    <% } %>
-                                                        </div>
-                                                        <% }); %>
-                                                </div>
-                                                <% } %>
-
-                                                    <% if (gespraech.ziele && Array.isArray(gespraech.ziele) &&
-                                                        gespraech.ziele.length> 0) { %>
-                                                        <div class="section">
-                                                            <h2>Ziele</h2>
-                                                            <% gespraech.ziele.forEach(function(ziel, index) { %>
-                                                                <div class="subsection">
-                                                                    <h3>Ziel <%= index + 1 %>
-                                                                    </h3>
-                                                                    <% Object.entries(ziel).forEach(function(entry) { %>
-                                                                        <div class="field">
-                                                                            <span class="field-label">
-                                                                                <%= formatLabel(entry[0]) %>
-                                                                            </span>
-                                                                            <span class="field-value">
-                                                                                <%= entry[1] ?? '-' %>
-                                                                            </span>
-                                                                        </div>
-                                                                        <% }); %>
-                                                                </div>
-                                                                <% }); %>
-                                                        </div>
-                                                        <% } %>
-
-                                                            <% if (gespraech.outcome &&
-                                                                Object.keys(gespraech.outcome).length> 0) { %>
-                                                                <div class="section">
-                                                                    <h2>Outcome</h2>
-                                                                    <% renderObject(gespraech.outcome); %>
-                                                                </div>
-                                                                <% } %>
-
-                                                                    <% if (gespraech.notizen) { %>
-                                                                        <div class="section">
-                                                                            <h2>Notizen</h2>
-                                                                            <div class="field-value">
-                                                                                <%= gespraech.notizen %>
-                                                                            </div>
-                                                                        </div>
-                                                                        <% } %>
-
-                                                                            <div class="footer">
-                                                                                <p>Dieses Dokument enthält die
-                                                                                    wichtigsten Gesprächsinhalte in
-                                                                                    einem kompakten Layout.</p>
-                                                                            </div>
+        <p style="font-family: Calibri, Verdana, Arial, sans-serif; margin-top: 18px; padding-top: 8px; border-top: 1px solid #D8E4D8; color: #44505A; font-size: 9.5pt; text-align: center;">
+            Dieses Assessmentblatt wurde automatisch generiert und folgt dem Standard der diätologischen Praxis.
+        </p>
+    </div>
 </body>
 
 </html>

@@ -92,6 +92,8 @@ async function createGesprächDocx(gespraechId, session, schriftgroesse = "stand
         throw new ApiError(500, "DOCX Generator nicht verfügbar");
     }
 
+    console.log("[DOCX EXPORT] Verwende Template: gespraechDocx.ejs");
+
     return await pdfGenerator.generateDocxFromTemplate("gespraechDocx.ejs", {
         gespraech,
         akte,
