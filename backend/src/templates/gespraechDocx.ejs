@@ -232,42 +232,22 @@
 
     <div style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; line-height: 1.25; color: #222222; background-color: #F8FBF8;">
 
-        <% if (logoSrc) { %>
-            <p style="text-align: right; margin: 0 0 2px 0; padding: 0;">
-                <img src="<%= logoSrc %>" alt="Logo" width="34" style="width: 34px; height: auto;">
-            </p>
-        <% } %>
+        <p align="center" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 22pt; font-weight: bold; color: #245B2B; margin: 0 0 2px 0; padding: 0; text-align: center;"><% if (logoSrc) { %><img src="<%= logoSrc %>" alt="Logo" width="34" align="left" style="width: 34px; height: auto;"><% } %>Diätologisches Assessmentblatt</p>
 
-        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 22pt; font-weight: bold; color: #245B2B; margin: 0 0 2px 0; padding: 0;">
-            Diätologisches Assessmentblatt
-        </p>
-
-        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 10pt; color: #44505A; margin: 0 0 5px 0; padding: 0;">
-            Exportiert am: <%= new Date(generatedAt).toLocaleString("de-DE") %>
-        </p>
+        <p align="center" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 10pt; color: #44505A; margin: 0 0 5px 0; padding: 0; text-align: center;">Exportiert am: <%= new Date(generatedAt).toLocaleString("de-DE") %></p>
 
         <div style="border-top: 4px solid #245B2B; height: 1px; margin: 0 0 12px 0;"></div>
 
-        <div style="background-color: #EDF6EF; border-left: 5px solid #245B2B; padding: 10px 12px; margin-bottom: 14px;">
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 12pt; font-weight: bold; color: #222222; margin: 0 0 2px 0;">
-                Klient/in
-            </p>
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; color: #44505A; margin: 0 0 8px 0;">
-                <%= getClientName() %>
-            </p>
+        <div style="margin-bottom: 14px; text-align: left;">
+            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 12pt; color: #222222; margin: 0 0 8px 0; text-align: left;"><span style="font-weight: bold;">Klient/in: </span><span style="color: #44505A;"><%= getClientName() %></span></p>
 
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 12pt; font-weight: bold; color: #222222; margin: 0 0 2px 0;">
-                Gesprächsdatum
-            </p>
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; color: #44505A; margin: 0;">
-                <%= formatDate(gespraech.datum) %>
-            </p>
+            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 12pt; color: #222222; margin: 0; text-align: left;"><span style="font-weight: bold;">Gesprächsdatum: </span><span style="color: #44505A;"><%= formatDate(gespraech.datum) %></span></p>
         </div>
 
         <% if (formElements.length > 0) { %>
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 0 0 8px 0;">
-                Assessment & Körperstrukturen
-            </p>
+            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 0 0 8px 0; display: block; width: 100%; text-align: left;"><span style="display: block; text-align: left;">Assessment & Körperstrukturen</span></p>
+
+            <p style="font-size: 6pt; line-height: 6pt; margin: 0;">&nbsp;</p>
 
             <% categories.forEach(function (category) { %>
                 <%
@@ -275,20 +255,15 @@
                 %>
 
                 <div style="background-color: #FFFFFF; border: 1px solid #D8E4D8; margin-bottom: 10px;">
-                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #EDF6EF; color: #245B2B; font-weight: bold; font-size: 12.5pt; padding: 7px 8px; margin: 0; border-bottom: 1px solid #D8E4D8;">
-                        <%= category.title %>
-                    </p>
+                    <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #EDF6EF; color: #245B2B; font-weight: bold; font-size: 12.5pt; padding: 7px 8px; margin: 0; border-bottom: 1px solid #D8E4D8; display: block; width: 100%; text-align: left;"><span style="display: block; text-align: left;"><%= category.title %></span></p>
 
                     <div style="padding: 8px; min-height: 18px;">
                         <% if (items.length > 0) { %>
                             <% items.forEach(function (item) { %>
-                                <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border: 1px solid #D8E4D8; padding: 6px 7px; margin: 0 0 6px 0;">
-                                    <span style="font-weight: bold; color: #222222;"><%= item.label %>:</span>
-                                    <span style="color: #222222;"><%= item.value %></span>
-                                </p>
+                                <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border: 1px solid #D8E4D8; padding: 6px 7px; margin: 0 0 6px 0; text-align: left;"><span style="font-weight: bold; color: #222222;"><%= item.label %>: </span><span style="color: #222222;"><%= item.value %></span></p>
                             <% }); %>
                         <% } else { %>
-                            <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #6B7280; margin: 0;">&nbsp;</p>
+                            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; color: #6B7280; margin: 0; text-align: left;">&nbsp;</p>
                         <% } %>
                     </div>
                 </div>
@@ -296,9 +271,7 @@
         <% } %>
 
         <% if (diagnosisElements.length > 0) { %>
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
-                Diätologische Diagnose (P-E-S-F-B)
-            </p>
+            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 14px 0; display: block; width: 100%; text-align: left;"><span style="display: block; text-align: left;">Diätologische Diagnose (P-E-S-F-B)</span></p>
 
             <% diagnosisElements.forEach(function (diagnosis, index) { %>
                 <%
@@ -310,52 +283,33 @@
                 %>
 
                 <div style="background-color: #EDF6EF; border-left: 5px solid #1D768F; padding: 10px; margin-bottom: 10px;">
-                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; font-size: 12pt; color: #222222; margin: 0 0 7px 0;">
-                        Diagnose <%= index + 1 %>
-                    </p>
+                    <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; font-size: 12pt; color: #222222; margin: 0 0 7px 0; text-align: left;">Diagnose <%= index + 1 %></p>
 
                     <% if (hasValue(problem)) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
-                            <span style="font-weight: bold; color: #1D768F;">Ernährungsproblem (P):</span>
-                            <span style="color: #222222;"><%= problem %></span>
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0; text-align: left;"><span style="font-weight: bold; color: #1D768F;">Ernährungsproblem (P): </span><span style="color: #222222;"><%= problem %></span></p>
                     <% } %>
 
                     <% if (hasValue(etiology)) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
-                            <span style="font-weight: bold; color: #1D768F;">Ursache (E):</span>
-                            <span style="color: #222222;"><%= etiology %></span>
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0; text-align: left;"><span style="font-weight: bold; color: #1D768F;">Ursache (E): </span><span style="color: #222222;"><%= etiology %></span></p>
                     <% } %>
 
                     <% if (hasValue(signs)) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
-                            <span style="font-weight: bold; color: #1D768F;">Symptom/Anzeichen (S):</span>
-                            <span style="color: #222222;"><%= signs %></span>
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0; text-align: left;"><span style="font-weight: bold; color: #1D768F;">Symptom/Anzeichen (S): </span><span style="color: #222222;"><%= signs %></span></p>
                     <% } %>
 
                     <% if (hasValue(foerderfaktoren)) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0;">
-                            <span style="font-weight: bold; color: #1D768F;">Förderfaktor (F):</span>
-                            <span style="color: #222222;"><%= foerderfaktoren %></span>
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0 0 4px 0; text-align: left;"><span style="font-weight: bold; color: #1D768F;">Förderfaktor (F): </span><span style="color: #222222;"><%= foerderfaktoren %></span></p>
                     <% } %>
 
                     <% if (hasValue(barrieren)) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0;">
-                            <span style="font-weight: bold; color: #1D768F;">Barrieren (B):</span>
-                            <span style="color: #222222;"><%= barrieren %></span>
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #FFFFFF; border-top: 1px solid #D8E4D8; padding: 6px; margin: 0; text-align: left;"><span style="font-weight: bold; color: #1D768F;">Barrieren (B): </span><span style="color: #222222;"><%= barrieren %></span></p>
                     <% } %>
                 </div>
             <% }); %>
         <% } %>
 
         <% if (goalElements.length > 0) { %>
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
-                Diätologische Ziele
-            </p>
+            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 14px 0; display: block; width: 100%; text-align: left;"><span style="display: block; text-align: left;">Diätologische Ziele</span></p>
 
             <% goalElements.forEach(function (goal, index) { %>
                 <%
@@ -365,37 +319,25 @@
                 %>
 
                 <div style="background-color: #F0F8FF; border-left: 5px solid #A7C0A5; padding: 10px; margin-bottom: 10px;">
-                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; font-size: 12pt; color: #222222; margin: 0 0 7px 0;">
-                        Interventionsziel <%= index + 1 %>
-                    </p>
+                    <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; font-size: 12pt; color: #222222; margin: 0 0 7px 0; text-align: left;">Interventionsziel <%= index + 1 %></p>
 
                     <% if (hasValue(goalText)) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 4px 12px;">
-                            <strong>Ziel:</strong> <%= goalText %>
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 4px 12px; text-align: left;"><strong>Ziel: </strong><%= goalText %></p>
                     <% } %>
 
                     <% if (handlungsziele.length > 0) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0;">
-                            Handlungsziele:
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0; text-align: left;">Handlungsziele:</p>
 
                         <% handlungsziele.forEach(function (handlungsziel) { %>
-                            <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 3px 12px;">
-                                • <%= handlungsziel.text || handlungsziel %>
-                            </p>
+                            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 3px 12px; text-align: left;">• <%= handlungsziel.text || handlungsziel %></p>
                         <% }); %>
                     <% } %>
 
                     <% if (massnahmenziele.length > 0) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0;">
-                            Maßnahmenziele:
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0; text-align: left;">Maßnahmenziele:</p>
 
                         <% massnahmenziele.forEach(function (massnahmenziel) { %>
-                            <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 3px 12px;">
-                                • <%= massnahmenziel.text || massnahmenziel %>
-                            </p>
+                            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 3px 12px; text-align: left;">• <%= massnahmenziel.text || massnahmenziel %></p>
                         <% }); %>
                     <% } %>
                 </div>
@@ -403,14 +345,11 @@
         <% } %>
 
         <% if (outcomeElements.length > 0) { %>
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
-                Outcomes & Ergebnisse
-            </p>
+            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 14px 0; display: block; width: 100%; text-align: left;"><span style="display: block; text-align: left;">Outcomes & Ergebnisse</span></p>
 
             <% outcomeElements.forEach(function (outcome, index) { %>
                 <div style="background-color: #F0F8FF; border-left: 5px solid #A7C0A5; padding: 10px; margin-bottom: 10px;">
-                    <p style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #222222; margin: 0 0 5px 0;">
-                        Ziel <%= index + 1 %>
+                    <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-weight: bold; color: #222222; margin: 0 0 5px 0; text-align: left;">Ziel <%= index + 1 %>
                         <% if (typeof outcome.success === "number") { %>
                             – Erfolg: <%= outcome.success > 1 ? outcome.success : outcome.success * 100 %>%
                         <% } else { %>
@@ -419,23 +358,17 @@
                     </p>
 
                     <% if (hasValue(outcome.text)) { %>
-                        <p style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 0 12px;">
-                            <%= outcome.text %>
-                        </p>
+                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; color: #222222; margin: 0 0 0 12px; text-align: left;"><%= outcome.text %></p>
                     <% } %>
                 </div>
             <% }); %>
         <% } %>
 
         <% if (gespraech.notizen) { %>
-            <p style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 8px 0;">
-                Notizen
-            </p>
+            <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; background-color: #245B2B; color: #FFFFFF; font-weight: bold; font-size: 13.5pt; padding: 8px 9px; margin: 14px 0 14px 0; display: block; width: 100%; text-align: left;"><span style="display: block; text-align: left;">Notizen</span></p>
 
             <div style="background-color: #FFFBE6; border-left: 5px solid #FBC02D; padding: 10px; color: #222222;">
-                <p style="font-family: Calibri, Verdana, Arial, sans-serif; margin: 0;">
-                    <%= gespraech.notizen %>
-                </p>
+                <p style="font-family: Calibri, Verdana, Arial, sans-serif; margin: 0;"><%= gespraech.notizen %></p>
             </div>
         <% } %>
 
