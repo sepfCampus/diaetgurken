@@ -92,7 +92,7 @@
 
         .section {
             margin-bottom: calc(14px * var(--font-scale));
-            page-break-inside: avoid;
+            
         }
 
         .section-title {
@@ -166,27 +166,25 @@
         }
 
         .assessment-grid {
-            display: grid;
-            grid-template-columns: 1.8fr 1.0fr 1.0fr;
-            gap: calc(10px * var(--font-scale));
-            margin-bottom: calc(10px * var(--font-scale));
-        }
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--font-scale));
+    margin-bottom: calc(10px * var(--font-scale));
+}
 
-        .assessment-grid-wide {
-            display: grid;
-            grid-template-columns: 1.3fr 1.3fr;
-            gap: calc(10px * var(--font-scale));
-        }
+.assessment-grid-wide {
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--font-scale));
+}
 
         .assessment-column,
-        .assessment-column-wide {
-            background-color: white;
-            padding: calc(10px * var(--font-scale));
-            border: 1px solid var(--border-color);
-            border-radius: calc(4px * var(--font-scale));
-            min-height: calc(120px * var(--font-scale));
-        }
-
+.assessment-column-wide {
+    background-color: white;
+    padding: calc(10px * var(--font-scale));
+    border: 1px solid var(--border-color);
+    border-radius: calc(4px * var(--font-scale));
+}
         .assessment-column-title {
             font-weight: bold;
             font-size: calc(0.95rem * var(--font-scale));
@@ -328,7 +326,7 @@
             }
 
             .section {
-                page-break-inside: avoid;
+                page-break-inside: auto;
             }
         }
     </style>

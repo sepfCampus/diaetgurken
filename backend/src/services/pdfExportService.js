@@ -8,7 +8,7 @@ function getFontScale(schriftgroesse) {
     const scaleMap = {
         standard: 1,
         mittel: 1,
-        gross: 1.2,
+        gross: 1.6,
     };
     return scaleMap[schriftgroesse] || 1;
 }
