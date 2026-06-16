@@ -5,8 +5,88 @@ const puppeteer = require("puppeteer");
 const htmlToDocx = require("html-to-docx");
 const pdfColors = require("../config/pdfColors");
 
-async function generatePdfFromTemplate(templateName, data) {
-    const templatePath = path.join(__dirname, "..", "templates", templateName);
+function formatScaledNumber(value) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "0";
+    }
+
+    if (Number.isInteger(number)) {
+        return String(number);
+    }
+
+    return number.toFixed(2).replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
+}
+
+function getSafeScale(fontScale) {
+    const scale = Number(fontScale);
+
+    if (!Number.isFinite(scale) || scale <= 1) {
+        return 1;
+    }
+
+    return scale;
+}
+
+function getLogoScale(fontScale) {
+    const scale = getSafeScale(fontScale);
+
+    if (scale <= 1) {
+        return 1;
+    }
+
+    return scale * 1.15;
+}
+
+function scaleDocxFontSizes(html, fontScale) {
+    const scale = getSafeScale(fontScale);
+
+    if (scale <= 1) {
+        return html;
+    }
+
+    return html.replace(/font-size:\s*([0-9]+(?:\.[0-9]+)?)pt/gi, function (_match, size) {
+        return "font-size: " + formatScaledNumber(Number(size) * scale) + "pt";
+    });
+}
+
+function scaleDocxLogo(html, fontScale) {
+    const logoScale = getLogoScale(fontScale);
+
+    if (logoScale <= 1) {
+        return html;
+    }
+
+    return html.replace(/<img\b[^>]*>/gi, function (imgTag) {
+        if (!/alt=(["'])Logo\1/i.test(imgTag)) {
+            return imgTag;
+        }
+
+        let scaledImgTag = imgTag;
+
+        scaledImgTag = scaledImgTag.replace(/\bwidth=(["'])([0-9]+(?:\.[0-9]+)?)\1/i, function (_match, quote, width) {
+            return "width=" + quote + formatScaledNumber(Number(width) * logoScale) + quote;
+        });
+
+        scaledImgTag = scaledImgTag.replace(/width:\s*([0-9]+(?:\.[0-9]+)?)px/gi, function (_match, width) {
+            return "width: " + formatScaledNumber(Number(width) * logoScale) + "px";
+        });
+
+        return scaledImgTag;
+    });
+}
+
+function applyDocxFontScale(html, fontScale) {
+    let scaledHtml = html;
+
+    scaledHtml = scaleDocxFontSizes(scaledHtml, fontScale);
+    scaledHtml = scaleDocxLogo(scaledHtml, fontScale);
+
+    return scaledHtml;
+}
+
+function getLogoSrc() {
     const publicPath = path.join(__dirname, "..", "..", "public");
     const logoCandidates = [
         "logo.png",
@@ -22,6 +102,7 @@ async function generatePdfFromTemplate(templateName, data) {
 
     for (const candidate of logoCandidates) {
         const candidatePath = path.join(publicPath, candidate);
+
         if (fs.existsSync(candidatePath)) {
             const imageData = fs.readFileSync(candidatePath);
             logoMimeType = candidate.endsWith(".jpg") || candidate.endsWith(".jpeg") ? "image/jpeg" : "image/png";
@@ -29,6 +110,13 @@ async function generatePdfFromTemplate(templateName, data) {
             break;
         }
     }
+
+    return logoSrc;
+}
+
+async function generatePdfFromTemplate(templateName, data) {
+    const templatePath = path.join(__dirname, "..", "templates", templateName);
+    const logoSrc = getLogoSrc();
 
     const html = await ejs.renderFile(templatePath, {
         ...data,
@@ -65,28 +153,7 @@ async function generatePdfFromTemplate(templateName, data) {
 
 async function generateDocxFromTemplate(templateName, data) {
     const templatePath = path.join(__dirname, "..", "templates", templateName);
-    const publicPath = path.join(__dirname, "..", "..", "public");
-    const logoCandidates = [
-        "logo.png",
-        "logo.jpg",
-        "logo.jpeg",
-        "logo_diaetgurken.png",
-        "logo_diaetgurken.jpg",
-        "logo_diaetgurken.jpeg",
-    ];
-
-    let logoSrc = "";
-    let logoMimeType = "image/png";
-
-    for (const candidate of logoCandidates) {
-        const candidatePath = path.join(publicPath, candidate);
-        if (fs.existsSync(candidatePath)) {
-            const imageData = fs.readFileSync(candidatePath);
-            logoMimeType = candidate.endsWith(".jpg") || candidate.endsWith(".jpeg") ? "image/jpeg" : "image/png";
-            logoSrc = `data:${logoMimeType};base64,${imageData.toString("base64")}`;
-            break;
-        }
-    }
+    const logoSrc = getLogoSrc();
 
     const html = await ejs.renderFile(templatePath, {
         ...data,
@@ -94,8 +161,9 @@ async function generateDocxFromTemplate(templateName, data) {
         colors: data.colors || pdfColors,
     });
 
-    // Konvertierung von HTML zu DOCX
-    const docxBuffer = await htmlToDocx(html, null, {
+    const docxHtml = applyDocxFontScale(html, data.fontScale);
+
+    const docxBuffer = await htmlToDocx(docxHtml, null, {
         table: { row: { cantSplit: true } },
         footer: true,
         pageNumber: true,
