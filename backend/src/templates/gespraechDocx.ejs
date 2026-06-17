@@ -53,6 +53,7 @@
         const diagnosisElements = getElements(gespraech.diagnosen);
         const goalElements = getElements(gespraech.ziele);
         const outcomeElements = getElements(gespraech.outcome);
+        const largeFont = Number(fontScale) > 1;
 
         function getAssessmentValue(formElement) {
             if (!formElement || !formElement.name) {
@@ -232,9 +233,14 @@
 
     <div style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; line-height: 1.25; color: #222222; background-color: #F8FBF8;">
 
-        <p align="center" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 22pt; font-weight: bold; color: #245B2B; margin: 0 0 2px 0; padding: 0; text-align: center;"><% if (logoSrc) { %><img src="<%= logoSrc %>" alt="Logo" width="34" style="width: 34px; height: auto; vertical-align: middle; margin-right: 6px;"><% } %>Diätologisches Assessmentblatt</p>
+        <p align="left" data-docx-role="document-title" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 22pt; font-weight: bold; color: #245B2B; margin: 0 0 2px 0; padding: 0; text-align: left; text-indent: 0;">
+            <% if (logoSrc) { %>
+                <img src="<%= logoSrc %>" alt="Logo" width="34" align="right" style="width: 34px; height: auto; vertical-align: top; margin-left: 8px; margin-right: 0;">
+            <% } %>
+            <%- largeFont ? "Diätologisches Assessmentblatt" : "Diätologisches&nbsp;Assessmentblatt" %>
+        </p>
 
-        <p align="center" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 10pt; color: #44505A; margin: 0 0 5px 0; padding: 0; text-align: center;">
+        <p align="left" data-docx-role="export-date" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 10pt; color: #44505A; margin: 0 0 5px 0; padding: 0; text-align: left; text-indent: 0; display: block; width: 100%; margin-left: 0; padding-left: 0;">
             Exportiert am: <%= new Date(generatedAt).toLocaleString("de-DE") %>
         </p>
 
@@ -328,7 +334,7 @@
                     <% } %>
 
                     <% if (handlungsziele.length > 0) { %>
-                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0; text-align: left;">Handlungsziele:</p>
+                        <p align="left" data-docx-role="goal-subtitle" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0; text-align: left;">Handlungsziele:</p>
 
                         <% handlungsziele.forEach(function (handlungsziel) { %>
                             <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; color: #222222; margin: 0 0 3px 12px; text-align: left;">• <%= handlungsziel.text || handlungsziel %></p>
@@ -336,7 +342,7 @@
                     <% } %>
 
                     <% if (massnahmenziele.length > 0) { %>
-                        <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0; text-align: left;">Maßnahmenziele:</p>
+                        <p align="left" data-docx-role="goal-subtitle" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; font-weight: bold; color: #245B2B; margin: 6px 0 3px 0; text-align: left;">Maßnahmenziele:</p>
 
                         <% massnahmenziele.forEach(function (massnahmenziel) { %>
                             <p align="left" style="font-family: Calibri, Verdana, Arial, sans-serif; font-size: 11pt; color: #222222; margin: 0 0 3px 12px; text-align: left;">• <%= massnahmenziel.text || massnahmenziel %></p>
