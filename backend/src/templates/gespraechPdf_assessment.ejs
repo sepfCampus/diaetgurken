@@ -335,7 +335,7 @@
 <body>
     <div class="header">
         <h1>Diätologisches Assessmentblatt</h1>
-        <p>Exportiert am: <%= new Date(generatedAt).toLocaleString('de-DE') %>
+        <p>Exportiert am: <%= new Date(generatedAt).toLocaleString('de-DE', { timeZone: 'Europe/Vienna' }) %>
         </p>
         <% if (logoSrc) { %>
             <img src="<%= logoSrc %>" alt="Logo" class="logo">
@@ -354,7 +354,7 @@
             <div class="meta-field">
                 <div class="meta-label">Gesprächsdatum</div>
                 <div class="meta-value">
-                    <%= new Date(gespraech.datum).toLocaleDateString('de-DE') %>
+                    <%= new Date(gespraech.datum).toLocaleDateString('de-DE', { timeZone: 'Europe/Vienna' }) %>
                 </div>
             </div>
         </div>
@@ -587,8 +587,11 @@
 
                                 <!-- OUTCOME SEKTION -->
                                 <% if (gespraech.outcome && gespraech.outcome.elements &&
-                                    gespraech.outcome.elements.length>
-                                    0) { %>
+                                    gespraech.outcome.elements.length> 0) { %>
+                                    <% function formatErfolg(success) {
+                                        if (typeof success !== 'number') return 'Nicht bewertet';
+                                        return (success > 1 ? success : success * 100) + '%';
+                                    } %>
                                     <div class="section">
                                         <div class="section-title">Outcomes & Ergebnisse</div>
 
@@ -596,16 +599,37 @@
                                             <div class="goal-item">
                                                 <strong
                                                     style="font-size: calc(0.95rem * var(--font-scale)); margin-bottom: calc(6px * var(--font-scale)); display: block;">
-                                                    Ziel <%= idx + 1 %> – Erfolg: <%= typeof out.success==='number' ?
-                                                            ((out.success> 1 ? out.success : out.success * 100) + '%') :
-                                                            'Nicht bewertet' %>
+                                                    Ziel <%= idx + 1 %> – Erfolg: <%= formatErfolg(out.success) %>
                                                 </strong>
 
                                                 <% if (out.text) { %>
-                                                    <div class="goal-text">
-                                                        <%= out.text %>
-                                                    </div>
-                                                    <% } %>
+                                                <div class="goal-text">
+                                                    <%= out.text %>
+                                                </div>
+                                                <% } %>
+
+                                                <% if (out.note) { %>
+                                                <div class="goal-type">Notiz:</div>
+                                                <div class="goal-text"><%= out.note %></div>
+                                                <% } %>
+
+                                                <% if (out.handlungsziele && out.handlungsziele.length > 0) { %>
+                                                <div class="goal-type">Handlungsziele:</div>
+                                                <% out.handlungsziele.forEach(hz=> { %>
+                                                <div class="goal-text">
+                                                    • <%= hz.text || hz %> – Erfolg: <%= formatErfolg(hz.success) %><% if (hz.note) { %> | Notiz: <%= hz.note %><% } %>
+                                                </div>
+                                                <% }); %>
+                                                <% } %>
+
+                                                <% if (out.massnahmenziele && out.massnahmenziele.length > 0) { %>
+                                                <div class="goal-type">Maßnahmenziele:</div>
+                                                <% out.massnahmenziele.forEach(mz=> { %>
+                                                <div class="goal-text">
+                                                    • <%= mz.text || mz %> – Erfolg: <%= formatErfolg(mz.success) %><% if (mz.note) { %> | Notiz: <%= mz.note %><% } %>
+                                                </div>
+                                                <% }); %>
+                                                <% } %>
                                             </div>
                                             <% }); %>
                                     </div>
