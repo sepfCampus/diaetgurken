@@ -18,7 +18,7 @@ class AppSectionCard extends StatelessWidget
       width: double.infinity, //card is as wide as the possible
       padding: padding ?? const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
+        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.05),
         border: Border.all(
           color: theme.colorScheme.primary,
           width: 1,

@@ -29,7 +29,7 @@ final bool largeFont = theme.textTheme.bodyMedium!.fontSize! > 15;
         ),
         decoration: BoxDecoration(
           color: theme.colorScheme.secondary,
-          border: Border.all(color: theme.colorScheme.primary, width: 1),
+          //border: Border.all(color: theme.colorScheme.primary, width: 1),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(

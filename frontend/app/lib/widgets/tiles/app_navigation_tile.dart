@@ -27,10 +27,10 @@ class AppNavigationTile extends StatelessWidget
         ),
         decoration: BoxDecoration(
           color: theme.colorScheme.secondary,
-          border: Border.all(
+          /*border: Border.all(
             color: theme.colorScheme.primary,
             width: 1,
-          ),
+          ),*/
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
