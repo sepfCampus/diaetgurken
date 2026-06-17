@@ -39,115 +39,6 @@ function getLogoScale(fontScale) {
     return scale * 1.15;
 }
 
-function normalizeHex(value) {
-    if (!value || typeof value !== "string") {
-        return "";
-    }
-
-    return value.trim().toLowerCase();
-}
-
-function isHighContrastColors(colors) {
-    return normalizeHex(colors?.PRIMARY) === "#4d1e22";
-}
-
-function replaceHexColor(html, fromHex, toHex) {
-    if (!fromHex || !toHex) {
-        return html;
-    }
-
-    const escapedHex = fromHex.replace("#", "\\#");
-    const regex = new RegExp(escapedHex, "gi");
-
-    return html.replace(regex, toHex);
-}
-
-function setStyleProperty(attributes, propertyName, propertyValue) {
-    const styleRegex = /\sstyle=(['"])(.*?)\1/i;
-
-    if (!styleRegex.test(attributes)) {
-        return attributes + " style=\"" + propertyName + ": " + propertyValue + ";\"";
-    }
-
-    return attributes.replace(styleRegex, function (_match, quote, styleValue) {
-        const propertyRegex = new RegExp(propertyName + "\\s*:\\s*[^;]+;?", "i");
-        let nextStyleValue = styleValue;
-
-        if (propertyRegex.test(nextStyleValue)) {
-            nextStyleValue = nextStyleValue.replace(propertyRegex, propertyName + ": " + propertyValue + ";");
-        } else {
-            nextStyleValue = nextStyleValue.trim();
-
-            if (nextStyleValue && !nextStyleValue.endsWith(";")) {
-                nextStyleValue += ";";
-            }
-
-            nextStyleValue += " " + propertyName + ": " + propertyValue + ";";
-        }
-
-        return " style=" + quote + nextStyleValue + quote;
-    });
-}
-
-function applyStyleToOpeningTagByRole(html, role, propertyName, propertyValue) {
-    const roleRegex = new RegExp("<p\\b([^>]*data-docx-role=(['\"])" + role + "\\2[^>]*)>", "gi");
-
-    return html.replace(roleRegex, function (_match, attributes) {
-        const nextAttributes = setStyleProperty(attributes, propertyName, propertyValue);
-
-        return "<p" + nextAttributes + ">";
-    });
-}
-
-function applyDocxHighContrastRoleColors(html, colors) {
-    if (!isHighContrastColors(colors)) {
-        return html;
-    }
-
-    let nextHtml = html;
-
-    nextHtml = applyStyleToOpeningTagByRole(nextHtml, "document-title", "color", colors.PRIMARY || "#4d1e22");
-    nextHtml = applyStyleToOpeningTagByRole(nextHtml, "goal-subtitle", "color", colors.SECONDARY || "#968daf");
-
-    return nextHtml;
-}
-
-function applyDocxHighContrastColors(html, colors) {
-    if (!isHighContrastColors(colors)) {
-        return html;
-    }
-
-    let contrastHtml = html;
-
-    const highContrastColors = {
-        primary: colors.PRIMARY || "#4d1e22",
-        secondary: colors.SECONDARY || "#968daf",
-        tertiary: colors.TERTIARY || "#6b4c2f",
-        quaternary: colors.QUATERNARY || "#0F4A74",
-        pageBackground: colors.PAGE_BACKGROUND || "#FFFFFF",
-        cardBackground: colors.CARD_BACKGROUND || "#FFFFFF",
-        text: colors.TEXT || "#000000",
-        mutedText: colors.MUTED_TEXT || "#222222",
-        border: colors.BORDER || "#000000",
-    };
-
-    contrastHtml = replaceHexColor(contrastHtml, "#F8FBF8", highContrastColors.pageBackground);
-    contrastHtml = replaceHexColor(contrastHtml, "#245B2B", highContrastColors.primary);
-    contrastHtml = replaceHexColor(contrastHtml, "#EDF6EF", highContrastColors.cardBackground);
-    contrastHtml = replaceHexColor(contrastHtml, "#D8E4D8", highContrastColors.border);
-    contrastHtml = replaceHexColor(contrastHtml, "#222222", highContrastColors.text);
-    contrastHtml = replaceHexColor(contrastHtml, "#44505A", highContrastColors.mutedText);
-    contrastHtml = replaceHexColor(contrastHtml, "#6B7280", highContrastColors.mutedText);
-    contrastHtml = replaceHexColor(contrastHtml, "#1D768F", highContrastColors.quaternary);
-    contrastHtml = replaceHexColor(contrastHtml, "#A7C0A5", highContrastColors.secondary);
-    contrastHtml = replaceHexColor(contrastHtml, "#FFFBE6", highContrastColors.cardBackground);
-    contrastHtml = replaceHexColor(contrastHtml, "#FBC02D", highContrastColors.tertiary);
-
-    contrastHtml = applyDocxHighContrastRoleColors(contrastHtml, colors);
-
-    return contrastHtml;
-}
-
 function scaleDocxFontSizes(html, fontScale) {
     const scale = getSafeScale(fontScale);
 
@@ -193,7 +84,6 @@ function removeDocxHelperAttributes(html) {
 function applyDocxTransformations(html, data) {
     let transformedHtml = html;
 
-    transformedHtml = applyDocxHighContrastColors(transformedHtml, data.colors);
     transformedHtml = scaleDocxFontSizes(transformedHtml, data.fontScale);
     transformedHtml = scaleDocxLogo(transformedHtml, data.fontScale);
     transformedHtml = removeDocxHelperAttributes(transformedHtml);
