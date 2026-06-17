@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:app/data/daos/conversation_base_dao.dart';
 import 'package:app/data/entities/client_file_entity.dart';
@@ -92,5 +93,15 @@ class ConversationService
   Future<void> delete(int clientFileId, int conversationId) async
   {
     await this._conversationDao.delete(clientFileId, conversationId);
+  }
+  
+  Future<Uint8List> exportPdf({ required int clientId, required int conversationId, String fontSize = "Standard", String theme = "Standard"}) async
+  {
+    return await this._conversationDao.exportPdf(clientId: clientId, conversationId: conversationId, fontSize: (fontSize == "Groß") ? "gross" : "standard", theme: (theme == "Hoher Kontrast") ? "hoherKontrast" : "standard");
+  }
+
+  Future<Uint8List> exportDocx({ required int clientId, required int conversationId, String fontSize = "Standard", String theme = "Standard" }) async
+  {
+    return await this._conversationDao.exportDocx(clientId: clientId, conversationId: conversationId, fontSize: (fontSize == "Groß") ? "gross" : "standard", theme: (theme == "Hoher Kontrast") ? "hoherKontrast" : "standard");
   }
 }

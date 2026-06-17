@@ -9,9 +9,14 @@ class AppRadioGroup<T> extends StatelessWidget
   final ValueChanged<T?> onChanged;
   final String Function(T) labelBuilder; //used for converting an option value into a display text
 
-  const AppRadioGroup({ super.key, required this.title, required this.options,
-                        required this.groupValue, required this.onChanged,
-                        required this.labelBuilder });
+  const AppRadioGroup({
+    super.key,
+    required this.title,
+    required this.options,
+    required this.groupValue,
+    required this.onChanged,
+    required this.labelBuilder,
+  });
 
   @override
   Widget build(BuildContext context)
@@ -20,16 +25,19 @@ class AppRadioGroup<T> extends StatelessWidget
       crossAxisAlignment: CrossAxisAlignment.start, //left alignment
       children:
       [
-        Text(title, style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
 
-        AppSpacing.SPACED_BOX_H_EXTRA_EXTRA_SMALL, // small spacing below the title
+        AppSpacing.SPACED_BOX_H_EXTRA_EXTRA_SMALL,
 
         ...options.map((option)
         {
           return RadioListTile<T>(
-            value: option, //value of this radio button
-            groupValue: groupValue, //the value that is currently selected in the group
-            onChanged: onChanged, //called if this option is pressed
+            value: option,
+            groupValue: groupValue,
+            onChanged: onChanged,
             title: Text(
               labelBuilder(option),
               style: Theme.of(context).textTheme.bodyMedium,
@@ -37,7 +45,7 @@ class AppRadioGroup<T> extends StatelessWidget
             contentPadding: EdgeInsets.zero,
             dense: false,
             visualDensity: VisualDensity.standard,
-            controlAffinity: ListTileControlAffinity.leading, //radio button is on the left side
+            controlAffinity: ListTileControlAffinity.leading,
           );
         }),
       ],

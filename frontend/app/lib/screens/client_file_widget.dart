@@ -292,7 +292,7 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
                       arguments:
                       {
                         'clientId': klientenAkteId,
-                        'gespraechId': conversation.id,
+                        'conversationId': conversation.id,
                         'date': conversationDate,
                         'conversation': conversation,
                       },

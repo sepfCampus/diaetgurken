@@ -5,102 +5,203 @@ const puppeteer = require("puppeteer");
 const htmlToDocx = require("html-to-docx");
 const pdfColors = require("../config/pdfColors");
 
-function escapeXml(value) {
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&apos;");
-}
+function formatScaledNumber(value) {
+    const number = Number(value);
 
-function createPdfUaXmp(title) {
-    const escapedTitle = escapeXml(title);
-
-    return `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/">
-  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <rdf:Description rdf:about=""
-      xmlns:dc="http://purl.org/dc/elements/1.1/"
-      xmlns:pdf="http://ns.adobe.com/pdf/1.3/"
-      xmlns:pdfuaid="http://www.aiim.org/pdfua/ns/id/"
-      xmlns:xmp="http://ns.adobe.com/xap/1.0/">
-      <dc:title>
-        <rdf:Alt>
-          <rdf:li xml:lang="de-DE">${escapedTitle}</rdf:li>
-        </rdf:Alt>
-      </dc:title>
-      <dc:creator>
-        <rdf:Seq>
-          <rdf:li>Diaetgurken</rdf:li>
-        </rdf:Seq>
-      </dc:creator>
-      <pdf:Producer>Diaetgurken PDF Export</pdf:Producer>
-      <xmp:CreatorTool>Diaetgurken PDF Export</xmp:CreatorTool>
-      <pdfuaid:part>1</pdfuaid:part>
-    </rdf:Description>
-  </rdf:RDF>
-</x:xmpmeta>
-<?xpacket end="w"?>`;
-}
-
-function appendPdfUaMetadata(pdfData, title) {
-    const original = Buffer.from(pdfData);
-    const pdf = original.toString("latin1");
-    const trailerMatch = pdf.match(/trailer\s*<<([\s\S]*?)>>\s*startxref\s*(\d+)\s*%%EOF\s*$/);
-
-    if (!trailerMatch) {
-        return original;
+    if (!Number.isFinite(number)) {
+        return "0";
     }
 
-    const trailer = trailerMatch[1];
-    const previousXrefOffset = Number(trailerMatch[2]);
-    const sizeMatch = trailer.match(/\/Size\s+(\d+)/);
-    const rootMatch = trailer.match(/\/Root\s+(\d+)\s+(\d+)\s+R/);
-    const infoMatch = trailer.match(/\/Info\s+(\d+)\s+(\d+)\s+R/);
-
-    if (!sizeMatch || !rootMatch || !Number.isFinite(previousXrefOffset)) {
-        return original;
+    if (Number.isInteger(number)) {
+        return String(number);
     }
 
-    const size = Number(sizeMatch[1]);
-    const rootObjectNumber = Number(rootMatch[1]);
-    const rootGeneration = Number(rootMatch[2]);
-    const metadataObjectNumber = size;
-    const newSize = metadataObjectNumber + 1;
-    const rootPattern = new RegExp(`${rootObjectNumber}\\s+${rootGeneration}\\s+obj\\s*([\\s\\S]*?)\\s*endobj`);
-    const rootObjectMatch = pdf.match(rootPattern);
-
-    if (!rootObjectMatch) {
-        return original;
-    }
-
-    const rootDictionary = rootObjectMatch[1].replace(/\/Metadata\s+\d+\s+\d+\s+R\s*/g, "");
-    const updatedRootDictionary = rootDictionary.replace(/>>\s*$/, `/Metadata ${metadataObjectNumber} 0 R>>`);
-    const xmp = Buffer.from(createPdfUaXmp(title), "utf8");
-    const metadataHeader = Buffer.from(
-        `${metadataObjectNumber} 0 obj\n<</Type /Metadata\n/Subtype /XML\n/Length ${xmp.length}>>\nstream\n`,
-        "latin1"
-    );
-    const metadataFooter = Buffer.from("\nendstream\nendobj\n", "latin1");
-    const updatedRoot = Buffer.from(
-        `${rootObjectNumber} ${rootGeneration} obj\n${updatedRootDictionary}\nendobj\n`,
-        "latin1"
-    );
-    const rootOffset = original.length + metadataHeader.length + xmp.length + metadataFooter.length;
-    const metadataOffset = original.length;
-    const xrefOffset = rootOffset + updatedRoot.length;
-    const infoTrailerEntry = infoMatch ? `\n/Info ${infoMatch[1]} ${infoMatch[2]} R` : "";
-    const incrementalXref = Buffer.from(
-        `xref\n${rootObjectNumber} 1\n${String(rootOffset).padStart(10, "0")} ${String(rootGeneration).padStart(5, "0")} n \n${metadataObjectNumber} 1\n${String(metadataOffset).padStart(10, "0")} 00000 n \ntrailer\n<</Size ${newSize}\n/Root ${rootObjectNumber} ${rootGeneration} R${infoTrailerEntry}\n/Prev ${previousXrefOffset}>>\nstartxref\n${xrefOffset}\n%%EOF\n`,
-        "latin1"
-    );
-
-    return Buffer.concat([original, metadataHeader, xmp, metadataFooter, updatedRoot, incrementalXref]);
+    return number.toFixed(2).replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
 }
 
-async function generatePdfFromTemplate(templateName, data) {
-    const templatePath = path.join(__dirname, "..", "templates", templateName);
+function getSafeScale(fontScale) {
+    const scale = Number(fontScale);
+
+    if (!Number.isFinite(scale) || scale <= 1) {
+        return 1;
+    }
+
+    return scale;
+}
+
+function getLogoScale(fontScale) {
+    const scale = getSafeScale(fontScale);
+
+    if (scale <= 1) {
+        return 1;
+    }
+
+    return scale * 1.15;
+}
+
+function normalizeHex(value) {
+    if (!value || typeof value !== "string") {
+        return "";
+    }
+
+    return value.trim().toLowerCase();
+}
+
+function isHighContrastColors(colors) {
+    return normalizeHex(colors?.PRIMARY) === "#4d1e22";
+}
+
+function replaceHexColor(html, fromHex, toHex) {
+    if (!fromHex || !toHex) {
+        return html;
+    }
+
+    const escapedHex = fromHex.replace("#", "\\#");
+    const regex = new RegExp(escapedHex, "gi");
+
+    return html.replace(regex, toHex);
+}
+
+function setStyleProperty(attributes, propertyName, propertyValue) {
+    const styleRegex = /\sstyle=(['"])(.*?)\1/i;
+
+    if (!styleRegex.test(attributes)) {
+        return attributes + " style=\"" + propertyName + ": " + propertyValue + ";\"";
+    }
+
+    return attributes.replace(styleRegex, function (_match, quote, styleValue) {
+        const propertyRegex = new RegExp(propertyName + "\\s*:\\s*[^;]+;?", "i");
+        let nextStyleValue = styleValue;
+
+        if (propertyRegex.test(nextStyleValue)) {
+            nextStyleValue = nextStyleValue.replace(propertyRegex, propertyName + ": " + propertyValue + ";");
+        } else {
+            nextStyleValue = nextStyleValue.trim();
+
+            if (nextStyleValue && !nextStyleValue.endsWith(";")) {
+                nextStyleValue += ";";
+            }
+
+            nextStyleValue += " " + propertyName + ": " + propertyValue + ";";
+        }
+
+        return " style=" + quote + nextStyleValue + quote;
+    });
+}
+
+function applyStyleToOpeningTagByRole(html, role, propertyName, propertyValue) {
+    const roleRegex = new RegExp("<p\\b([^>]*data-docx-role=(['\"])" + role + "\\2[^>]*)>", "gi");
+
+    return html.replace(roleRegex, function (_match, attributes) {
+        const nextAttributes = setStyleProperty(attributes, propertyName, propertyValue);
+
+        return "<p" + nextAttributes + ">";
+    });
+}
+
+function applyDocxHighContrastRoleColors(html, colors) {
+    if (!isHighContrastColors(colors)) {
+        return html;
+    }
+
+    let nextHtml = html;
+
+    nextHtml = applyStyleToOpeningTagByRole(nextHtml, "document-title", "color", colors.PRIMARY || "#4d1e22");
+    nextHtml = applyStyleToOpeningTagByRole(nextHtml, "goal-subtitle", "color", colors.SECONDARY || "#968daf");
+
+    return nextHtml;
+}
+
+function applyDocxHighContrastColors(html, colors) {
+    if (!isHighContrastColors(colors)) {
+        return html;
+    }
+
+    let contrastHtml = html;
+
+    const highContrastColors = {
+        primary: colors.PRIMARY || "#4d1e22",
+        secondary: colors.SECONDARY || "#968daf",
+        tertiary: colors.TERTIARY || "#6b4c2f",
+        quaternary: colors.QUATERNARY || "#0F4A74",
+        pageBackground: colors.PAGE_BACKGROUND || "#FFFFFF",
+        cardBackground: colors.CARD_BACKGROUND || "#FFFFFF",
+        text: colors.TEXT || "#000000",
+        mutedText: colors.MUTED_TEXT || "#222222",
+        border: colors.BORDER || "#000000",
+    };
+
+    contrastHtml = replaceHexColor(contrastHtml, "#F8FBF8", highContrastColors.pageBackground);
+    contrastHtml = replaceHexColor(contrastHtml, "#245B2B", highContrastColors.primary);
+    contrastHtml = replaceHexColor(contrastHtml, "#EDF6EF", highContrastColors.cardBackground);
+    contrastHtml = replaceHexColor(contrastHtml, "#D8E4D8", highContrastColors.border);
+    contrastHtml = replaceHexColor(contrastHtml, "#222222", highContrastColors.text);
+    contrastHtml = replaceHexColor(contrastHtml, "#44505A", highContrastColors.mutedText);
+    contrastHtml = replaceHexColor(contrastHtml, "#6B7280", highContrastColors.mutedText);
+    contrastHtml = replaceHexColor(contrastHtml, "#1D768F", highContrastColors.quaternary);
+    contrastHtml = replaceHexColor(contrastHtml, "#A7C0A5", highContrastColors.secondary);
+    contrastHtml = replaceHexColor(contrastHtml, "#FFFBE6", highContrastColors.cardBackground);
+    contrastHtml = replaceHexColor(contrastHtml, "#FBC02D", highContrastColors.tertiary);
+
+    contrastHtml = applyDocxHighContrastRoleColors(contrastHtml, colors);
+
+    return contrastHtml;
+}
+
+function scaleDocxFontSizes(html, fontScale) {
+    const scale = getSafeScale(fontScale);
+
+    if (scale <= 1) {
+        return html;
+    }
+
+    return html.replace(/font-size:\s*([0-9]+(?:\.[0-9]+)?)pt/gi, function (_match, size) {
+        return "font-size: " + formatScaledNumber(Number(size) * scale) + "pt";
+    });
+}
+
+function scaleDocxLogo(html, fontScale) {
+    const logoScale = getLogoScale(fontScale);
+
+    if (logoScale <= 1) {
+        return html;
+    }
+
+    return html.replace(/<img\b[^>]*>/gi, function (imgTag) {
+        if (!/alt=(["'])Logo\1/i.test(imgTag)) {
+            return imgTag;
+        }
+
+        let scaledImgTag = imgTag;
+
+        scaledImgTag = scaledImgTag.replace(/\bwidth=(["'])([0-9]+(?:\.[0-9]+)?)\1/i, function (_match, quote, width) {
+            return "width=" + quote + formatScaledNumber(Number(width) * logoScale) + quote;
+        });
+
+        scaledImgTag = scaledImgTag.replace(/width:\s*([0-9]+(?:\.[0-9]+)?)px/gi, function (_match, width) {
+            return "width: " + formatScaledNumber(Number(width) * logoScale) + "px";
+        });
+
+        return scaledImgTag;
+    });
+}
+
+function removeDocxHelperAttributes(html) {
+    return html.replace(/\sdata-docx-role=(["']).*?\1/gi, "");
+}
+
+function applyDocxTransformations(html, data) {
+    let transformedHtml = html;
+
+    transformedHtml = applyDocxHighContrastColors(transformedHtml, data.colors);
+    transformedHtml = scaleDocxFontSizes(transformedHtml, data.fontScale);
+    transformedHtml = scaleDocxLogo(transformedHtml, data.fontScale);
+    transformedHtml = removeDocxHelperAttributes(transformedHtml);
+
+    return transformedHtml;
+}
+
+function getLogoSrc() {
     const publicPath = path.join(__dirname, "..", "..", "public");
     const logoCandidates = [
         "logo.png",
@@ -116,6 +217,7 @@ async function generatePdfFromTemplate(templateName, data) {
 
     for (const candidate of logoCandidates) {
         const candidatePath = path.join(publicPath, candidate);
+
         if (fs.existsSync(candidatePath)) {
             const imageData = fs.readFileSync(candidatePath);
             logoMimeType = candidate.endsWith(".jpg") || candidate.endsWith(".jpeg") ? "image/jpeg" : "image/png";
@@ -123,6 +225,13 @@ async function generatePdfFromTemplate(templateName, data) {
             break;
         }
     }
+
+    return logoSrc;
+}
+
+async function generatePdfFromTemplate(templateName, data) {
+    const templatePath = path.join(__dirname, "..", "templates", templateName);
+    const logoSrc = getLogoSrc();
 
     const html = await ejs.renderFile(templatePath, {
         ...data,
@@ -142,11 +251,9 @@ async function generatePdfFromTemplate(templateName, data) {
             waitUntil: "networkidle0",
         });
 
-        const pdfBuffer = await page.pdf({
+        return await page.pdf({
             format: "A4",
             printBackground: true,
-            tagged: true,
-            outline: true,
             margin: {
                 top: "20mm",
                 right: "15mm",
@@ -154,8 +261,6 @@ async function generatePdfFromTemplate(templateName, data) {
                 left: "15mm",
             },
         });
-
-        return appendPdfUaMetadata(pdfBuffer, data.pdfTitle || "Diätologisches Assessmentblatt");
     } finally {
         await browser.close();
     }
@@ -163,28 +268,7 @@ async function generatePdfFromTemplate(templateName, data) {
 
 async function generateDocxFromTemplate(templateName, data) {
     const templatePath = path.join(__dirname, "..", "templates", templateName);
-    const publicPath = path.join(__dirname, "..", "..", "public");
-    const logoCandidates = [
-        "logo.png",
-        "logo.jpg",
-        "logo.jpeg",
-        "logo_diaetgurken.png",
-        "logo_diaetgurken.jpg",
-        "logo_diaetgurken.jpeg",
-    ];
-
-    let logoSrc = "";
-    let logoMimeType = "image/png";
-
-    for (const candidate of logoCandidates) {
-        const candidatePath = path.join(publicPath, candidate);
-        if (fs.existsSync(candidatePath)) {
-            const imageData = fs.readFileSync(candidatePath);
-            logoMimeType = candidate.endsWith(".jpg") || candidate.endsWith(".jpeg") ? "image/jpeg" : "image/png";
-            logoSrc = `data:${logoMimeType};base64,${imageData.toString("base64")}`;
-            break;
-        }
-    }
+    const logoSrc = getLogoSrc();
 
     const html = await ejs.renderFile(templatePath, {
         ...data,
@@ -192,8 +276,12 @@ async function generateDocxFromTemplate(templateName, data) {
         colors: data.colors || pdfColors,
     });
 
-    // Konvertierung von HTML zu DOCX
-    const docxBuffer = await htmlToDocx(html, null, {
+    const docxHtml = applyDocxTransformations(html, {
+        ...data,
+        colors: data.colors || pdfColors,
+    });
+
+    const docxBuffer = await htmlToDocx(docxHtml, null, {
         table: { row: { cantSplit: true } },
         footer: true,
         pageNumber: true,

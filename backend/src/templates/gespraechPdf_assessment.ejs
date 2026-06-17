@@ -69,12 +69,6 @@
             margin-bottom: calc(12px * var(--font-scale));
         }
 
-        .meta-heading {
-            color: var(--primary-color);
-            font-size: calc(1rem * var(--font-scale));
-            margin-bottom: calc(8px * var(--font-scale));
-        }
-
         .meta-row {
             display: flex;
             gap: calc(20px * var(--font-scale));
@@ -94,13 +88,11 @@
         .meta-value {
             color: var(--muted-text);
             font-size: calc(0.85rem * var(--font-scale));
-            margin: calc(2px * var(--font-scale)) 0 0;
         }
 
         .section {
             margin-bottom: calc(14px * var(--font-scale));
-            break-inside: auto;
-            page-break-inside: auto;
+            
         }
 
         .section-title {
@@ -111,8 +103,6 @@
             font-size: calc(1rem * var(--font-scale));
             margin-bottom: calc(8px * var(--font-scale));
             border-radius: calc(3px * var(--font-scale));
-            break-after: avoid;
-            page-break-after: avoid;
         }
 
         /* Tabellen */
@@ -176,29 +166,25 @@
         }
 
         .assessment-grid {
-            display: grid;
-            grid-template-columns: 1.8fr 1.0fr 1.0fr;
-            gap: calc(10px * var(--font-scale));
-            margin-bottom: calc(10px * var(--font-scale));
-        }
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--font-scale));
+    margin-bottom: calc(10px * var(--font-scale));
+}
 
-        .assessment-grid-wide {
-            display: grid;
-            grid-template-columns: 1.3fr 1.3fr;
-            gap: calc(10px * var(--font-scale));
-        }
+.assessment-grid-wide {
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--font-scale));
+}
 
         .assessment-column,
-        .assessment-column-wide {
-            background-color: white;
-            padding: calc(10px * var(--font-scale));
-            border: 1px solid var(--border-color);
-            border-radius: calc(4px * var(--font-scale));
-            min-height: calc(120px * var(--font-scale));
-            break-inside: auto;
-            page-break-inside: auto;
-        }
-
+.assessment-column-wide {
+    background-color: white;
+    padding: calc(10px * var(--font-scale));
+    border: 1px solid var(--border-color);
+    border-radius: calc(4px * var(--font-scale));
+}
         .assessment-column-title {
             font-weight: bold;
             font-size: calc(0.95rem * var(--font-scale));
@@ -211,23 +197,10 @@
             line-height: 1.4;
             color: var(--text-color);
             font-size: calc(0.9rem * var(--font-scale));
-            overflow-wrap: anywhere;
-            word-break: normal;
         }
 
         .assessment-item strong {
             color: var(--text-color);
-        }
-
-        .large-font .assessment-grid,
-        .large-font .assessment-grid-wide {
-            display: block;
-        }
-
-        .large-font .assessment-column,
-        .large-font .assessment-column-wide {
-            margin-bottom: calc(10px * var(--font-scale));
-            min-height: 0;
         }
 
         /* Diagnosen PESB */
@@ -294,16 +267,6 @@
             padding-bottom: calc(4px * var(--font-scale));
         }
 
-        .goal-list {
-            margin: 0 0 calc(6px * var(--font-scale)) calc(28px * var(--font-scale));
-            color: var(--text-color);
-            font-size: calc(0.85rem * var(--font-scale));
-        }
-
-        .goal-list li {
-            margin-bottom: calc(4px * var(--font-scale));
-        }
-
         /* Outcome */
         .outcome-grid {
             display: grid;
@@ -363,14 +326,13 @@
             }
 
             .section {
-                break-inside: auto;
                 page-break-inside: auto;
             }
         }
     </style>
 </head>
 
-<body class="<%= fontScale > 1 ? 'large-font' : '' %>">
+<body>
     <div class="header">
         <h1>Diätologisches Assessmentblatt</h1>
         <p>Exportiert am: <%= new Date(generatedAt).toLocaleString('de-DE') %>
@@ -380,23 +342,20 @@
             <% } %>
     </div>
 
-    <div>
-
     <!-- Meta-Informationen -->
     <div class="meta-info">
-        <h2 id="stammdaten-heading" class="meta-heading">Stammdaten</h2>
         <div class="meta-row">
             <div class="meta-field">
-                <p class="meta-label">Klient/in</p>
-                <p class="meta-value">
+                <div class="meta-label">Klient/in</div>
+                <div class="meta-value">
                     <%= akte?.klarname?.name || 'Unbekannt' %>
-                </p>
+                </div>
             </div>
             <div class="meta-field">
-                <p class="meta-label">Gesprächsdatum</p>
-                <p class="meta-value">
+                <div class="meta-label">Gesprächsdatum</div>
+                <div class="meta-value">
                     <%= new Date(gespraech.datum).toLocaleDateString('de-DE') %>
-                </p>
+                </div>
             </div>
         </div>
     </div>
@@ -432,11 +391,11 @@
             return raw;
             } %>
             <div class="section">
-                <h2 id="assessment-heading" class="section-title">Assessment & Körperstrukturen</h2>
+                <div class="section-title">Assessment & Körperstrukturen</div>
 
                 <div class="assessment-grid">
                     <div class="assessment-column category-body">
-                        <h3 class="assessment-column-title">Körperstrukturen/Körperfunktionen</h3>
+                        <div class="assessment-column-title">Körperstrukturen/Körperfunktionen</div>
                         <% gespraech.formMetaData.elements.forEach(el=> {
                             if (el.category === 'body') {
                             const displayValue = assessmentDisplayValue(el);
@@ -452,7 +411,7 @@
                             <% } } }); %>
                     </div>
                     <div class="assessment-column category-activity">
-                        <h3 class="assessment-column-title">Aktivitäten</h3>
+                        <div class="assessment-column-title">Aktivitäten</div>
                         <% gespraech.formMetaData.elements.forEach(el=> {
                             if (el.category === 'activity') {
                             const displayValue = assessmentDisplayValue(el);
@@ -468,7 +427,7 @@
                             <% } } }); %>
                     </div>
                     <div class="assessment-column category-participation">
-                        <h3 class="assessment-column-title">Partizipation</h3>
+                        <div class="assessment-column-title">Partizipation</div>
                         <% gespraech.formMetaData.elements.forEach(el=> {
                             if (el.category === 'participation' || el.category === 'behavior') {
                             const displayValue = assessmentDisplayValue(el);
@@ -487,7 +446,7 @@
 
                 <div class="assessment-grid assessment-grid-wide">
                     <div class="assessment-column-wide category-environment">
-                        <h3 class="assessment-column-title">Umweltfaktoren</h3>
+                        <div class="assessment-column-title">Umweltfaktoren</div>
                         <% gespraech.formMetaData.elements.forEach(el=> {
                             if (el.category === 'environment') {
                             const displayValue = assessmentDisplayValue(el);
@@ -503,7 +462,7 @@
                             <% } } }); %>
                     </div>
                     <div class="assessment-column-wide category-personal">
-                        <h3 class="assessment-column-title">Personenbezogene Faktoren</h3>
+                        <div class="assessment-column-title">Personenbezogene Faktoren</div>
                         <% gespraech.formMetaData.elements.forEach(el=> {
                             if (el.category === 'personal') {
                             const displayValue = assessmentDisplayValue(el);
@@ -526,14 +485,14 @@
                 <% if (gespraech.diagnosen && gespraech.diagnosen.elements && gespraech.diagnosen.elements.length> 0) {
                     %>
                     <div class="section">
-                        <h2 id="diagnosen-heading" class="section-title">Diätologische Diagnose (P-E-S-F-B)</h2>
+                        <div class="section-title">Diätologische Diagnose (P-E-S-F-B)</div>
 
                         <% gespraech.diagnosen.elements.forEach((diag, idx)=> { %>
                             <div class="diagnosis-item">
-                                <h3
+                                <strong
                                     style="font-size: calc(0.95rem * var(--font-scale)); margin-bottom: calc(8px * var(--font-scale)); display: block;">
                                     Diagnose <%= idx + 1 %>
-                                </h3>
+                                </strong>
 
                                 <% if (diag.problem) { %>
                                     <div class="diagnosis-pesb">
@@ -589,14 +548,14 @@
                         <!-- ZIELE SEKTION -->
                         <% if (gespraech.ziele && gespraech.ziele.elements && gespraech.ziele.elements.length> 0) { %>
                             <div class="section">
-                                <h2 id="ziele-heading" class="section-title">Diätologische Ziele</h2>
+                                <div class="section-title">Diätologische Ziele</div>
 
                                 <% gespraech.ziele.elements.forEach((ziel, idx)=> { %>
                                     <div class="goal-item">
-                                        <h3
+                                        <strong
                                             style="font-size: calc(0.95rem * var(--font-scale)); display: block; margin-bottom: calc(6px * var(--font-scale));">
                                             Interventionsziel <%= idx + 1 %>
-                                        </h3>
+                                        </strong>
 
                                         <% if (ziel.text) { %>
                                             <div class="goal-text"><strong>Ziel:</strong>
@@ -605,23 +564,21 @@
                                             <% } %>
 
                                                 <% if (ziel.handlungsziele && ziel.handlungsziele.length> 0) { %>
-                                                    <h4 class="goal-type">Handlungsziele</h4>
-                                                    <ul class="goal-list">
+                                                    <div class="goal-type">Handlungsziele:</div>
                                                     <% ziel.handlungsziele.forEach(hz=> { %>
-                                                        <li><%= hz.text || hz %></li>
+                                                        <div class="goal-text">• <%= hz.text || hz %>
+                                                        </div>
                                                         <% }); %>
-                                                    </ul>
                                                             <% } %>
 
                                                                 <% if (ziel.massnahmenziele &&
                                                                     ziel.massnahmenziele.length>
                                                                     0) { %>
-                                                                    <h4 class="goal-type">Massnahmenziele</h4>
-                                                                    <ul class="goal-list">
+                                                                    <div class="goal-type">Massnahmenziele:</div>
                                                                     <% ziel.massnahmenziele.forEach(mz=> { %>
-                                                                        <li><%= mz.text || mz %></li>
+                                                                        <div class="goal-text">• <%= mz.text || mz %>
+                                                                        </div>
                                                                         <% }); %>
-                                                                    </ul>
                                                                             <% } %>
                                     </div>
                                     <% }); %>
@@ -633,16 +590,16 @@
                                     gespraech.outcome.elements.length>
                                     0) { %>
                                     <div class="section">
-                                        <h2 id="outcomes-heading" class="section-title">Outcomes & Ergebnisse</h2>
+                                        <div class="section-title">Outcomes & Ergebnisse</div>
 
                                         <% gespraech.outcome.elements.forEach((out, idx)=> { %>
                                             <div class="goal-item">
-                                                <h3
+                                                <strong
                                                     style="font-size: calc(0.95rem * var(--font-scale)); margin-bottom: calc(6px * var(--font-scale)); display: block;">
                                                     Ziel <%= idx + 1 %> – Erfolg: <%= typeof out.success==='number' ?
                                                             ((out.success> 1 ? out.success : out.success * 100) + '%') :
                                                             'Nicht bewertet' %>
-                                                </h3>
+                                                </strong>
 
                                                 <% if (out.text) { %>
                                                     <div class="goal-text">
@@ -657,14 +614,12 @@
                                         <!-- NOTIZEN SEKTION -->
                                         <% if (gespraech.notizen) { %>
                                             <div class="section">
-                                                <h2 id="notizen-heading" class="section-title">Notizen</h2>
+                                                <div class="section-title">Notizen</div>
                                                 <div class="notes">
                                                     <%= gespraech.notizen %>
                                                 </div>
                                             </div>
                                             <% } %>
-
-                                                </div>
 
                                                 <div class="footer">
                                                     <p>Dieses Assessmentblatt wurde automatisch generiert und folgt dem

@@ -8,7 +8,7 @@ function getFontScale(schriftgroesse) {
     const scaleMap = {
         standard: 1,
         mittel: 1,
-        gross: 1.25,
+        gross: 1.6,
     };
     return scaleMap[schriftgroesse] || 1;
 }
@@ -91,6 +91,8 @@ async function createGesprächDocx(gespraechId, session, schriftgroesse = "stand
     if (typeof pdfGenerator.generateDocxFromTemplate !== "function") {
         throw new ApiError(500, "DOCX Generator nicht verfügbar");
     }
+
+    console.log("[DOCX EXPORT] Verwende Template: gespraechDocx.ejs");
 
     return await pdfGenerator.generateDocxFromTemplate("gespraechDocx.ejs", {
         gespraech,
