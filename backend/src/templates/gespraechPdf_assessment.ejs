@@ -590,7 +590,7 @@
                                     gespraech.outcome.elements.length> 0) { %>
                                     <% function formatErfolg(success) {
                                         if (typeof success !== 'number') return 'Nicht bewertet';
-                                        return (success > 1 ? success : success * 100) + '%';
+                                        return (success > 1 ? success : success * 100).toFixed(1) + '%';
                                     } %>
                                     <div class="section">
                                         <div class="section-title">Outcomes & Ergebnisse</div>
