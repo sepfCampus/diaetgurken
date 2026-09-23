@@ -34,7 +34,7 @@ Für Entwicklung und den ersten Ollama-Test ausschließlich synthetische Akten v
 
 ## Ausgabe und Fehler
 
-Die Antwort enthält `summary.summary` und `summary.development` als Texte sowie `summary.currentGoals` und `summary.openPoints` als Textlisten. `metadata` nennt Provider, Anzahl der Quellgespräche und Latenz; bei Ollama zusätzlich Modell und Prompt-Version `summary-v1`. `reviewRequired` ist immer `true`. Der Prompt fordert die Trennung von Zielen und erreichten Ergebnissen und untersagt erfundene Fakten. Die Formatprüfung kann die fachliche Richtigkeit einer Modellantwort nicht garantieren.
+Die Antwort enthält `summary.summary` und `summary.development` als Texte sowie `summary.currentGoals` und `summary.openPoints` als Textlisten. `metadata` nennt Provider, Anzahl der Quellgespräche und Latenz; bei Ollama zusätzlich Modell und Prompt-Version `summary-v2`. `reviewRequired` ist immer `true`. Der Prompt fordert die Trennung von Zielen und erreichten Ergebnissen, neutrale Personenbezeichnungen bei fehlender Geschlechtsangabe und ausschließlich ausdrücklich dokumentierte offene Punkte. Die Formatprüfung kann die fachliche Richtigkeit einer Modellantwort nicht garantieren.
 
 Eine Akte ohne Gespräche ergibt `422`. Ungültige Ollama-Antworten ergeben `502`; nicht erreichbare Server, fehlende Modelle und Zeitüberschreitungen ergeben `503`. Fehlerantworten enthalten keine Dokumentation oder Provider-Fehlerdetails.
 

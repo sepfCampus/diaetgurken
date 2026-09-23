@@ -264,7 +264,7 @@ describe("Summary API", () => {
         expect(response.body.metadata).toEqual({
             provider: "ollama",
             model: "synthetic-test-model",
-            promptVersion: "summary-v1",
+            promptVersion: "summary-v2",
             sourceCount: 2,
             latencyMs: expect.any(Number),
         });
