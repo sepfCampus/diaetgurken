@@ -16,13 +16,14 @@ describe("Klarnamen API", () => {
 
         await agent.post("/api/auth/register").send({
             email: "klarname1@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_KLAR_1",
         });
 
         const loginResponse = await agent.post("/api/auth/login").send({
             email: "klarname1@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_KLAR_1",
         });
 
         expect(loginResponse.statusCode).toBe(200);
@@ -57,13 +58,14 @@ describe("Klarnamen API", () => {
 
         await agent.post("/api/auth/register").send({
             email: "klarname2@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_KLAR_2",
         });
 
         const loginResponse = await agent.post("/api/auth/login").send({
             email: "klarname2@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_KLAR_2",
         });
 
         expect(loginResponse.statusCode).toBe(200);

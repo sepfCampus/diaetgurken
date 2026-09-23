@@ -8,7 +8,7 @@ const summaryController = require("../controllers/summaryController");
  *   post:
  *     tags:
  *       - Benutzer - Klientenakten - Zusammenfassung
- *     summary: Erzeugt eine überprüfbare Test-Zusammenfassung der Gespräche
+ *     summary: Erzeugt eine überprüfbare Zusammenfassung der Gespräche
  *     parameters:
  *       - in: path
  *         name: klientenAkteId
@@ -17,7 +17,7 @@ const summaryController = require("../controllers/summaryController");
  *           type: integer
  *     responses:
  *       200:
- *         description: Strukturierte, nicht gespeicherte Test-Zusammenfassung
+ *         description: Strukturierte, nicht gespeicherte Zusammenfassung
  *       400:
  *         description: Ungültige KlientenAkteId
  *       401:

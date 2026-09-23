@@ -27,6 +27,10 @@ services:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/dietgurken_db?schema=public"
       NODE_ENV: development
       PORT: 3000
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+      OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS:-120000}
     ports:
       - "3000:3000"
     command: sh -c "npx prisma migrate deploy && npm start"

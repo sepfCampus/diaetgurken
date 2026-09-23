@@ -67,6 +67,9 @@ beforeEach(() => {
 afterEach(() => {
     jest.restoreAllMocks();
     delete process.env.LLM_PROVIDER;
+    delete process.env.OLLAMA_BASE_URL;
+    delete process.env.OLLAMA_MODEL;
+    delete process.env.OLLAMA_TIMEOUT_MS;
 });
 
 describe("SummaryService", () => {
@@ -118,7 +121,7 @@ describe("SummaryService", () => {
                 currentGoals: [],
                 openPoints: [],
             },
-            metadata: { provider: "test", sourceCount: 2 },
+            metadata: { provider: "test", sourceCount: 2, latencyMs: expect.any(Number) },
             reviewRequired: true,
         });
     });
@@ -181,7 +184,7 @@ describe("Summary API", () => {
                 currentGoals: [],
                 openPoints: [],
             },
-            metadata: { provider: "mock", sourceCount: 2 },
+            metadata: { provider: "mock", sourceCount: 2, latencyMs: expect.any(Number) },
             reviewRequired: true,
         });
     });
@@ -235,5 +238,36 @@ describe("Summary API", () => {
         const response = await agent.post("/api/users/klientenakten/3/summary");
         expect(response.status).toBe(502);
         expect(response.body).toEqual({ error: "Ungültige Antwort des Zusammenfassungsdienstes" });
+    });
+
+    test("verwendet den konfigurierten Ollama-Provider ohne Controller-Änderung", async () => {
+        process.env.LLM_PROVIDER = "ollama";
+        process.env.OLLAMA_BASE_URL = "http://localhost:11434";
+        process.env.OLLAMA_MODEL = "synthetic-test-model";
+        const generated = {
+            summary: "Erfundenes Beispiel",
+            development: "",
+            currentGoals: [],
+            openPoints: [],
+        };
+        const fetchMock = jest.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: true,
+            json: async () => ({ done: true, response: JSON.stringify(generated) }),
+        });
+
+        const agent = request.agent(testApp());
+        await agent.post("/test-login/7").expect(204);
+        const response = await agent.post("/api/users/klientenakten/3/summary");
+
+        expect(response.status).toBe(200);
+        expect(response.body.summary).toEqual(generated);
+        expect(response.body.metadata).toEqual({
+            provider: "ollama",
+            model: "synthetic-test-model",
+            promptVersion: "summary-v1",
+            sourceCount: 2,
+            latencyMs: expect.any(Number),
+        });
+        expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 });

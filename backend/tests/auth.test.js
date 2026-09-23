@@ -38,13 +38,13 @@ describe("Auth API", () => {
     test("POST /api/auth/register sollte 409 bei doppelter E-Mail zurückgeben", async () => {
         await request(app).post("/api/auth/register").send({
             email: "doppelt@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG001",
         });
 
         const response = await request(app).post("/api/auth/register").send({
             email: "doppelt@test.at",
-            password: "abcdef",
+            passwort: "abcdef",
             registerNr: "REG002",
         });
 
@@ -56,13 +56,14 @@ describe("Auth API", () => {
 
         await agent.post("/api/auth/register").send({
             email: "login@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_LOGIN",
         });
 
         const loginResponse = await agent.post("/api/auth/login").send({
             email: "login@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_LOGIN",
         });
 
         expect(loginResponse.statusCode).toBe(200);
@@ -77,13 +78,14 @@ describe("Auth API", () => {
     test("POST /api/auth/login mit falschem Passwort sollte 401 zurückgeben", async () => {
         await request(app).post("/api/auth/register").send({
             email: "wrong@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_WRONG",
         });
 
         const response = await request(app).post("/api/auth/login").send({
             email: "wrong@test.at",
-            password: "falschespasswort",
+            passwort: "falschespasswort",
+            registerNr: "REG_WRONG",
         });
 
         expect(response.statusCode).toBe(401);
@@ -92,7 +94,8 @@ describe("Auth API", () => {
     test("POST /api/auth/login mit unbekannter E-Mail sollte 401 zurückgeben", async () => {
         const response = await request(app).post("/api/auth/login").send({
             email: "unbekannt@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_UNKNOWN",
         });
 
         expect(response.statusCode).toBe(401);
@@ -109,13 +112,14 @@ describe("Auth API", () => {
 
         await agent.post("/api/auth/register").send({
             email: "logout@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_LOGOUT",
         });
 
         await agent.post("/api/auth/login").send({
             email: "logout@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_LOGOUT",
         });
 
         const logoutResponse = await agent.post("/api/auth/logout");

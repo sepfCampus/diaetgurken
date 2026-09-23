@@ -16,13 +16,14 @@ describe("Users API", () => {
 
         await agent.post("/api/auth/register").send({
             email: "deleteuser@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_DELETE_1",
         });
 
         await agent.post("/api/auth/login").send({
             email: "deleteuser@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_DELETE_1",
         });
 
         const deleteResponse = await agent.delete("/api/users");

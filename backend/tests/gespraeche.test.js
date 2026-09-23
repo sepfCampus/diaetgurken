@@ -23,12 +23,13 @@ describe("Gespraeche API", () => {
 
         await agent.post("/api/auth/register").send({
             email: "gespraech1@test.at",
-            password: "123456",
+            passwort: "123456",
             registerNr: "REG_GESP_1",
         });
         await agent.post("/api/auth/login").send({
             email: "gespraech1@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_GESP_1",
         });
 
         const akteResponse = await agent.post("/api/users/klientenakte").send({});
@@ -39,8 +40,7 @@ describe("Gespraeche API", () => {
 
         expect(klientenAkteId).toBeDefined();
 
-        const createRes = await agent.post("/api/gespraeche").send({
-            klientenAkteId,
+        const createRes = await agent.post(`/api/users/klientenakten/${klientenAkteId}/gespraech`).send({
             datum: "2026-04-04",
             formMetaData: { version: 1 },
             assessment: { gewicht: 85 },
@@ -70,7 +70,8 @@ describe("Gespraeche API", () => {
         });
         await agent.post("/api/auth/login").send({
             email: "gespraech2@test.at",
-            password: "123456",
+            passwort: "123456",
+            registerNr: "REG_GESP_2",
         });
 
         // 3. Klientenakte anlegen
@@ -78,8 +79,6 @@ describe("Gespraeche API", () => {
 
         expect(akteResponse.statusCode).toBe(201);
         const klientenAkteId = akteResponse.body.id;
-        const akteRes = await agent.post("/api/klientenAkten").send({});
-        const klientenAkteId = akteRes.body.id;
 
         const createRes = await agent
             .post(`/api/users/klientenakten/${klientenAkteId}/gespraech`)

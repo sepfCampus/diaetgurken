@@ -3,6 +3,7 @@ const gespraechRepository = require("../repositories/prisma/gespraechRepositoryP
 const ApiError = require("../utils/ApiError");
 const createProvider = require("./summary/providerFactory");
 const validateSummary = require("./summary/validateSummary");
+const ProviderError = require("./summary/providers/ProviderError");
 
 function createSummaryService({
     aktenRepository = klientenAkteRepository,
@@ -45,18 +46,27 @@ function createSummaryService({
 
         const selectedProvider = provider || createProvider();
         let generated;
+        const startedAt = performance.now();
         try {
             generated = await selectedProvider.summarize(documentation, {});
         } catch (err) {
+            if (err instanceof ProviderError && err.kind === "invalid") {
+                throw new ApiError(502, "Ungültige Antwort des Zusammenfassungsdienstes");
+            }
             throw new ApiError(503, "Zusammenfassungsdienst nicht verfügbar");
         }
 
+        const metadata = {
+            provider: selectedProvider.name,
+            sourceCount: documentation.length,
+            latencyMs: Math.round(performance.now() - startedAt),
+        };
+        if (selectedProvider.model) metadata.model = selectedProvider.model;
+        if (selectedProvider.promptVersion) metadata.promptVersion = selectedProvider.promptVersion;
+
         return {
             summary: validateSummary(generated),
-            metadata: {
-                provider: selectedProvider.name,
-                sourceCount: documentation.length,
-            },
+            metadata,
             reviewRequired: true,
         };
     }
