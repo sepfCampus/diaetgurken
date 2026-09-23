@@ -13,6 +13,13 @@ async function findById(id) {
     });
 }
 
+async function findOwnerById(id) {
+    return prisma.klientenAkte.findUnique({
+        where: { id },
+        select: { id: true, userId: true },
+    });
+}
+
 async function create(userId) {
     return prisma.klientenAkte.create({
         data: { userId },
@@ -28,6 +35,7 @@ async function deleteById(id) {
 module.exports = {
     findByUserId,
     findById,
+    findOwnerById,
     create,
     deleteById,
 };

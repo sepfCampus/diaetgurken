@@ -7,6 +7,22 @@ async function findByAkteId(klientenAkteId) {
     });
 }
 
+async function findForSummaryByAkteId(klientenAkteId) {
+    return prisma.gespraech.findMany({
+        where: { klientenAkteId },
+        orderBy: [{ datum: "asc" }, { id: "asc" }],
+        select: {
+            id: true,
+            datum: true,
+            assessment: true,
+            diagnosen: true,
+            ziele: true,
+            outcome: true,
+            notizen: true,
+        },
+    });
+}
+
 async function findById(id) {
     return prisma.gespraech.findUnique({
         where: { id },
@@ -54,6 +70,7 @@ async function deleteById(id) {
 
 module.exports = {
     findByAkteId,
+    findForSummaryByAkteId,
     findById,
     create,
     updateById,

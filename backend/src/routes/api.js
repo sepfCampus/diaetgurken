@@ -8,6 +8,7 @@ const klientenAktenRoutes = require("./klientenAktenRoutes");
 const einstellungenRoutes = require("./einstellungenRoutes");
 const klarnamenRoutes = require("./klarnamenRoutes");
 const gespraecheRoutes = require("./gespraecheRoutes");
+const summaryRoutes = require("./summaryRoutes");
 
 // Health Check
 router.use("/health", healthRoutes);
@@ -28,6 +29,7 @@ router.use("/users/klientenakten/:klientenAkteId/klarname", requireLogin, klarna
 // Nested routes under /users/klientenakten for Gespraeche
 router.use("/users/klientenakten/:klientenAkteId/gespraeche", requireLogin, gespraecheRoutes);
 router.use("/users/klientenakten/:klientenAkteId/gespraech", requireLogin, gespraecheRoutes);
+router.use("/users/klientenakten/:klientenAkteId/summary", requireLogin, summaryRoutes);
 
 // User Settings
 router.use("/users/einstellung", requireLogin, einstellungenRoutes);
