@@ -89,13 +89,15 @@ router.get("/", requireLogin, gespraechController.getAll);
  *                   notizen: Gute Zusammenarbeit, Patient motiviert
  *               notizen:
  *                 type: string
- *                 example: Erstgespräch *               selectedFilters:
+ *                 example: Erstgespräch
+ *               selectedFilters:
  *                 type: array
  *                 items:
  *                   type: string
  *                 example:
  *                   - filter1
- *                   - filter2 *     responses:
+ *                   - filter2
+ *     responses:
  *       201:
  *         description: Gespräch erfolgreich erstellt
  *       400:
@@ -175,10 +177,12 @@ router.post("/", requireLogin, gespraechController.create);
  *                   erfolg: ja
  *                   notizen: Gute Zusammenarbeit, Patient motiviert
  *               notizen:
- *                 type: string *               selectedFilters:
+ *                 type: string
+ *               selectedFilters:
  *                 type: array
  *                 items:
- *                   type: string *     responses:
+ *                   type: string
+ *     responses:
  *       200:
  *         description: Gespräch erfolgreich aktualisiert
  *       400:
