@@ -6,7 +6,20 @@
 
 `LLM_PROVIDER=mock` ist der Standard. Der Mock meldet nur die Anzahl der Gespräche und führt keine medizinische Auswertung durch. `LLM_PROVIDER=ollama` aktiviert den lokalen Ollama-Provider. Dafür sind `OLLAMA_BASE_URL` (Basis-URL der vom **Backend** erreichbaren Ollama-API) und `OLLAMA_MODEL` erforderlich. `OLLAMA_TIMEOUT_MS` ist optional und beträgt standardmäßig 120000 Millisekunden. Der Testmodellname `ministral-3:3b` gehört in die Umgebungskonfiguration, nicht in den Anwendungscode.
 
-Die Docker-Compose-Konfiguration reicht diese vier Variablen an den Backend-Container weiter. Eine Adresse wie `localhost` bezeichnet **innerhalb des Containers den Container selbst**. Verwende sie dort nur, wenn Ollama auch im selben Container läuft. Für einen ersten echten Test über einen SSH-Tunnel ist ein lokal gestartetes Backend einfacher.
+`LLM_PROVIDER=mistral` verwendet die Mistral-Cloud-API über HTTPS. Dafür sind `MISTRAL_API_KEY` und `MISTRAL_MODEL` erforderlich; `MISTRAL_TIMEOUT_MS` ist optional und beträgt standardmäßig 120000 Millisekunden. Für den Vergleich mit dem lokalen Modell lautet die Modell-ID `ministral-3b-2512`. Prompt, JSON-Schema, Aktenprüfung und Summary-Endpunkt sind bei beiden Providern gleich. Ein SSH-Tunnel ist für den Cloud-Provider nicht nötig.
+
+Für ein lokal gestartetes Backend die folgenden Werte in `backend/.env` eintragen und das Backend neu starten; eine vorhandene `DATABASE_URL` beibehalten:
+
+```dotenv
+LLM_PROVIDER=mistral
+MISTRAL_MODEL=ministral-3b-2512
+MISTRAL_API_KEY=DEIN_API_SCHLUESSEL
+MISTRAL_TIMEOUT_MS=120000
+```
+
+Den API-Schlüssel in [Mistral Studio](https://docs.mistral.ai/getting-started/quickstarts/studio/activate-and-generate-api-key) erzeugen und ausschließlich in der lokalen Umgebung oder einem Secret-Manager speichern, nicht in Git oder im Flutter-Code. `backend/.env` ist von Git ausgeschlossen. Bereits in PowerShell gesetzte `$env:`-Werte haben Vorrang vor der Datei; für einen Providerwechsel gegebenenfalls ein neues Terminal verwenden. Der Cloud-Provider sendet ausschließlich die für die Zusammenfassung ausgewählten Gesprächsfelder. Für die aktuellen Tests werden nur synthetische Akten verwendet.
+
+Docker Compose liest seine Variablen aus einer `.env` neben `docker-compose.yml` im Projektordner und reicht die Ollama- und Mistral-Werte an den Backend-Container weiter. `backend/.env` wird durch `.dockerignore` nicht ins Docker-Image kopiert. Eine Adresse wie `localhost` bezeichnet **innerhalb des Containers den Container selbst**. Verwende sie dort nur, wenn Ollama auch im selben Container läuft. Für einen ersten echten Test über einen SSH-Tunnel ist ein lokal gestartetes Backend einfacher.
 
 Beispiel für einen Tunnel auf dem Backend-Rechner (SSH-Zugang und Servernamen selbst einsetzen):
 
@@ -34,9 +47,9 @@ Für Entwicklung und den ersten Ollama-Test ausschließlich synthetische Akten v
 
 ## Ausgabe und Fehler
 
-Die Antwort enthält `summary.summary` und `summary.development` als Texte sowie `summary.currentGoals` und `summary.openPoints` als Textlisten. `metadata` nennt Provider, Anzahl der Quellgespräche und Latenz; bei Ollama zusätzlich Modell und Prompt-Version `summary-v2`. `reviewRequired` ist immer `true`. Der Prompt fordert die Trennung von Zielen und erreichten Ergebnissen, neutrale Personenbezeichnungen bei fehlender Geschlechtsangabe und ausschließlich ausdrücklich dokumentierte offene Punkte. Die Formatprüfung kann die fachliche Richtigkeit einer Modellantwort nicht garantieren.
+Die Antwort enthält `summary.summary` und `summary.development` als Texte sowie `summary.currentGoals` und `summary.openPoints` als Textlisten. `metadata` nennt Provider, Anzahl der Quellgespräche und Latenz; bei Ollama und Mistral zusätzlich Modell und Prompt-Version `summary-v2`. `reviewRequired` ist immer `true`. Der Prompt fordert die Trennung von Zielen und erreichten Ergebnissen, neutrale Personenbezeichnungen bei fehlender Geschlechtsangabe und ausschließlich ausdrücklich dokumentierte offene Punkte. Die Formatprüfung kann die fachliche Richtigkeit einer Modellantwort nicht garantieren.
 
-Eine Akte ohne Gespräche ergibt `422`. Ungültige Ollama-Antworten ergeben `502`; nicht erreichbare Server, fehlende Modelle und Zeitüberschreitungen ergeben `503`. Fehlerantworten enthalten keine Dokumentation oder Provider-Fehlerdetails.
+Eine Akte ohne Gespräche ergibt `422`. Ungültige Provider-Antworten ergeben `502`; nicht erreichbare Server, fehlende Modelle, ungültige API-Schlüssel und Zeitüberschreitungen ergeben `503`. Fehlerantworten enthalten keine Dokumentation, API-Schlüssel oder Provider-Fehlerdetails.
 
 ## Tests
 
