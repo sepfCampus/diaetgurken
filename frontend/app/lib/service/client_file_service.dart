@@ -9,6 +9,7 @@ import 'package:app/service/conversation_service.dart';
 import 'package:app/service/user_service.dart';
 import 'package:app/service/util/entity_vo_converter_base_util.dart';
 import 'package:app/vo/client_file.dart';
+import 'package:app/vo/client_file_summary.dart';
 import 'package:app/vo/conversation.dart';
 import 'package:app/vo/user.dart';
 
@@ -58,5 +59,10 @@ class ClientFileService
   {
     String clearName = await this._clientFileDao.getClearName(clientFileId, password);
     return clearName;
+  }
+
+  Future<ClientFileSummary> generateSummary(int id) async
+  {
+    return _clientFileDao.generateSummary(id);
   }
 }

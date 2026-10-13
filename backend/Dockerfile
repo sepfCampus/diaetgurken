@@ -47,7 +47,7 @@ RUN npx puppeteer browsers install chrome
 
 COPY . .
 
-RUN npx prisma generate
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma generate
 
 EXPOSE 3000
 

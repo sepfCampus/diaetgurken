@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:app/data/daos/client_file_base_dao.dart';
 import 'package:app/data/daos/http/api/api_client.dart';
 import 'package:app/data/entities/http/client_file_http_entity.dart';
+import 'package:app/vo/client_file_summary.dart';
 
 class ClientFileHttpDao extends ClientFileBaseDao<ClientFileHttpEntity>
 {
@@ -72,6 +73,41 @@ class ClientFileHttpDao extends ClientFileBaseDao<ClientFileHttpEntity>
     {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return data['name'] as String;
+    }
+  }
+
+  @override
+  Future<ClientFileSummary> generateSummary(int id) async
+  {
+    final response = await apiClient.post('/users/klientenakten/$id/summary');
+
+    if(!response.isSuccess)
+    {
+      String message = 'Zusammenfassung konnte nicht erstellt werden.';
+
+      try
+      {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        if(data['error'] is String)
+        {
+          message = data['error'] as String;
+        }
+      }
+      catch(_)
+      {
+        // Bei nicht lesbarer Fehlerantwort bleibt die allgemeine Meldung erhalten.
+      }
+
+      throw Exception(message);
+    }
+
+    try
+    {
+      return ClientFileSummary.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    catch(_)
+    {
+      throw Exception('Ungültige Antwort des Zusammenfassungsdienstes.');
     }
   }
 }

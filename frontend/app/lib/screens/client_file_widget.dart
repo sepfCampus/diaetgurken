@@ -3,12 +3,14 @@ import 'package:app/config/navigation/routes.dart';
 import 'package:app/service/client_file_service.dart';
 import 'package:app/service/conversation_service.dart';
 import 'package:app/vo/conversation.dart';
+import 'package:app/vo/client_file_summary.dart';
 import 'package:app/vo/util/date_util.dart';
 import 'package:app/vo/util/formatter.dart';
 import 'package:app/widgets/forms/buttons/app_primary_button.dart';
 import 'package:app/widgets/forms/buttons/app_secondary_button.dart';
 import 'package:app/widgets/layout/app_page_scaffold.dart';
 import 'package:app/widgets/layout/layout_util.dart';
+import 'package:app/widgets/sections/client_file_summary_card.dart';
 import 'package:app/widgets/tiles/app_navigation_tile.dart';
 import 'package:app/widgets/tiles/app_side_button_tile.dart';
 import 'package:app/widgets/tiles/app_standard_tile_card.dart';
@@ -28,7 +30,11 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
   List<Conversation> _conversations = [];
 
   bool _isLoading = true;
+  bool _isGeneratingSummary = false;
   String? _errorMessage;
+  String? _summaryErrorMessage;
+  ClientFileSummary? _summary;
+  int _summaryRequestVersion = 0;
   int? _loadedClientFileId;
 
   int _getClientFileId(BuildContext context)
@@ -62,6 +68,11 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
     {
       _isLoading = true;
       _errorMessage = null;
+      _conversations = [];
+      _summaryRequestVersion++;
+      _isGeneratingSummary = false;
+      _summary = null;
+      _summaryErrorMessage = null;
     });
 
     try
@@ -99,6 +110,46 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
         {
           _isLoading = false;
         });
+      }
+    }
+  }
+
+  Future<void> _generateSummary(int klientenAkteId) async
+  {
+    if(_isGeneratingSummary || _isLoading || _conversations.isEmpty || klientenAkteId <= 0)
+    {
+      return;
+    }
+
+    final requestVersion = ++_summaryRequestVersion;
+
+    setState(()
+    {
+      _isGeneratingSummary = true;
+      _summaryErrorMessage = null;
+    });
+
+    try
+    {
+      final result = await context.read<ClientFileService>().generateSummary(klientenAkteId);
+
+      if(mounted && requestVersion == _summaryRequestVersion)
+      {
+        setState(() => _summary = result);
+      }
+    }
+    catch(e)
+    {
+      if(mounted && requestVersion == _summaryRequestVersion)
+      {
+        setState(() => _summaryErrorMessage = e.toString().replaceFirst('Exception: ', ''));
+      }
+    }
+    finally
+    {
+      if(mounted && requestVersion == _summaryRequestVersion)
+      {
+        setState(() => _isGeneratingSummary = false);
       }
     }
   }
@@ -315,6 +366,37 @@ class _ClientFileWidgetState extends State<ClientFileWidget>
               );
             },
           ),
+
+          AppSpacing.SPACED_BOX_H_LARGE,
+
+          Text(
+            'Zusammenfassung:',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          AppSpacing.SPACED_BOX_H_SMALL,
+          AppPrimaryButton(
+            buttonText: _summary == null ? 'Zusammenfassung erstellen' : 'Erneut zusammenfassen',
+            onPressed: _isLoading || _isGeneratingSummary || _conversations.isEmpty || klientenAkteId <= 0
+                ? null
+                : () => _generateSummary(klientenAkteId),
+          ),
+          if(_isGeneratingSummary) ...[
+            AppSpacing.SPACED_BOX_H_SMALL,
+            const LinearProgressIndicator(),
+            AppSpacing.SPACED_BOX_H_EXTRA_SMALL,
+            const Text('Die Zusammenfassung wird erstellt ...'),
+          ],
+          if(_summaryErrorMessage != null) ...[
+            AppSpacing.SPACED_BOX_H_SMALL,
+            Text(
+              _summaryErrorMessage!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
+          if(_summary != null) ...[
+            AppSpacing.SPACED_BOX_H_MEDIUM,
+            ClientFileSummaryCard(summary: _summary!),
+          ],
 
           AppSpacing.SPACED_BOX_H_LARGE,
 
